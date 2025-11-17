@@ -18,6 +18,8 @@ $dial     = trim($_POST['dial_code'] ?? '');
 $phoneLoc = trim($_POST['phone_local'] ?? '');
 $birth    = trim($_POST['birthdate'] ?? '');
 $gender   = trim($_POST['gender'] ?? ''); // "Homme" | "Femme" | "Autre" | ""
+$rankValues = ['user','premium','moderator','administrator'];
+$rankValue  = 'user';
 
 $pass     = $_POST['password'] ?? '';
 $pass2    = $_POST['password_confirm'] ?? '';
@@ -33,6 +35,14 @@ try { $pdo->query("SELECT `gender` FROM `".TABLE_USERS."` LIMIT 0"); }
 catch (Throwable $e) {
     try {
         $pdo->exec("ALTER TABLE `".TABLE_USERS."` ADD COLUMN `gender` ENUM('Homme','Femme','Autre') NULL DEFAULT NULL");
+    } catch (Throwable $e2) { /* best effort */ }
+}
+
+// Vérif / ajout colonne rank si absente
+try { $pdo->query("SELECT `rank` FROM `".TABLE_USERS."` LIMIT 0"); }
+catch (Throwable $e) {
+    try {
+        $pdo->exec("ALTER TABLE `".TABLE_USERS."` ADD COLUMN `rank` ENUM('user','premium','moderator','administrator') NOT NULL DEFAULT 'user' AFTER `gender`");
     } catch (Throwable $e2) { /* best effort */ }
 }
 
@@ -65,9 +75,24 @@ $hash=password_hash($pass,PASSWORD_DEFAULT);
 $hasGenderCol = false;
 try { $pdo->query("SELECT `gender` FROM `".TABLE_USERS."` LIMIT 0"); $hasGenderCol = true; } catch (Throwable $e) { $hasGenderCol = false; }
 
-if ($hasGenderCol) {
+$hasRankCol = false;
+try { $pdo->query("SELECT `rank` FROM `".TABLE_USERS."` LIMIT 0"); $hasRankCol = true; }
+catch (Throwable $e) {
+    try {
+        $pdo->exec("ALTER TABLE `".TABLE_USERS."` ADD COLUMN `rank` ENUM('user','premium','moderator','administrator') NOT NULL DEFAULT 'user' AFTER `gender`");
+        $hasRankCol = true;
+    } catch (Throwable $e2) {}
+}
+
+if ($hasGenderCol && $hasRankCol) {
+    $ins=$pdo->prepare("INSERT INTO ".TABLE_USERS." (username,email,phone,password_hash,birthdate,gender,rank,created_at) VALUES (:u,:e,:p,:h,:b,:g,:r,NOW())");
+    $ins->execute([':u'=>$username, ':e'=>$email, ':p'=>$phone, ':h'=>$hash, ':b'=>$birth, ':g'=>($gender?:NULL), ':r'=>$rankValue]);
+} elseif ($hasGenderCol) {
     $ins=$pdo->prepare("INSERT INTO ".TABLE_USERS." (username,email,phone,password_hash,birthdate,gender,created_at) VALUES (:u,:e,:p,:h,:b,:g,NOW())");
     $ins->execute([':u'=>$username, ':e'=>$email, ':p'=>$phone, ':h'=>$hash, ':b'=>$birth, ':g'=>($gender?:NULL)]);
+} elseif ($hasRankCol) {
+    $ins=$pdo->prepare("INSERT INTO ".TABLE_USERS." (username,email,phone,password_hash,birthdate,rank,created_at) VALUES (:u,:e,:p,:h,:b,:r,NOW())");
+    $ins->execute([':u'=>$username, ':e'=>$email, ':p'=>$phone, ':h'=>$hash, ':b'=>$birth, ':r'=>$rankValue]);
 } else {
     $ins=$pdo->prepare("INSERT INTO ".TABLE_USERS." (username,email,phone,password_hash,birthdate,created_at) VALUES (:u,:e,:p,:h,:b,NOW())");
     $ins->execute([':u'=>$username, ':e'=>$email, ':p'=>$phone, ':h'=>$hash, ':b'=>$birth]);
@@ -106,6 +131,7 @@ if ($gender === 'Homme' || $gender === 'Autre') {
 // Session + redirection
 $_SESSION['user_id']=$userId;
 $_SESSION['username']=$username;
+$_SESSION['rank']=$rankValue;
 
 header('Location: ' . APP_HOME);
 exit;
