@@ -72,8 +72,8 @@ try {
 
 <!-- Colonne droite : barre de recherche + cartes -->
 <div id="topStack" class="top-stack sheet-mode">
-  <div class="top-utilities">
-    <div id="alertsFab" class="alerts-row">
+  <div class="top-bar">
+    <div id="alertsFab" class="top-actions">
       <button id="msgFab"   class="icon-mini" type="button" title="Messages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H9l-4 4v-4H7a3 3 0 0 1-3-3V6z" stroke-width="1.6" stroke-linejoin="round"></path>
@@ -94,15 +94,16 @@ try {
       </button>
 <?php endif; ?>
     </div>
-    <div id="topClock" class="top-clock">--:--:--</div>
-  </div>
 
-  <div id="topSearch" class="top-search" role="search">
-    <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-      <circle cx="11" cy="11" r="7" stroke-width="1.6"></circle>
-      <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="1.6" stroke-linecap="round"></line>
-    </svg>
-    <input id="globalSearch" type="search" placeholder="Rechercher…" autocomplete="off" />
+    <div id="topSearch" class="top-search" role="search">
+      <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke-width="1.6"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="1.6" stroke-linecap="round"></line>
+      </svg>
+      <input id="globalSearch" type="search" placeholder="Rechercher…" autocomplete="off" />
+    </div>
+
+    <div id="topClock" class="top-clock">--:--:--</div>
   </div>
 
   <!-- Carte 1 : Raccourcis rapides -->

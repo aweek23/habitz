@@ -192,6 +192,7 @@ body.is-tablet .nav-overlay.show{ display:block; }
   align-items:center;
   gap:8px;
   width:100%;
+  flex:1;
   height:40px;
   padding:0 10px;
   background:var(--page-bg);
@@ -374,19 +375,17 @@ body.is-tablet .nav-overlay.show{ display:block; }
   pointer-events:auto;
 }
 
-/* Barre utilitaires (messages, notifications, horloge) */
-.top-utilities{
+/* Barre utilitaires + recherche + horloge alignées */
+.top-bar{
   display:flex;
   align-items:center;
-  justify-content:space-between;
   gap:10px;
   width:100%;
-  margin-bottom:8px;
 }
-.alerts-row{
+.top-actions{
   display:flex;
+  align-items:center;
   gap:6px;
-  flex-wrap:wrap;
 }
 
 /* Horloge HH:MM:SS */
@@ -402,6 +401,7 @@ body.is-tablet .nav-overlay.show{ display:block; }
   align-items:center;
   justify-content:center;
   font-variant-numeric:tabular-nums;
+  white-space:nowrap;
 }
 
 /* cacher certains éléments sur mobile */

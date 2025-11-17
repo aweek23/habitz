@@ -182,7 +182,7 @@ try {
             $ensureSeed();
             $pdo->beginTransaction();
             try {
-                $upd = $pdo->prepare("UPDATE `".TABLE_USER_MODULES."` SET ord=:o WHERE user_id=:uid AND module_key=:k");
+                $upd = $pdo->prepare("UPDATE `".TABLE_USER_MODULES."` SET ord=:o, visible='Yes' WHERE user_id=:uid AND module_key=:k");
                 foreach ($modules as $k=>$ord) {
                     $upd->execute([':o'=>$ord, ':uid'=>$uid, ':k'=>$k]);
                 }
