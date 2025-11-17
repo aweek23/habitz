@@ -31,12 +31,17 @@ body{
 /* --- APP/NAV --- */
 .app{ display:flex; min-height:100vh; }
 
-/* Sidebar */
+/* Sidebar : style “carte” */
 .sidebar{
+  position:relative;
+  z-index:700;
   width:auto;
-  background:var(--nav-bg);
-  border-right:1px solid var(--border);
+  background:var(--page-bg);
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:0 10px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
   padding:10px;
+  margin:12px 0 12px 12px;
   display:flex; flex-direction:column; gap:8px;
   transition:transform .25s ease;
 }
@@ -55,7 +60,7 @@ body.is-tablet .menu{ padding:0; width:100%; inline-size:auto; }
 
 .menu-item{ user-select:none; position:relative; }
 
-/* Boutons NAV (réserve droite pour l'œil en mode édition) */
+/* Boutons NAV */
 .item{
   display:block; width:100%;
   text-align:left; padding:10px 44px 10px 12px;
@@ -83,10 +88,7 @@ body.is-tablet .menu{ padding:0; width:100%; inline-size:auto; }
 }
 .subitem:hover{ background:var(--item-hov); }
 
-.divider{ height:1px; background:var(--border); margin:8px 4px 4px; }
-.item-settings{ margin-top:2px; }
-
-/* ===== Mode réorganisation ===== */
+/* Réorganisation */
 .sidebar.reorder .menu-item{ border:1px dashed var(--border); border-radius:10px; padding:2px; }
 .sidebar.reorder .item{ cursor:grab; }
 .menu-item.dragging{ opacity:.6; }
@@ -104,7 +106,7 @@ body.is-tablet .menu{ padding:0; width:100%; inline-size:auto; }
 .vis-toggle:hover{ background:var(--item-hov); color:var(--text-hi); }
 
 /* Contenu principal */
-.main{ flex:1; padding:24px; }
+.main{ flex:1; padding:24px; position:relative; z-index:0; }
 
 /* --- Tablet / overlay --- */
 .tablet-toggle{
@@ -114,20 +116,82 @@ body.is-tablet .menu{ padding:0; width:100%; inline-size:auto; }
   box-shadow:0 6px 16px rgba(0,0,0,.35);
 }
 .tablet-toggle:hover{ background:#101620; }
-.nav-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; z-index:1005; }
+
+.nav-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  z-index:600; /* sous navbar + colonne + boutons */
+}
+
 body.is-tablet .tablet-toggle{ display:grid; }
-body.is-tablet .sidebar{ position:fixed; left:0; top:0; bottom:0; z-index:1100; width:280px; transform:translateX(0); }
+
+/* Quand la navbar tablette est ouverte, on décale le burger à droite de la nav */
+body.is-tablet.nav-open .tablet-toggle{
+  left:calc(12px + 280px + 12px); /* 12 (margin) + 280 (sidebar) + 12 (gap) */
+}
+
+/* Navbar iPad en mode card coulissante */
+body.is-tablet .sidebar{
+  position:fixed;
+  left:12px;
+  top:12px;
+  bottom:12px;
+  z-index:700;
+  width:280px;
+  margin:0;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--page-bg);
+  box-shadow:0 10px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
+  transform:translateX(0);
+}
 body.is-tablet .sidebar.collapsed{ transform:translateX(-105%); }
 body.is-tablet .nav-overlay.show{ display:block; }
 
-/* --- Barre & panneau top droite (desktop plein écran) --- */
+/* --- Colonne droite : barre + panneaux --- */
 .top-stack{
-  position:fixed; top:12px; right:16px; z-index:900;
-  width:320px; display:flex; flex-direction:column; gap:10px;
+  position:fixed;
+  top:12px;
+  right:16px;
+  bottom:12px;
+  z-index:650; /* au-dessus des overlays, sous FABs */
+  width:320px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:stretch;
+  transition:transform .25s ease, opacity .25s ease;
 }
+
+/* Mode desktop plein écran : colonne fixe */
+.top-stack.desktop-static{
+  transform:none;
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* Mode panneau coulissant (iPad + desktop non plein écran) */
+.top-stack.sheet-mode{
+  transform:translateX(110%);
+  opacity:0;
+  pointer-events:none;
+}
+.top-stack.sheet-mode.open{
+  transform:translateX(0);
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* barre de recherche (40px de haut) */
 .top-search{
-  display:flex; align-items:center; gap:8px;
-  width:100%; padding:8px 10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  width:100%;
+  height:40px;
+  padding:0 10px;
   background:var(--page-bg);
   border:1px solid var(--border); border-radius:10px;
   box-shadow:0 6px 16px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
@@ -136,14 +200,27 @@ body.is-tablet .nav-overlay.show{ display:block; }
 .top-search input[type="search"]{
   flex:1; background:transparent; border:0; outline:none; color:var(--text-hi); font-size:14px;
 }
+
+/* cartes de la colonne droite */
 .top-panel{
+  position:relative;
   width:100%;
   background:var(--page-bg);
   border:1px solid var(--border);
   border-radius:12px;
   box-shadow:0 10px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
-  padding:12px; min-height:120px;
+  padding:12px;
+  min-height:120px;
+  display:flex;
+  flex-direction:column;
 }
+
+/* la carte Raccourcis rapides remplit l’espace dispo entre search et profil */
+#topPanel{
+  flex:1;
+  padding-bottom:56px; /* espace pour le bouton plume */
+}
+
 .top-panel h2{
   margin:0 0 6px;
   font-size:15px;
@@ -154,4 +231,189 @@ body.is-tablet .nav-overlay.show{ display:block; }
   color:var(--text-lo);
   font-size:14px;
 }
-body.is-tablet .top-stack{ display:none; }
+
+/* Onglets For you / Followings / Discover */
+.top-panel-tabs{
+  display:flex;
+  margin:0 0 8px;
+  padding-bottom:4px;
+  border-bottom:1px solid var(--border);
+}
+.top-tab{
+  flex:1;
+  text-align:center;
+  position:relative;
+  border:none;
+  background:transparent;
+  color:var(--text-lo);
+  font-size:14px;
+  padding:4px 0;
+  cursor:pointer;
+}
+.top-tab.active{
+  color:var(--text-hi);
+  font-weight:600;
+}
+.top-tab::after{
+  content:'';
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-3px;
+  height:2px;
+  border-radius:999px;
+  background:transparent;
+}
+.top-tab.active::after{
+  background:var(--accent);
+}
+
+/* Bouton plume en bas à droite du panneau */
+.top-panel-compose{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--accent);
+  color:#fff;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+}
+.top-panel-compose svg{
+  width:20px;
+  height:20px;
+}
+
+/* --- Carte profil utilisateur --- */
+.top-panel-user{
+  min-height:auto;
+  padding:10px 12px;
+}
+
+.top-user-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+/* bloc gauche : avatar + pseudo */
+.top-user-main{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.top-user-avatar{
+  width:40px;
+  height:40px;
+  border-radius:999px;
+  background:linear-gradient(135deg, var(--accent), #22c55e);
+  flex-shrink:0;
+}
+
+.top-user-name{
+  font-weight:600;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* bloc droite : boutons sur la même ligne */
+.top-user-actions{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-shrink:0;
+}
+
+/* Bouton rond pour le panneau coulissant */
+.topstack-fab{
+  position:fixed;
+  right:18px;
+  bottom:18px;
+  width:52px;
+  height:52px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:var(--accent);
+  color:#fff;
+  display:none; /* JS ajoute .show */
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(0,0,0,.45);
+  z-index:750;
+}
+.topstack-fab svg{ width:24px; height:24px; }
+.topstack-fab:hover{ filter:brightness(1.06); }
+.topstack-fab.show{ display:flex; }
+.topstack-fab.hidden{ display:none !important; }
+
+/* Overlay pour le panneau coulissant (bloque le main mais pas navbar/colonne/boutons) */
+.topstack-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:600;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .25s ease;
+}
+.topstack-overlay.show{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* Boutons Messages + Notifications flottants */
+.alerts-fab{
+  position:fixed;
+  top:12px;
+  right:16px;
+  z-index:750;
+  display:flex;
+  gap:6px;
+}
+.alerts-fab-btn{
+  width:40px;
+  height:40px;       /* même hauteur que la barre de recherche */
+  background:transparent;
+}
+.alerts-fab.with-right-stack{
+  right:calc(320px + 24px); /* à gauche de la colonne de droite */
+}
+
+/* Horloge HH:MM:SS */
+.top-clock{
+  position:fixed;
+  top:12px;
+  left:64px; /* valeur initiale, recalée par JS */
+  z-index:750;
+  height:40px;
+  padding:0 10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:rgba(12,16,22,.85);
+  color:var(--text-lo);
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-variant-numeric:tabular-nums;
+}
+
+/* cacher les éléments flot. sur mobile */
+@media (max-width: 599px){
+  .alerts-fab,
+  .top-clock,
+  .tablet-toggle{
+    display:none !important;
+  }
+}
