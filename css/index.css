@@ -91,6 +91,8 @@ body.is-tablet .menu{ padding:0; width:100%; inline-size:auto; }
 /* Réorganisation */
 .sidebar.reorder .menu-item{ border:1px dashed var(--border); border-radius:10px; padding:2px; }
 .sidebar.reorder .item{ cursor:grab; }
+.sidebar.reorder .menu-item[data-fixed="true"]{ border:none; padding:0; }
+.sidebar.reorder .menu-item[data-fixed="true"] .item{ cursor:default; }
 .menu-item.dragging{ opacity:.6; }
 
 /* Masquage + œil */
@@ -372,32 +374,25 @@ body.is-tablet .nav-overlay.show{ display:block; }
   pointer-events:auto;
 }
 
-/* Boutons Messages + Notifications flottants */
-.alerts-fab{
-  position:fixed;
-  top:12px;
-  right:16px;
-  z-index:750;
+/* Barre utilitaires (messages, notifications, horloge) */
+.top-utilities{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
+  margin-bottom:8px;
+}
+.alerts-row{
   display:flex;
   gap:6px;
-}
-.alerts-fab-btn{
-  width:40px;
-  height:40px;       /* même hauteur que la barre de recherche */
-  background:transparent;
-}
-.alerts-fab.with-right-stack{
-  right:calc(320px + 24px); /* à gauche de la colonne de droite */
+  flex-wrap:wrap;
 }
 
 /* Horloge HH:MM:SS */
 .top-clock{
-  position:fixed;
-  top:12px;
-  left:64px; /* valeur initiale, recalée par JS */
-  z-index:750;
-  height:40px;
-  padding:0 10px;
+  height:36px;
+  padding:0 12px;
   border-radius:8px;
   border:1px solid var(--border);
   background:rgba(12,16,22,.85);
@@ -409,11 +404,7 @@ body.is-tablet .nav-overlay.show{ display:block; }
   font-variant-numeric:tabular-nums;
 }
 
-/* cacher les éléments flot. sur mobile */
+/* cacher certains éléments sur mobile */
 @media (max-width: 599px){
-  .alerts-fab,
-  .top-clock,
-  .tablet-toggle{
-    display:none !important;
-  }
+  .tablet-toggle{ display:none !important; }
 }
