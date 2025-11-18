@@ -143,11 +143,11 @@ try {
 <div id="topClockBar" class="top-clock-bar">
   <div id="topClock" class="top-clock">--:--:--</div>
   <div class="top-clock-actions">
-    <button class="period-cycle" type="button" aria-label="Changer de période">
-      <span class="chev">&#x276E;</span>
+    <div class="period-cycle" aria-label="Changer de période">
+      <button class="cycle-btn" type="button" aria-label="Période précédente">&#x276E;</button>
       <span class="label">Septembre 2025</span>
-      <span class="chev">&#x276F;</span>
-    </button>
+      <button class="cycle-btn" type="button" aria-label="Période suivante">&#x276F;</button>
+    </div>
     <div id="scaleDropdown" class="scale-dropdown">
       <button id="scaleToggle" class="period-scale-btn" type="button" aria-haspopup="true" aria-expanded="false">
         Mensuel
@@ -276,66 +276,6 @@ try {
   </aside>
 
   <main class="main dashboard">
-    <div class="period-row">
-      <article class="summary-card span-2">
-        <div class="summary-main">
-          <div class="summary-block">
-            <p class="eyebrow">Période en cours</p>
-            <div class="summary-row">
-              <div class="summary-value date-range">
-                <span class="date-full">01/09/2024 - 30/09/2024</span>
-                <span class="date-short">01/09 - 30/09</span>
-              </div>
-            </div>
-            <div class="chip-group scale-chips">
-              <button class="chip-btn" type="button">Hebdomadaire</button>
-              <button class="chip-btn active" type="button">Mensuel</button>
-              <button class="chip-btn" type="button">Annuel</button>
-            </div>
-            <div class="scale-switch" aria-label="Changer l’échelle de temps">
-              <button class="arrow-btn" type="button" aria-label="Période précédente">&#x276E;</button>
-              <span class="scale-label">Mensuel</span>
-              <button class="arrow-btn" type="button" aria-label="Période suivante">&#x276F;</button>
-            </div>
-          </div>
-          <div class="summary-block balance-block">
-            <p class="eyebrow">Balance initiale</p>
-            <div class="summary-row">
-              <div class="summary-value accent">2 050 €</div>
-            </div>
-            <div class="chip-group compact currency-chips">
-              <button class="chip-btn" type="button">€</button>
-              <button class="chip-btn" type="button">$</button>
-              <button class="chip-btn" type="button">£</button>
-              <button class="chip-btn" type="button">CHF</button>
-            </div>
-          </div>
-        </div>
-      </article>
-      <div class="quick-kpi-strip span-2">
-        <div class="kpi">
-          <span class="label">Revenus prévus</span>
-          <span class="value">7 200 €</span>
-          <span class="sub">+ 300 € vs dernier mois</span>
-        </div>
-        <div class="kpi">
-          <span class="label">Dépenses prévues</span>
-          <span class="value">4 950 €</span>
-          <span class="sub">63 % du budget</span>
-        </div>
-        <div class="kpi">
-          <span class="label">Épargne projetée</span>
-          <span class="value">1 150 €</span>
-          <span class="sub">Taux 16 %</span>
-        </div>
-        <div class="kpi">
-          <span class="label">Reste à budgéter</span>
-          <span class="value">1 100 €</span>
-          <span class="sub">Inclut 350 € de marge</span>
-        </div>
-      </div>
-    </div>
-
     <section class="dashboard-grid budget-grid">
       <article class="dash-card tight kpi-card">
         <div class="kpi">

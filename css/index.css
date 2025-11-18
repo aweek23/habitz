@@ -482,7 +482,40 @@ body.is-tablet .nav-overlay.show{ display:block; }
   gap:8px;
 }
 
-.period-cycle,
+.period-cycle{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  height:40px;
+  padding:0 12px;
+  border-radius:10px;
+  background:rgba(12,16,22,.85);
+  border:1px solid var(--border);
+  color:var(--text-hi);
+  font-size:13px;
+  transition:border-color .15s ease, color .15s ease, background .15s ease;
+}
+
+.period-cycle:hover{ border-color:#4b7cff; color:#dce9ff; }
+
+.period-cycle .label{ font-weight:600; }
+.period-cycle .cycle-btn{
+  background:transparent;
+  border:none;
+  color:var(--text-lo);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:22px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:color .15s ease, background .15s ease;
+}
+
+.period-cycle .cycle-btn:hover{ color:#dce9ff; background:rgba(75,124,255,.12); }
+.period-cycle .cycle-btn:focus-visible{ outline:2px solid #4b7cff; outline-offset:2px; }
+
 .period-scale-btn{
   display:inline-flex;
   align-items:center;
@@ -498,14 +531,7 @@ body.is-tablet .nav-overlay.show{ display:block; }
   transition:border-color .15s ease, color .15s ease, background .15s ease;
 }
 
-.period-cycle:hover,
-.period-scale-btn:hover{
-  border-color:#4b7cff;
-  color:#dce9ff;
-}
-
-.period-cycle .chev{ color:var(--text-lo); font-size:14px; line-height:1; }
-.period-cycle .label{ font-weight:600; }
+.period-scale-btn:hover{ border-color:#4b7cff; color:#dce9ff; }
 
 .scale-dropdown{ position:relative; }
 .period-scale-btn svg{ width:14px; height:14px; }
