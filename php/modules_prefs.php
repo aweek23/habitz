@@ -7,8 +7,8 @@ require __DIR__.'/config.php';
       -> { ok:true, modules: { key:{visible:"Yes"|"No", ord:int|null}, ... } }
 
     POST modules_prefs.php  (JSON)
-      { action:"toggle", key:"tasks", visible:"Yes"|"No" }
-      { action:"reorder", order:["tasks","habits",... visible top→bottom] }
+      { action:"toggle", key:"cycle", visible:"Yes"|"No" }
+      { action:"reorder", order:["sleep","body",... visible top→bottom] }
 */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -39,7 +39,8 @@ try {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     ");
 
-    // 2) Canon des modules + ordre par défaut (Dashboard est fixe et exclu)
+    // 2) Canon des modules + ordre par défaut (1..16)
+    // 2) Canon des modules + ordre par défaut
     $modules = [
         'tasks'    => 1,
         'habits'   => 2,
@@ -47,7 +48,7 @@ try {
         'sport'    => 4,
         'food'     => 5,
         'calendar' => 6,
-        'corps'    => 7,
+        'body'     => 7,
         'finances' => 8,
         'clock'    => 9,
         'events'   => 10,
@@ -55,42 +56,52 @@ try {
         'drive'    => 12,
     ];
     $keys = array_keys($modules);
+    $keys = array_keys($modules);
 
     $method = $_SERVER['REQUEST_METHOD'];
     $action = $_GET['action'] ?? '';
 
     // ===== helpers =====
-    $fetchAll = function() use ($pdo, $uid){
+    $fetchAll = function() use ($pdo, $uid, $modules){
         $st = $pdo->prepare("SELECT module_key, visible, ord FROM `".TABLE_USER_MODULES."` WHERE user_id=:uid");
         $st->execute([':uid'=>$uid]);
         $out = [];
         foreach ($st->fetchAll() as $r) {
-            $out[$r['module_key']] = ['visible'=>$r['visible'], 'ord'=> is_null($r['ord'])? null : (int)$r['ord']];
+            $k = $r['module_key'];
+            if (!array_key_exists($k, $modules)) {
+                // On ignore les anciennes clés qui ne sont plus dans le canon
+                continue;
+            }
+            $out[$k] = [
+                'visible' => $r['visible'],
+                'ord'     => is_null($r['ord']) ? null : (int)$r['ord'],
+            ];
         }
         return $out;
     };
-
-    $ensureSeed = function() use ($pdo, $uid, $modules, $keys){
-        // y a-t-il déjà des prefs ?
+    $ensureSeed = function() use ($pdo, $uid, $modules){
+        // y a-t-il déjà des prefs (même anciennes) ?
         $st = $pdo->prepare("SELECT COUNT(*) c FROM `".TABLE_USER_MODULES."` WHERE user_id=:uid");
         $st->execute([':uid'=>$uid]);
         $has = (int)$st->fetchColumn() > 0;
         if ($has) return;
 
-        // seed : tout "Yes" et ord = mapping par défaut
+        // seed : tous les nouveaux modules visibles avec l'ordre par défaut
         $pdo->beginTransaction();
         try {
             foreach ($modules as $k=>$ord) {
-                $ins = $pdo->prepare("INSERT INTO `".TABLE_USER_MODULES."` (user_id,module_key,visible,ord) VALUES (:uid,:k,'Yes',:o)");
+                $ins = $pdo->prepare("
+                    INSERT INTO `".TABLE_USER_MODULES."` (user_id, module_key, visible, ord)
+                    VALUES (:uid, :k, 'Yes', :o)
+                ");
                 $ins->execute([':uid'=>$uid, ':k'=>$k, ':o'=>$ord]);
             }
             $pdo->commit();
-        } catch(Throwable $e){
+        } catch (Throwable $e) {
             $pdo->rollBack();
             throw $e;
         }
     };
-
     if ($method === 'GET' && $action === 'get') {
         $ensureSeed(); // sème si vide (selon genre)
 
@@ -105,9 +116,6 @@ try {
                 $current[$k] = ['visible'=>'Yes', 'ord'=>$ord];
             }
         }
-
-        // on ne garde que les modules canoniques
-        $current = array_intersect_key($current, $modules);
 
         echo json_encode(['ok'=>true, 'modules'=>$current], JSON_UNESCAPED_UNICODE);
         exit;
@@ -175,22 +183,6 @@ try {
                 $pdo->commit();
             }catch(Throwable $e){ $pdo->rollBack(); throw $e; }
 
-            echo json_encode(['ok'=>true]); exit;
-        }
-
-        if ($act === 'reset_order') {
-            $ensureSeed();
-            $pdo->beginTransaction();
-            try {
-                $upd = $pdo->prepare("UPDATE `".TABLE_USER_MODULES."` SET ord=:o, visible='Yes' WHERE user_id=:uid AND module_key=:k");
-                foreach ($modules as $k=>$ord) {
-                    $upd->execute([':o'=>$ord, ':uid'=>$uid, ':k'=>$k]);
-                }
-                $pdo->commit();
-            } catch (Throwable $e) {
-                $pdo->rollBack();
-                throw $e;
-            }
             echo json_encode(['ok'=>true]); exit;
         }
 
