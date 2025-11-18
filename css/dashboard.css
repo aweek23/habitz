@@ -14,7 +14,7 @@
 
 /* Calage spécifique à la page dashboard */
 .dashboard-page .app{
-  margin-left:calc(var(--sidebar-width) + 28px);
+  margin-left:calc(var(--sidebar-width) + 12px);
 }
 .dashboard-page.is-tablet .app{
   margin-left:0;
@@ -28,8 +28,8 @@
 
 .dashboard-page .main.dashboard{
   padding-top:84px;
-  padding-left:32px;
-  padding-right:32px;
+  padding-left:12px;
+  padding-right:0;
 }
 
 .dashboard-head{
