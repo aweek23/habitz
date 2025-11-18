@@ -337,51 +337,35 @@ try {
     </div>
 
     <section class="dashboard-grid budget-grid">
-      <article class="dash-card span-2 period-card">
-        <header class="card-header">
-          <div class="card-title">
-            <p class="eyebrow">Période en cours</p>
-            <div class="title-line">
-              <h3 class="date-range">
-                <span class="date-full">01/09/2024 - 30/09/2024</span>
-                <span class="date-short">01/09 - 30/09</span>
-              </h3>
-              <span class="pill">Balance initiale : 2 050 €</span>
-            </div>
-          </div>
-          <div class="chip-group scale-chips">
-            <button class="chip-btn" type="button">Hebdomadaire</button>
-            <button class="chip-btn active" type="button">Mensuel</button>
-            <button class="chip-btn" type="button">Annuel</button>
-          </div>
-          <div class="scale-switch" aria-label="Changer l’échelle de temps">
-            <button class="arrow-btn" type="button" aria-label="Période précédente">&#x276E;</button>
-            <span class="scale-label">Mensuel</span>
-            <button class="arrow-btn" type="button" aria-label="Période suivante">&#x276F;</button>
-          </div>
-        </header>
-        <div class="period-meta">
-          <div>
-            <small>Date de début</small>
-            <strong>01/09/2024</strong>
-          </div>
-          <div>
-            <small>Date de fin</small>
-            <strong>30/09/2024</strong>
-          </div>
-          <div>
-            <small>Balance au départ</small>
-            <strong>2 050 €</strong>
-          </div>
-          <div class="currency-switch">
-            <small>Symbole</small>
-            <div class="chip-group compact">
-              <button class="chip-btn" type="button">€</button>
-              <button class="chip-btn" type="button">$</button>
-              <button class="chip-btn" type="button">£</button>
-              <button class="chip-btn" type="button">CHF</button>
-            </div>
-          </div>
+      <article class="dash-card tight kpi-card">
+        <div class="kpi">
+          <span class="label">Revenus prévus</span>
+          <span class="value">7 200 €</span>
+          <span class="sub">+ 300 € vs dernier mois</span>
+        </div>
+      </article>
+
+      <article class="dash-card tight kpi-card">
+        <div class="kpi">
+          <span class="label">Dépenses prévues</span>
+          <span class="value">4 950 €</span>
+          <span class="sub">63 % du budget</span>
+        </div>
+      </article>
+
+      <article class="dash-card tight kpi-card">
+        <div class="kpi">
+          <span class="label">Épargne projetée</span>
+          <span class="value">1 150 €</span>
+          <span class="sub">Taux 16 %</span>
+        </div>
+      </article>
+
+      <article class="dash-card tight kpi-card">
+        <div class="kpi">
+          <span class="label">Reste à budgéter</span>
+          <span class="value">1 100 €</span>
+          <span class="sub">Inclut 350 € de marge</span>
         </div>
       </article>
 
