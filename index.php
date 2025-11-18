@@ -1,10 +1,6 @@
 <?php
-session_start();
-
-// Connexion PDO via ton config.php dans /php/config.php
 require_once __DIR__ . '/php/config.php';
 
-// On suppose que l'id utilisateur est dans $_SESSION['user_id']
 if (!isset($_SESSION['user_id'])) {
     header('Location: php/auth.php');
     exit;
@@ -12,19 +8,66 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = (int) $_SESSION['user_id'];
 
-$currentUsername = 'Utilisateur';
-try {
-    if (isset($pdo)) {
-        $stmt = $pdo->prepare('SELECT username FROM habitz WHERE id = :id LIMIT 1');
+function esc(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+function fetch_username(PDO $pdo, int $userId): string
+{
+    try {
+        $stmt = $pdo->prepare('SELECT username FROM ' . TABLE_USERS . ' WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $userId]);
         $row = $stmt->fetch();
-        if ($row && isset($row['username'])) {
-            $currentUsername = $row['username'];
-        }
+
+        return $row['username'] ?? 'Utilisateur';
+    } catch (Throwable $exception) {
+        return 'Utilisateur';
     }
-} catch (Exception $e) {
-    // En prod : log éventuel
 }
+
+$menuItems = [
+    ['key' => 'tasks', 'label' => 'Tâches'],
+    ['key' => 'habits', 'label' => 'Habitudes'],
+    ['key' => 'projects', 'label' => 'Projets'],
+    [
+        'key' => 'sport',
+        'label' => 'Sport',
+        'submenu' => [
+            ['label' => 'Entraînements'],
+            ['label' => 'Pas'],
+        ],
+    ],
+    ['key' => 'food', 'label' => 'Alimentation'],
+    ['key' => 'calendar', 'label' => 'Calendrier'],
+    [
+        'key' => 'body',
+        'label' => 'Corps',
+        'submenu' => [
+            ['label' => 'Sommeil'],
+            ['label' => 'Poids'],
+            ['label' => 'Glycémie'],
+            ['label' => 'Pression artérielle'],
+            ['label' => 'Cycle menstruel'],
+            ['label' => 'Composition corporelle'],
+        ],
+    ],
+    [
+        'key' => 'finances',
+        'label' => 'Finances',
+        'submenu' => [
+            ['label' => 'Budget'],
+            ['label' => 'Patrimoine'],
+            ['label' => 'Comptes'],
+        ],
+    ],
+    ['key' => 'clock', 'label' => 'Horloge'],
+    ['key' => 'events', 'label' => 'Evènements'],
+    ['key' => 'news', 'label' => 'Actualités, news, etc'],
+    ['key' => 'drive', 'label' => 'Drive'],
+];
+
+$currentUsername = fetch_username($pdo, $userId);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -82,7 +125,7 @@ try {
         <div class="top-user-avatar" role="img" aria-label="Photo de profil"></div>
 
         <span class="top-user-name trim-ellipsis">
-          <?php echo htmlspecialchars($currentUsername, ENT_QUOTES, 'UTF-8'); ?>
+          <?php echo esc($currentUsername); ?>
         </span>
       </div>
 
@@ -157,99 +200,37 @@ try {
       </div>
     </div>
 
-    <nav class="nav">
+      <nav class="nav">
         <ul id="menuTop" class="menu">
-  <!-- Tâches / Habitudes / Projets -->
-  <li class="menu-item" data-key="tasks">
-    <button class="item" type="button">Tâches</button>
-  </li>
-
-  <li class="menu-item" data-key="habits">
-    <button class="item" type="button">Habitudes</button>
-  </li>
-
-  <li class="menu-item" data-key="projects">
-    <button class="item" type="button">Projets</button>
-  </li>
-
-  <!-- Sport -->
-  <li class="menu-item has-sub" data-key="sport">
-    <button class="item has-sub-btn" type="button">
-      <span>Sport</span>
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <ul class="submenu">
-      <li><button class="subitem" type="button">Entraînements</button></li>
-      <li><button class="subitem" type="button">Pas</button></li>
-    </ul>
-  </li>
-
-  <!-- Alimentation -->
-  <li class="menu-item" data-key="food">
-    <button class="item" type="button">Alimentation</button>
-  </li>
-
-  <!-- Calendrier -->
-  <li class="menu-item" data-key="calendar">
-    <button class="item" type="button">Calendrier</button>
-  </li>
-
-  <!-- Corps -->
-  <li class="menu-item has-sub" data-key="body">
-    <button class="item has-sub-btn" type="button">
-      <span>Corps</span>
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <ul class="submenu">
-      <li><button class="subitem" type="button">Sommeil</button></li>
-      <li><button class="subitem" type="button">Poids</button></li>
-      <li><button class="subitem" type="button">Glycémie</button></li>
-      <li><button class="subitem" type="button">Pression artérielle</button></li>
-      <li><button class="subitem" type="button">Cycle menstruel</button></li>
-      <li><button class="subitem" type="button">Composition corporelle</button></li>
-    </ul>
-  </li>
-
-  <!-- Finances -->
-  <li class="menu-item has-sub" data-key="finances">
-    <button class="item has-sub-btn" type="button">
-      <span>Finances</span>
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-    <ul class="submenu">
-      <li><button class="subitem" type="button">Budget</button></li>
-      <li><button class="subitem" type="button">Patrimoine</button></li>
-      <li><button class="subitem" type="button">Comptes</button></li>
-    </ul>
-  </li>
-
-  <!-- Horloge -->
-  <li class="menu-item" data-key="clock">
-    <button class="item" type="button">Horloge</button>
-  </li>
-
-  <!-- Evènements -->
-  <li class="menu-item" data-key="events">
-    <button class="item" type="button">Evènements</button>
-  </li>
-
-  <!-- Actualités -->
-  <li class="menu-item" data-key="news">
-    <button class="item" type="button">Actualités, news, etc</button>
-  </li>
-
-  <!-- Drive -->
-  <li class="menu-item" data-key="drive">
-    <button class="item" type="button">Drive</button>
-  </li>
-</ul>
-    </nav>
+          <?php foreach ($menuItems as $item): ?>
+            <?php $hasSubmenu = !empty($item['submenu']); ?>
+            <li
+              class="menu-item<?php echo $hasSubmenu ? ' has-sub' : ''; ?>"
+              data-key="<?php echo esc($item['key']); ?>"
+            >
+              <?php if ($hasSubmenu): ?>
+                <button class="item has-sub-btn" type="button">
+                  <span><?php echo esc($item['label']); ?></span>
+                  <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <ul class="submenu">
+                  <?php foreach ($item['submenu'] as $subItem): ?>
+                    <li>
+                      <button class="subitem" type="button">
+                        <?php echo esc($subItem['label']); ?>
+                      </button>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+              <?php else: ?>
+                <button class="item" type="button"><?php echo esc($item['label']); ?></button>
+              <?php endif; ?>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      </nav>
   </aside>
 
   <main class="main">
