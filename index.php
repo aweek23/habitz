@@ -13,38 +13,13 @@ if (!isset($_SESSION['user_id'])) {
 $userId = (int) $_SESSION['user_id'];
 
 $currentUsername = 'Utilisateur';
-$currentRank = 'user';
-// S'assure que la colonne rank existe
-$rankValues = ['user','premium','moderator','administrator'];
 try {
     if (isset($pdo)) {
-        $hasRankCol = true;
-        try {
-            $pdo->query('SELECT `rank` FROM `'.TABLE_USERS.'` LIMIT 0');
-        } catch (Throwable $e) {
-            $hasRankCol = false;
-            try {
-                $pdo->exec("ALTER TABLE `".TABLE_USERS."` ADD COLUMN `rank` ENUM('user','premium','moderator','administrator') NOT NULL DEFAULT 'user' AFTER `gender`");
-                $hasRankCol = true;
-            } catch (Throwable $e2) {}
-        }
-
-        $sql = $hasRankCol
-          ? 'SELECT username, rank FROM '.TABLE_USERS.' WHERE id = :id LIMIT 1'
-          : 'SELECT username FROM '.TABLE_USERS.' WHERE id = :id LIMIT 1';
-        $stmt = $pdo->prepare($sql);
+        $stmt = $pdo->prepare('SELECT username FROM habitz WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $userId]);
         $row = $stmt->fetch();
         if ($row && isset($row['username'])) {
-          $currentUsername = $row['username'];
-          $maybeRank = $row['rank'] ?? null;
-          if ($maybeRank && in_array($maybeRank, $rankValues, true)) {
-            $currentRank = $maybeRank;
-            $_SESSION['rank'] = $maybeRank;
-          }
-        }
-        if (!isset($_SESSION['rank'])) {
-          $_SESSION['rank'] = $currentRank;
+            $currentUsername = $row['username'];
         }
     }
 } catch (Exception $e) {
@@ -57,7 +32,7 @@ try {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Life Tracker — Accueil</title>
-  <link rel="stylesheet" href="css/index.css?v=50">
+  <link rel="stylesheet" href="css/index.css?v=<?php echo time(); ?>">
   <script>
   (function(){
     function goAuth(){ window.location.replace('php/auth.php'); }
@@ -72,38 +47,12 @@ try {
 
 <!-- Colonne droite : barre de recherche + cartes -->
 <div id="topStack" class="top-stack sheet-mode">
-  <div class="top-bar">
-    <div id="alertsFab" class="top-actions">
-      <button id="msgFab"   class="icon-mini" type="button" title="Messages">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-          <path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H9l-4 4v-4H7a3 3 0 0 1-3-3V6z" stroke-width="1.6" stroke-linejoin="round"></path>
-        </svg>
-      </button>
-      <button id="notifFab" class="icon-mini" type="button" title="Notifications">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-          <path d="M18 10a6 6 0 0 0-12 0c0 4-2 6-2 6h16s-2-2-2-6z" stroke-width="1.6" stroke-linejoin="round"></path>
-          <path d="M10 20a2 2 0 0 0 4 0" stroke-width="1.6" stroke-linecap="round"></path>
-        </svg>
-      </button>
-<?php if (in_array($currentRank, ['moderator','administrator'], true)): ?>
-      <button id="adminFab" class="icon-mini" type="button" title="Administration">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-          <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" stroke-width="1.6" stroke-linejoin="round"></path>
-          <path d="M12 7.5L7 10v4l5 2.5 5-2.5v-4z" stroke-width="1.4" stroke-linejoin="round"></path>
-        </svg>
-      </button>
-<?php endif; ?>
-    </div>
-
-    <div id="topSearch" class="top-search" role="search">
-      <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" stroke-width="1.6"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="1.6" stroke-linecap="round"></line>
-      </svg>
-      <input id="globalSearch" type="search" placeholder="Rechercher…" autocomplete="off" />
-    </div>
-
-    <div id="topClock" class="top-clock">--:--:--</div>
+  <div id="topSearch" class="top-search" role="search">
+    <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" stroke-width="1.6"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65" stroke-width="1.6" stroke-linecap="round"></line>
+    </svg>
+    <input id="globalSearch" type="search" placeholder="Rechercher…" autocomplete="off" />
   </div>
 
   <!-- Carte 1 : Raccourcis rapides -->
@@ -167,12 +116,30 @@ try {
 </button>
 <div id="topStackOverlay" class="topstack-overlay"></div>
 
+<!-- Boutons flottants Messages + Notifications -->
+<div id="alertsFab" class="alerts-fab">
+  <button id="msgFab"   class="icon-mini alerts-fab-btn" type="button" title="Messages">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H9l-4 4v-4H7a3 3 0 0 1-3-3V6z" stroke-width="1.6" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+  <button id="notifFab" class="icon-mini alerts-fab-btn" type="button" title="Notifications">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+      <path d="M18 10a6 6 0 0 0-12 0c0 4-2 6-2 6h16s-2-2-2-6z" stroke-width="1.6" stroke-linejoin="round"></path>
+      <path d="M10 20a2 2 0 0 0 4 0" stroke-width="1.6" stroke-linecap="round"></path>
+    </svg>
+  </button>
+</div>
+
 <!-- Bouton hamburger (tablette) -->
 <button id="toggleNavBtn" class="tablet-toggle" title="Menu">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
     <path d="M3 6h18M3 12h18M3 18h18" stroke-width="1.8" stroke-linecap="round"/>
   </svg>
 </button>
+
+<!-- Horloge HH:MM:SS -->
+<div id="topClock" class="top-clock">--:--:--</div>
 
 <div id="navOverlay" class="nav-overlay"></div>
 
@@ -181,12 +148,6 @@ try {
     <div class="side-top">
       <div class="brand">Life Tracker</div>
       <div style="display:flex; gap:6px;">
-        <button id="resetOrderBtn" class="icon-mini" title="Réinitialiser l’ordre">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-            <path d="M4 4v6h6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M4 10a8 8 0 1 0 2.34-5.66L4 6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
-          </svg>
-        </button>
         <button id="reorderBtn" class="icon-mini" title="Modifier l’ordre">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
             <path d="M12 20h9" stroke-width="1.6" stroke-linecap="round"/>
@@ -197,47 +158,97 @@ try {
     </div>
 
     <nav class="nav">
-      <ul id="menuTop" class="menu">
-        <li class="menu-item" data-fixed="true"><button class="item" type="button">Dashboard</button></li>
-        <li class="menu-item" data-key="tasks"><button class="item" type="button">Tâches</button></li>
-        <li class="menu-item" data-key="habits"><button class="item" type="button">Habitudes</button></li>
-        <li class="menu-item" data-key="projects"><button class="item" type="button">Projets</button></li>
-        <li class="menu-item" data-key="sport"><button class="item" type="button">Sport</button></li>
-        <li class="menu-item" data-key="food"><button class="item" type="button">Alimentation</button></li>
-        <li class="menu-item" data-key="calendar"><button class="item" type="button">Calendrier</button></li>
+        <ul id="menuTop" class="menu">
+  <!-- Tâches / Habitudes / Projets -->
+  <li class="menu-item" data-key="tasks">
+    <button class="item" type="button">Tâches</button>
+  </li>
 
-        <li class="menu-item has-sub" data-key="corps">
-          <button class="item has-sub-btn" type="button">
-            <span>Corps</span>
-            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <ul class="submenu">
-            <li><button class="subitem" type="button">Tracking sommeil</button></li>
-            <li><button class="subitem" type="button">Tracking poids</button></li>
-            <li><button class="subitem" type="button">Tracking glycémie</button></li>
-            <li><button class="subitem" type="button">Tracking pression artérielle</button></li>
-            <li><button class="subitem" type="button">Tracking cycle menstruel</button></li>
-            <li><button class="subitem" type="button">Tracking composition corporelle</button></li>
-          </ul>
-        </li>
+  <li class="menu-item" data-key="habits">
+    <button class="item" type="button">Habitudes</button>
+  </li>
 
-        <li class="menu-item has-sub" data-key="finances">
-          <button class="item has-sub-btn" type="button">
-            <span>Finances</span>
-            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <ul class="submenu">
-            <li><button class="subitem" type="button">Budget</button></li>
-            <li><button class="subitem" type="button">Patrimoine</button></li>
-            <li><button class="subitem" type="button">Comptes</button></li>
-          </ul>
-        </li>
+  <li class="menu-item" data-key="projects">
+    <button class="item" type="button">Projets</button>
+  </li>
 
-        <li class="menu-item" data-key="clock"><button class="item" type="button">Horloge</button></li>
-        <li class="menu-item" data-key="events"><button class="item" type="button">Evènements</button></li>
-        <li class="menu-item" data-key="news"><button class="item" type="button">Actualités, new, etc</button></li>
-        <li class="menu-item" data-key="drive"><button class="item" type="button">Drive</button></li>
-      </ul>
+  <!-- Sport -->
+  <li class="menu-item has-sub" data-key="sport">
+    <button class="item has-sub-btn" type="button">
+      <span>Sport</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <ul class="submenu">
+      <li><button class="subitem" type="button">Entraînements</button></li>
+      <li><button class="subitem" type="button">Pas</button></li>
+    </ul>
+  </li>
+
+  <!-- Alimentation -->
+  <li class="menu-item" data-key="food">
+    <button class="item" type="button">Alimentation</button>
+  </li>
+
+  <!-- Calendrier -->
+  <li class="menu-item" data-key="calendar">
+    <button class="item" type="button">Calendrier</button>
+  </li>
+
+  <!-- Corps -->
+  <li class="menu-item has-sub" data-key="body">
+    <button class="item has-sub-btn" type="button">
+      <span>Corps</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <ul class="submenu">
+      <li><button class="subitem" type="button">Sommeil</button></li>
+      <li><button class="subitem" type="button">Poids</button></li>
+      <li><button class="subitem" type="button">Glycémie</button></li>
+      <li><button class="subitem" type="button">Pression artérielle</button></li>
+      <li><button class="subitem" type="button">Cycle menstruel</button></li>
+      <li><button class="subitem" type="button">Composition corporelle</button></li>
+    </ul>
+  </li>
+
+  <!-- Finances -->
+  <li class="menu-item has-sub" data-key="finances">
+    <button class="item has-sub-btn" type="button">
+      <span>Finances</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path d="M8 10l4 4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <ul class="submenu">
+      <li><button class="subitem" type="button">Budget</button></li>
+      <li><button class="subitem" type="button">Patrimoine</button></li>
+      <li><button class="subitem" type="button">Comptes</button></li>
+    </ul>
+  </li>
+
+  <!-- Horloge -->
+  <li class="menu-item" data-key="clock">
+    <button class="item" type="button">Horloge</button>
+  </li>
+
+  <!-- Evènements -->
+  <li class="menu-item" data-key="events">
+    <button class="item" type="button">Evènements</button>
+  </li>
+
+  <!-- Actualités -->
+  <li class="menu-item" data-key="news">
+    <button class="item" type="button">Actualités, news, etc</button>
+  </li>
+
+  <!-- Drive -->
+  <li class="menu-item" data-key="drive">
+    <button class="item" type="button">Drive</button>
+  </li>
+</ul>
     </nav>
   </aside>
 
@@ -254,12 +265,12 @@ const $$ = (s)=>Array.from(document.querySelectorAll(s));
 const sidebar        = $('#sidebar');
 const menuTop        = $('#menuTop');
 const reorderBtn     = $('#reorderBtn');
-const resetOrderBtn  = $('#resetOrderBtn');
 const toggleNavBtn   = $('#toggleNavBtn');
 const navOverlay     = $('#navOverlay');
 const topStack       = $('#topStack');
 const topStackFab    = $('#topStackFab');
 const topStackOverlay= $('#topStackOverlay');
+const alertsFab      = $('#alertsFab');
 const clockEl        = $('#topClock');
 
 /* ===== Détection tablette / iPad ===== */
@@ -288,22 +299,94 @@ function applyTabletMode(on){
     document.body.classList.remove('nav-open');
   }
   updateTopStackMode();
+  updateClockPosition();
 }
 window.addEventListener('resize', () => {
   const now = detectTablet();
   if (now !== IS_TABLET) { IS_TABLET = now; applyTabletMode(IS_TABLET); }
-  else { updateTopStackMode(); }
+  else { updateTopStackMode(); updateClockPosition(); }
 });
 
 /* ===== Gestion de la colonne droite & overlays ===== */
 function isWindowMaximized(){
-  const tol = 40;
-  const fullEl = document.fullscreenElement;
-  const maxed  = (window.outerWidth >= screen.availWidth - tol) &&
-                 (window.outerHeight >= screen.availHeight - tol);
-  return !!fullEl || maxed;
+  // Si le navigateur est vraiment en plein écran (F11, mode fullscreen)
+  if (document.fullscreenElement) return true;
+
+  // Sinon, on considère "desktop plein écran" si la fenêtre est grande
+  const minWidth  = 1280;
+  const minHeight = 700;
+  return (window.innerWidth >= minWidth && window.innerHeight >= minHeight);
 }
 
+/* Position des boutons messages / notifs */
+function updateAlertsFabPosition(){
+  if (!alertsFab) return;
+
+  const isMobile = window.innerWidth < 600;
+  if (isMobile){
+    alertsFab.style.display = 'none';
+    return;
+  }
+  alertsFab.style.display = 'flex';
+
+  alertsFab.classList.remove('with-right-stack');
+
+  const fullDesktop = (!IS_TABLET && isWindowMaximized());
+
+  if (fullDesktop){
+    // Desktop plein écran
+    let hasRightStack = false;
+    if (topStack){
+      hasRightStack =
+        topStack.classList.contains('desktop-static') ||
+        topStack.classList.contains('open');
+    }
+    if (hasRightStack){
+      // À gauche de la colonne de droite
+      alertsFab.classList.add('with-right-stack');
+    }
+  } else {
+    // iPad ou desktop NON plein écran
+    let sheetOpen = false;
+    if (topStack){
+      sheetOpen =
+        topStack.classList.contains('sheet-mode') &&
+        topStack.classList.contains('open');
+    }
+    if (sheetOpen){
+      // Colonne ouverte : à gauche de la colonne
+      alertsFab.classList.add('with-right-stack');
+    }
+    // sinon : top-right par défaut (via CSS)
+  }
+}
+
+/* Position dynamique de l'horloge */
+function updateClockPosition(){
+  if(!clockEl) return;
+
+  const isMobile = window.innerWidth < 600;
+  if (isMobile){
+    return; // cachée par CSS
+  }
+
+  // Desktop (non tablette) : à droite de la navbar
+  if (!IS_TABLET){
+    if (sidebar){
+      const rect = sidebar.getBoundingClientRect();
+      const gap  = 12;
+      clockEl.style.left = (rect.right + gap) + 'px';
+    }
+    return;
+  }
+
+  // iPad / tablette : à droite du burger (que la navbar soit ouverte ou non)
+  if (toggleNavBtn){
+    const rect = toggleNavBtn.getBoundingClientRect();
+    const gap  = 12;
+    clockEl.style.left = (rect.right + gap) + 'px';
+  }
+}
 function updateTopStackMode(){
   if (!topStack) return;
   const fullDesktop = (!IS_TABLET && isWindowMaximized());
@@ -324,9 +407,13 @@ function updateTopStackMode(){
     }
     if (topStackOverlay) topStackOverlay.classList.remove('show');
   }
+
+  updateAlertsFabPosition();
+  updateClockPosition();
 }
 document.addEventListener('fullscreenchange', () => {
   updateTopStackMode();
+  updateClockPosition();
 });
 
 /* Ouverture/fermeture du panneau coulissant */
@@ -335,6 +422,8 @@ function closeTopStackSheet(){
   topStack.classList.remove('open');
   if (topStackOverlay) topStackOverlay.classList.remove('show');
   if (topStackFab) topStackFab.classList.remove('hidden'); // re-affiche le bouton
+  updateAlertsFabPosition();
+  updateClockPosition();
 }
 if (topStackFab){
   topStackFab.addEventListener('click', ()=>{
@@ -343,6 +432,8 @@ if (topStackFab){
     topStack.classList.toggle('open', willOpen);
     if (topStackOverlay) topStackOverlay.classList.toggle('show', willOpen);
     if (topStackFab) topStackFab.classList.toggle('hidden', willOpen); // caché quand ouvert
+    updateAlertsFabPosition();
+    updateClockPosition();
   });
 }
 if (topStackOverlay){
@@ -367,7 +458,6 @@ function liOf(key){ return menuTop.querySelector(`.menu-item[data-key="${key}"]`
 function applyPrefs() {
   Object.entries(serverModules).forEach(([k,v])=>{
     const li = liOf(k);
-    if (!li) return;
     const isOn = (v.visible === 'Yes');
     li.classList.toggle('disabled', !isOn);
     li.style.display = (!isOn && !sidebar.classList.contains('reorder')) ? 'none' : '';
@@ -375,15 +465,9 @@ function applyPrefs() {
   const visible = Object.keys(serverModules)
     .filter(k => serverModules[k].visible === 'Yes')
     .sort((a,b) => (serverModules[a].ord||999) - (serverModules[b].ord||999));
-  visible.forEach(k => {
-    const li = liOf(k);
-    if (li) menuTop.appendChild(li);
-  });
+  visible.forEach(k => menuTop.appendChild(liOf(k)));
   const hidden = Object.keys(serverModules).filter(k => serverModules[k].visible === 'No');
-  hidden.forEach(k => {
-    const li = liOf(k);
-    if (li) menuTop.appendChild(li);
-  });
+  hidden.forEach(k => menuTop.appendChild(liOf(k)));
   $$('.vis-toggle').forEach(b => b.style.display = sidebar.classList.contains('reorder') ? 'grid' : 'none');
 }
 async function loadPrefs(){
@@ -396,7 +480,6 @@ async function loadPrefs(){
 }
 function ensureToggleButtons(){
   $$('#menuTop .menu-item').forEach(li=>{
-    if (li.dataset.fixed === 'true') return;
     if(li.querySelector('.vis-toggle')) return;
     const btn=document.createElement('button');
     btn.type='button'; btn.className='vis-toggle'; btn.title='Afficher / Masquer ce module';
@@ -423,14 +506,12 @@ function ensureToggleButtons(){
 let dragSrc=null;
 function enableDrag(on){
   menuTop.querySelectorAll('.menu-item').forEach(li=>{
-    const canDrag = on && li.dataset.fixed !== 'true';
-    li.draggable=canDrag; li.classList.toggle('draggable',canDrag);
+    li.draggable=on; li.classList.toggle('draggable',on);
   });
 }
 menuTop.addEventListener('dragstart',e=>{
   if (IS_TABLET) return;
   dragSrc=e.target.closest('.menu-item'); if(!dragSrc) return;
-  if (dragSrc.dataset.fixed === 'true') { dragSrc=null; return; }
   e.dataTransfer.effectAllowed='move'; dragSrc.classList.add('dragging');
 });
 menuTop.addEventListener('dragend',async ()=>{
@@ -439,7 +520,7 @@ menuTop.addEventListener('dragend',async ()=>{
   if (IS_TABLET || !hadDrag) return;
   const order = [...menuTop.children]
     .map(li => li.dataset.key)
-    .filter(k => k && serverModules[k]?.visible === 'Yes');
+    .filter(k => serverModules[k].visible === 'Yes');
   await fetch('php/modules_prefs.php', {
     method:'POST', credentials:'same-origin', cache:'no-store',
     headers:{'Content-Type':'application/json'},
@@ -450,7 +531,6 @@ menuTop.addEventListener('dragend',async ()=>{
 menuTop.addEventListener('dragover',e=>{
   if(!dragSrc || IS_TABLET || !sidebar.classList.contains('reorder')) return; e.preventDefault();
   const over=e.target.closest('.menu-item'); if(!over||over===dragSrc) return;
-  if (over.dataset.fixed === 'true') return;
   if (serverModules[over.dataset.key]?.visible !== 'Yes') return;
   const r=over.getBoundingClientRect(); const before=e.clientY<r.top+r.height/2;
   menuTop.insertBefore(dragSrc, before?over:over.nextSibling);
@@ -464,18 +544,6 @@ reorderBtn.addEventListener('click', ()=>{
   enableDrag(!IS_TABLET && reordering);
   $$('.vis-toggle').forEach(b=> b.style.display = reordering ? 'grid' : 'none');
 });
-if (resetOrderBtn){
-  resetOrderBtn.addEventListener('click', async ()=>{
-    try {
-      await fetch('php/modules_prefs.php', {
-        method:'POST', credentials:'same-origin', cache:'no-store',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({action:'reset_order'})
-      });
-      await loadPrefs();
-    } catch (e) {}
-  });
-}
 
 /* Sous-menus */
 $$('.has-sub .has-sub-btn').forEach(btn=>{
@@ -487,11 +555,13 @@ function openSidebar(){
   sidebar.classList.remove('collapsed');
   navOverlay.classList.add('show');
   document.body.classList.add('nav-open');
+  updateClockPosition();
 }
 function closeSidebar(){
   sidebar.classList.add('collapsed');
   navOverlay.classList.remove('show');
   document.body.classList.remove('nav-open');
+  updateClockPosition();
 }
 toggleNavBtn.addEventListener('click', ()=>{
   if (sidebar.classList.contains('collapsed')) openSidebar();
@@ -546,6 +616,7 @@ function updateClock(){
   if(topSettingsBtn) topSettingsBtn.addEventListener('click', openSettings);
 
   updateTopStackMode();
+  updateClockPosition();
 
   if (clockEl){
     updateClock();
