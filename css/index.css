@@ -11,6 +11,9 @@
   --ok: #34d399;
   --warn: #ff8a8a;
   --sidebar-width: 215px;
+  --layout-gap: 24px;
+  --right-stack-width: 320px;
+  --right-stack-offset: 16px;
 }
 *,
 *::before,
@@ -71,7 +74,8 @@ body {
   min-height: 100vh;
   /* on laisse de la place pour la sidebar fixe :
      280px (sidebar) + 24px de “respiration” */
-  margin-left: calc(280px + 24px);
+  margin-left: calc(280px + var(--layout-gap));
+  margin-right: 0;
 }
 /* En mode tablette (panneau coulissant), on remet le contenu à gauche */
 body.is-tablet .app {
@@ -282,6 +286,20 @@ body.is-tablet .menu {
   z-index: 0;
 }
 
+@media (min-width: 1280px) {
+  .app {
+    margin-right: calc(
+      var(--right-stack-width) + var(--right-stack-offset) + var(--layout-gap)
+    );
+  }
+
+  .main {
+    padding-right: calc(
+      var(--right-stack-width) + var(--right-stack-offset) + var(--layout-gap)
+    );
+  }
+}
+
 /* --- Tablet / overlay --- */
 .tablet-toggle {
   position: fixed;
@@ -345,10 +363,10 @@ body.is-tablet .nav-overlay.show {
 .top-stack {
   position: fixed;
   top: 12px;
-  right: 16px;
+  right: var(--right-stack-offset);
   bottom: 12px;
   z-index: 650; /* au-dessus des overlays, sous FABs */
-  width: 320px;
+  width: var(--right-stack-width);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -603,7 +621,9 @@ body.is-tablet .nav-overlay.show {
   background: transparent;
 }
 .alerts-fab.with-right-stack {
-  right: calc(320px + 24px); /* à gauche de la colonne de droite */
+  right: calc(
+    var(--right-stack-width) + var(--right-stack-offset) + var(--layout-gap)
+  ); /* à gauche de la colonne de droite */
 }
 
 /* Horloge HH:MM:SS + contrôles période */
