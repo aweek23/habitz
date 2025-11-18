@@ -44,7 +44,7 @@ try {
   })();
   </script>
 </head>
-<body>
+<body class="dashboard-page">
 
 <!-- Colonne droite : barre de recherche + cartes -->
 <div id="topStack" class="top-stack sheet-mode">
@@ -139,8 +139,30 @@ try {
   </svg>
 </button>
 
-<!-- Horloge HH:MM:SS -->
-<div id="topClock" class="top-clock">--:--:--</div>
+<!-- Horloge HH:MM:SS + contrôles période/échelle -->
+<div id="topClockBar" class="top-clock-bar">
+  <div id="topClock" class="top-clock">--:--:--</div>
+  <div class="top-clock-actions">
+    <button class="period-cycle" type="button" aria-label="Changer de période">
+      <span class="chev">&#x276E;</span>
+      <span class="label">Septembre 2025</span>
+      <span class="chev">&#x276F;</span>
+    </button>
+    <div id="scaleDropdown" class="scale-dropdown">
+      <button id="scaleToggle" class="period-scale-btn" type="button" aria-haspopup="true" aria-expanded="false">
+        Mensuel
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+      <div id="scaleMenu" class="scale-menu" role="menu" aria-label="Choisir l'échelle de temps">
+        <button type="button" role="menuitem">Annuel</button>
+        <button type="button" role="menuitem" class="active">Mensuel</button>
+        <button type="button" role="menuitem">Hebdomadaire</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="navOverlay" class="nav-overlay"></div>
 
@@ -254,307 +276,426 @@ try {
   </aside>
 
   <main class="main dashboard">
-    <div class="dashboard-head">
-      <div>
-        <p class="eyebrow">Vue quotidienne</p>
-        <h1>Tableau de progression</h1>
-        <p class="muted">Une synthèse rapide inspirée de l’aperçu partagé, pour garder tes objectifs à portée de main.</p>
-      </div>
-      <div class="head-actions">
-        <button class="ghost-btn" type="button">Journée</button>
-        <button class="ghost-btn" type="button">Semaine</button>
-        <button class="icon-mini" type="button" title="Exporter">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-            <path d="M12 5v10" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M8 9l4-4 4 4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M5 19h14" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </button>
+    <div class="period-row">
+      <article class="summary-card span-2">
+        <div class="summary-main">
+          <div class="summary-block">
+            <p class="eyebrow">Période en cours</p>
+            <div class="summary-row">
+              <div class="summary-value date-range">
+                <span class="date-full">01/09/2024 - 30/09/2024</span>
+                <span class="date-short">01/09 - 30/09</span>
+              </div>
+            </div>
+            <div class="chip-group scale-chips">
+              <button class="chip-btn" type="button">Hebdomadaire</button>
+              <button class="chip-btn active" type="button">Mensuel</button>
+              <button class="chip-btn" type="button">Annuel</button>
+            </div>
+            <div class="scale-switch" aria-label="Changer l’échelle de temps">
+              <button class="arrow-btn" type="button" aria-label="Période précédente">&#x276E;</button>
+              <span class="scale-label">Mensuel</span>
+              <button class="arrow-btn" type="button" aria-label="Période suivante">&#x276F;</button>
+            </div>
+          </div>
+          <div class="summary-block balance-block">
+            <p class="eyebrow">Balance initiale</p>
+            <div class="summary-row">
+              <div class="summary-value accent">2 050 €</div>
+            </div>
+            <div class="chip-group compact currency-chips">
+              <button class="chip-btn" type="button">€</button>
+              <button class="chip-btn" type="button">$</button>
+              <button class="chip-btn" type="button">£</button>
+              <button class="chip-btn" type="button">CHF</button>
+            </div>
+          </div>
+        </div>
+      </article>
+      <div class="quick-kpi-strip span-2">
+        <div class="kpi">
+          <span class="label">Revenus prévus</span>
+          <span class="value">7 200 €</span>
+          <span class="sub">+ 300 € vs dernier mois</span>
+        </div>
+        <div class="kpi">
+          <span class="label">Dépenses prévues</span>
+          <span class="value">4 950 €</span>
+          <span class="sub">63 % du budget</span>
+        </div>
+        <div class="kpi">
+          <span class="label">Épargne projetée</span>
+          <span class="value">1 150 €</span>
+          <span class="sub">Taux 16 %</span>
+        </div>
+        <div class="kpi">
+          <span class="label">Reste à budgéter</span>
+          <span class="value">1 100 €</span>
+          <span class="sub">Inclut 350 € de marge</span>
+        </div>
       </div>
     </div>
 
-    <section class="dashboard-grid">
-      <article class="dash-card span-2">
+    <section class="dashboard-grid budget-grid">
+      <article class="dash-card span-2 period-card">
         <header class="card-header">
-          <div>
-            <p class="eyebrow">Sommeil</p>
-            <h3>Dernière nuit</h3>
-          </div>
-          <span class="status-chip">Paradis</span>
-        </header>
-
-        <div class="sleep-row">
-          <div class="sleep-main">
-            <div class="sleep-score">7 h 42</div>
-            <p class="muted">Score 84 · Réveil 1</p>
-            <div class="pill">+ 2.4 l hydratation</div>
-          </div>
-          <div class="sleep-stages">
-            <div class="stage" style="--percent:30">
-              <span>3 h 26</span>
-              <small>PARAS</small>
-            </div>
-            <div class="stage" style="--percent:15">
-              <span>1 h 42</span>
-              <small>REM</small>
-            </div>
-            <div class="stage" style="--percent:45">
-              <span>5 h 30</span>
-              <small>DEEP</small>
+          <div class="card-title">
+            <p class="eyebrow">Période en cours</p>
+            <div class="title-line">
+              <h3 class="date-range">
+                <span class="date-full">01/09/2024 - 30/09/2024</span>
+                <span class="date-short">01/09 - 30/09</span>
+              </h3>
+              <span class="pill">Balance initiale : 2 050 €</span>
             </div>
           </div>
-        </div>
-
-        <div class="sleep-bars" aria-hidden="true">
-          <span class="bar deep" style="--width:40%"></span>
-          <span class="bar rem" style="--width:22%"></span>
-          <span class="bar light" style="--width:38%"></span>
-        </div>
-      </article>
-
-      <article class="dash-card">
-        <header class="card-header">
-          <div>
-            <p class="eyebrow">Pas</p>
-            <h3>8 540</h3>
+          <div class="chip-group scale-chips">
+            <button class="chip-btn" type="button">Hebdomadaire</button>
+            <button class="chip-btn active" type="button">Mensuel</button>
+            <button class="chip-btn" type="button">Annuel</button>
           </div>
-          <span class="status-chip soft">+ 3.2 k</span>
-        </header>
-        <p class="muted">Sommet aujourd’hui : 15 003</p>
-        <div class="progress">
-          <div class="progress-fill" style="--value:72%"></div>
-        </div>
-      </article>
-
-      <article class="dash-card">
-        <header class="card-header">
-          <div>
-            <p class="eyebrow">Habitudes hebdo</p>
-            <h3>42 350</h3>
-          </div>
-          <span class="status-chip soft">+ 0.2</span>
-        </header>
-        <ul class="checklist">
-          <li class="checked">Bois de l’eau</li>
-          <li class="checked">Marche</li>
-          <li class="checked">Crée</li>
-          <li class="checked">Lis</li>
-          <li class="dimmed">Développement perso</li>
-          <li class="dimmed">Petit-déjeuner</li>
-          <li class="dimmed">Toilette du matin</li>
-          <li class="checked">Entraînement</li>
-        </ul>
-      </article>
-
-      <article class="dash-card span-2">
-        <header class="card-header">
-          <div>
-            <p class="eyebrow">Macros du jour</p>
-            <h3>Répartition</h3>
-          </div>
-          <span class="status-chip">En forme</span>
-        </header>
-        <div class="macros-grid">
-          <div class="macro">
-            <div class="circle-progress" style="--percent:82; --accent:#1dd1a1">
-              <span>1 780</span>
-            </div>
-            <p>Calories</p>
-            <small>sur 2 170</small>
-          </div>
-          <div class="macro">
-            <div class="circle-progress" style="--percent:74; --accent:#7c7aff">
-              <span>72%</span>
-            </div>
-            <p>Glucides</p>
-            <small>210 g / 280 g</small>
-          </div>
-          <div class="macro">
-            <div class="circle-progress" style="--percent:60; --accent:#1fbfff">
-              <span>44 g</span>
-            </div>
-            <p>Lipides</p>
-            <small>sur 70 g</small>
-          </div>
-          <div class="macro">
-            <div class="circle-progress" style="--percent:67; --accent:#fcbf4c">
-              <span>87 g</span>
-            </div>
-            <p>Protéines</p>
-            <small>sur 130 g</small>
-          </div>
-        </div>
-      </article>
-
-      <article class="dash-card">
-        <header class="card-header">
-          <div>
-            <p class="eyebrow">Hydratation</p>
-            <h3>1.5 l</h3>
-          </div>
-          <span class="status-chip soft">+ 0.1 l</span>
-        </header>
-        <div class="progress">
-          <div class="progress-fill" style="--value:45%"></div>
-        </div>
-        <p class="muted">D’après ton objectif journalier</p>
-      </article>
-
-      <article class="dash-card">
-        <header class="card-header">
-          <div>
-            <p class="eyebrow">Statistiques</p>
-            <h3>En bref</h3>
+          <div class="scale-switch" aria-label="Changer l’échelle de temps">
+            <button class="arrow-btn" type="button" aria-label="Période précédente">&#x276E;</button>
+            <span class="scale-label">Mensuel</span>
+            <button class="arrow-btn" type="button" aria-label="Période suivante">&#x276F;</button>
           </div>
         </header>
-        <div class="stats-grid">
+        <div class="period-meta">
           <div>
-            <p class="muted">Activité</p>
-            <strong>Course</strong>
+            <small>Date de début</small>
+            <strong>01/09/2024</strong>
           </div>
           <div>
-            <p class="muted">Sport</p>
-            <strong>Marche</strong>
+            <small>Date de fin</small>
+            <strong>30/09/2024</strong>
           </div>
           <div>
-            <p class="muted">Nutrition</p>
-            <strong>Macronutriments</strong>
+            <small>Balance au départ</small>
+            <strong>2 050 €</strong>
+          </div>
+          <div class="currency-switch">
+            <small>Symbole</small>
+            <div class="chip-group compact">
+              <button class="chip-btn" type="button">€</button>
+              <button class="chip-btn" type="button">$</button>
+              <button class="chip-btn" type="button">£</button>
+              <button class="chip-btn" type="button">CHF</button>
+            </div>
           </div>
         </div>
       </article>
 
       <article class="dash-card span-2">
         <header class="card-header">
-          <div>
-            <p class="eyebrow">Calendrier</p>
-            <h3>Aujourd’hui</h3>
+          <div class="card-title">
+            <p class="eyebrow">Vue mensuelle</p>
+            <div class="title-line">
+              <h3>Septembre 2024</h3>
+              <span class="pill">Budget simple</span>
+            </div>
           </div>
+          <span class="status-chip">Solde actuel : 3 200 €</span>
         </header>
-        <div class="calendar-list">
-          <div class="event">
-            <span class="dot"></span>
-            <div>
-              <strong>7:00 — Stand up Projet Atlas</strong>
-              <p class="muted">Google Meet</p>
-            </div>
+        <div class="kpi-grid">
+          <div class="kpi">
+            <span class="label">Revenus prévus</span>
+            <span class="value">7 200 €</span>
+            <span class="sub">+ 300 € vs dernier mois</span>
           </div>
-          <div class="event">
-            <span class="dot blue"></span>
-            <div>
-              <strong>14:00 — Emotions meeting</strong>
-              <p class="muted">Projet Atlas</p>
-            </div>
+          <div class="kpi">
+            <span class="label">Dépenses prévues</span>
+            <span class="value">4 950 €</span>
+            <span class="sub">63 % du budget</span>
           </div>
-          <div class="event">
-            <span class="dot yellow"></span>
-            <div>
-              <strong>18:00 — Deep work</strong>
-              <p class="muted">Projet Atlas</p>
-            </div>
+          <div class="kpi">
+            <span class="label">Épargne projetée</span>
+            <span class="value">1 150 €</span>
+            <span class="sub">Taux 16 %</span>
           </div>
-          <div class="event">
-            <span class="dot green"></span>
-            <div>
-              <strong>20:00 — Deep work</strong>
-              <p class="muted">Projet Atlas</p>
-            </div>
+          <div class="kpi">
+            <span class="label">Reste à budgéter</span>
+            <span class="value">1 100 €</span>
+            <span class="sub">Inclut 350 € de marge</span>
           </div>
         </div>
-      </article>
-
-      <article class="dash-card">
-        <header class="card-header">
-          <div>
-            <p class="eyebrow">Quêtes</p>
-            <h3>Progression</h3>
+        <div class="list-grid">
+          <div class="list-tile">
+            <small>Balance début de mois</small>
+            <strong>2 050 €</strong>
+            <div class="bar-line" style="--value:70%"><span></span></div>
           </div>
-        </header>
-        <ul class="quest-list">
-          <li><span class="muted">1.</span> Prodiques jemi · <strong>XP 30</strong></li>
-          <li><span class="muted">2.</span> Lactom · <strong>XP 30</strong></li>
-          <li><span class="muted">3.</span> Jasjjas · <strong>XP 50</strong></li>
-          <li><span class="muted">4.</span> Stevfevvev · <strong>XP 30</strong></li>
-          <li><span class="muted">5.</span> Jasdjasd · <strong>XP 40</strong></li>
-        </ul>
-        <p class="muted">+ 30 XP · 0.3% aujourd’hui</p>
-      </article>
-
-      <article class="dash-card">
-        <header class="card-header">
-          <div>
-            <p class="eyebrow">Quêtes du jour</p>
-            <h3>14</h3>
+          <div class="list-tile">
+            <small>Entrées restantes</small>
+            <strong>2 400 €</strong>
+            <div class="bar-line" style="--value:55%"><span></span></div>
           </div>
-          <span class="status-chip">+ 50 XP</span>
-        </header>
-        <div class="progress radial" aria-hidden="true">
-          <div class="circle-progress" style="--percent:65; --accent:#ff6b6b">
-            <span>65%</span>
+          <div class="list-tile">
+            <small>Sorties restantes</small>
+            <strong>1 850 €</strong>
+            <div class="bar-line" style="--value:48%"><span></span></div>
           </div>
-        </div>
-      </article>
-
-      <article class="dash-card">
-        <header class="card-header">
-          <div>
-            <p class="eyebrow">Armure</p>
-            <h3>Niveau</h3>
-          </div>
-        </header>
-        <div class="armor">
-          <strong>Level 4</strong>
-          <p class="muted">263 points</p>
-          <div class="progress">
-            <div class="progress-fill" style="--value:38%"></div>
-          </div>
-          <div class="pill">+ 30 XP</div>
         </div>
       </article>
 
       <article class="dash-card span-2">
         <header class="card-header">
-          <div>
-            <p class="eyebrow">Fichiers récents</p>
-            <h3>Accès rapide</h3>
+          <div class="card-title">
+            <p class="eyebrow">Flux de trésorerie</p>
+            <div class="title-line">
+              <h3>Prévision sur 5 semaines</h3>
+            </div>
           </div>
+          <span class="pill">Graphique simplifié</span>
         </header>
-        <ul class="files">
-          <li><span>Notes d’enfants</span><small>Il y a 3 jours</small></li>
-          <li><span>Soutenance — Étienne</span><small>Il y a 9 jours</small></li>
-          <li><span>Projet Atlas</span><small>Il y a 12 jours</small></li>
-          <li><span>The Verge</span><small>Il y a 18 jours</small></li>
-        </ul>
+        <div class="chart-bars">
+          <div class="bar" style="--h:55%" data-label="S1"></div>
+          <div class="bar" style="--h:80%" data-label="S2"></div>
+          <div class="bar" style="--h:68%" data-label="S3"></div>
+          <div class="bar" style="--h:74%" data-label="S4"></div>
+          <div class="bar" style="--h:52%" data-label="S5"></div>
+        </div>
+        <div class="chart-legend">
+          <span><span class="dot"></span>Entrées + sorties cumulées</span>
+          <span><span class="dot" style="background:#fcbf4c"></span>Plafond mensuel 5 000 €</span>
+          <span><span class="dot" style="background:#34d399"></span>Épargne projetée 1 150 €</span>
+        </div>
       </article>
 
       <article class="dash-card span-2">
         <header class="card-header">
-          <div>
-            <p class="eyebrow">Actualités</p>
-            <h3>En bref</h3>
+          <div class="card-title">
+            <p class="eyebrow">Revenus</p>
+            <div class="title-line">
+              <h3>Prévu vs reçu</h3>
+            </div>
           </div>
+          <span class="status-chip soft">3 800 € reçus</span>
         </header>
-        <ul class="news">
-          <li>
-            <div>
-              <p class="muted">Fintech</p>
-              <strong>Une banque fintech lève 10 M€ auprès d’investisseurs européens</strong>
+        <table class="budget-table">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th class="right">Prévu</th>
+              <th class="right">Reçu</th>
+              <th class="right">Écart</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Salaire principal</td>
+              <td class="right">5 400 €</td>
+              <td class="right">5 400 €</td>
+              <td class="right">0 €</td>
+            </tr>
+            <tr>
+              <td>Mission freelance</td>
+              <td class="right">1 200 €</td>
+              <td class="right">750 €</td>
+              <td class="right">-450 €</td>
+            </tr>
+            <tr>
+              <td>Remboursement</td>
+              <td class="right">250 €</td>
+              <td class="right">0 €</td>
+              <td class="right">-250 €</td>
+            </tr>
+            <tr>
+              <td>Autres</td>
+              <td class="right">350 €</td>
+              <td class="right">250 €</td>
+              <td class="right">-100 €</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="dash-card span-2">
+        <header class="card-header">
+          <div class="card-title">
+            <p class="eyebrow">Dépenses variables</p>
+            <div class="title-line">
+              <h3>Suivi du mois</h3>
             </div>
-            <span class="pill">+ 50 XP</span>
-          </li>
-          <li>
-            <div>
-              <p class="muted">Produits</p>
-              <strong>Marque alimentaire : une nouvelle gamme végétale arrive en magasin</strong>
+          </div>
+          <span class="status-chip">63 % du budget utilisé</span>
+        </header>
+        <table class="budget-table">
+          <thead>
+            <tr>
+              <th>Catégorie</th>
+              <th class="right">Budget</th>
+              <th class="right">Dépensé</th>
+              <th class="right">Reste</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Courses</td>
+              <td class="right">620 €</td>
+              <td class="right">410 €</td>
+              <td class="right">210 €</td>
+            </tr>
+            <tr>
+              <td>Restaurants</td>
+              <td class="right">250 €</td>
+              <td class="right">180 €</td>
+              <td class="right">70 €</td>
+            </tr>
+            <tr>
+              <td>Transport</td>
+              <td class="right">180 €</td>
+              <td class="right">95 €</td>
+              <td class="right">85 €</td>
+            </tr>
+            <tr>
+              <td>Loisirs</td>
+              <td class="right">320 €</td>
+              <td class="right">210 €</td>
+              <td class="right">110 €</td>
+            </tr>
+            <tr>
+              <td>Imprévus</td>
+              <td class="right">150 €</td>
+              <td class="right">60 €</td>
+              <td class="right">90 €</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="dash-card span-2">
+        <header class="card-header">
+          <div class="card-title">
+            <p class="eyebrow">Factures fixes</p>
+            <div class="title-line">
+              <h3>Mois en cours</h3>
             </div>
-            <span class="pill">+ 30 XP</span>
-          </li>
-          <li>
-            <div>
-              <p class="muted">IA</p>
-              <strong>Les assistants vocaux dopés à l’IA débarquent dans la vie quotidienne</strong>
+          </div>
+          <span class="pill">Total prévu : 1 850 €</span>
+        </header>
+        <table class="budget-table">
+          <thead>
+            <tr>
+              <th>Facture</th>
+              <th class="right">Montant</th>
+              <th class="right">Échéance</th>
+              <th class="right">Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Loyer</td>
+              <td class="right">1 150 €</td>
+              <td class="right">05</td>
+              <td class="right">Payé</td>
+            </tr>
+            <tr>
+              <td>Internet / Mobile</td>
+              <td class="right">95 €</td>
+              <td class="right">12</td>
+              <td class="right">Payé</td>
+            </tr>
+            <tr>
+              <td>Énergie</td>
+              <td class="right">160 €</td>
+              <td class="right">18</td>
+              <td class="right">À venir</td>
+            </tr>
+            <tr>
+              <td>Assurances</td>
+              <td class="right">210 €</td>
+              <td class="right">24</td>
+              <td class="right">À venir</td>
+            </tr>
+            <tr>
+              <td>Abonnements</td>
+              <td class="right">135 €</td>
+              <td class="right">28</td>
+              <td class="right">À venir</td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+
+      <article class="dash-card span-2">
+        <header class="card-header">
+          <div class="card-title">
+            <p class="eyebrow">Dettes et crédits</p>
+            <div class="title-line">
+              <h3>Progression de remboursement</h3>
             </div>
-            <span class="pill">+ 30 XP</span>
-          </li>
+          </div>
+          <span class="status-chip soft">1 250 € remboursés</span>
+        </header>
+        <div class="list-grid">
+          <div class="list-tile">
+            <small>Prêt étudiant</small>
+            <strong>7 400 € restants</strong>
+            <div class="bar-line" style="--value:62%"><span></span></div>
+            <small>260 € / mois</small>
+          </div>
+          <div class="list-tile">
+            <small>Carte de crédit</small>
+            <strong>1 050 € restants</strong>
+            <div class="bar-line" style="--value:40%"><span></span></div>
+            <small>150 € / mois</small>
+          </div>
+          <div class="list-tile">
+            <small>Prêt auto</small>
+            <strong>3 200 € restants</strong>
+            <div class="bar-line" style="--value:58%"><span></span></div>
+            <small>210 € / mois</small>
+          </div>
+        </div>
+      </article>
+
+      <article class="dash-card span-2">
+        <header class="card-header">
+          <div class="card-title">
+            <p class="eyebrow">Épargne & objectifs</p>
+            <div class="title-line">
+              <h3>Comptes et enveloppes</h3>
+            </div>
+          </div>
+          <span class="pill">Objectif annuel : 12 000 €</span>
+        </header>
+        <div class="list-grid">
+          <div class="list-tile">
+            <small>Épargne de précaution</small>
+            <strong>6 300 €</strong>
+            <div class="bar-line" style="--value:70%"><span></span></div>
+            <small>Objectif 9 000 €</small>
+          </div>
+          <div class="list-tile">
+            <small>Vacances</small>
+            <strong>1 150 €</strong>
+            <div class="bar-line" style="--value:46%"><span></span></div>
+            <small>Objectif 2 500 €</small>
+          </div>
+          <div class="list-tile">
+            <small>Investissement</small>
+            <strong>4 800 €</strong>
+            <div class="bar-line" style="--value:38%"><span></span></div>
+            <small>Objectif 12 500 €</small>
+          </div>
+        </div>
+      </article>
+
+      <article class="dash-card span-2">
+        <header class="card-header">
+          <div class="card-title">
+            <p class="eyebrow">Notes budget</p>
+            <div class="title-line">
+              <h3>Rappels rapides</h3>
+            </div>
+          </div>
+          <span class="status-chip">Focus discipline</span>
+        </header>
+        <ul class="notes">
+          <li>Reporter 70 € non utilisés en transport vers épargne vacances.</li>
+          <li>Renégocier l’assurance habitation avant le 20 du mois.</li>
+          <li>Prévoir 120 € pour la révision voiture semaine 3.</li>
+          <li>Valider la facture d’électricité dès réception pour éviter le rappel.</li>
         </ul>
       </article>
     </section>
@@ -574,7 +715,11 @@ const topStack       = $('#topStack');
 const topStackFab    = $('#topStackFab');
 const topStackOverlay= $('#topStackOverlay');
 const alertsFab      = $('#alertsFab');
+const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
+const scaleDropdown  = $('#scaleDropdown');
+const scaleToggle    = $('#scaleToggle');
+const scaleMenu      = $('#scaleMenu');
 
 /* ===== Détection tablette / iPad ===== */
 function detectTablet(){
@@ -666,19 +811,21 @@ function updateAlertsFabPosition(){
 
 /* Position dynamique de l'horloge */
 function updateClockPosition(){
-  if(!clockEl) return;
+  if(!clockBar) return;
 
   const isMobile = window.innerWidth < 600;
   if (isMobile){
     return; // cachée par CSS
   }
 
+
   // Desktop (non tablette) : à droite de la navbar
   if (!IS_TABLET){
     if (sidebar){
       const rect = sidebar.getBoundingClientRect();
       const gap  = 12;
-      clockEl.style.left = (rect.right + gap) + 'px';
+      const left = rect.right + gap;
+      clockBar.style.left = left + 'px';
     }
     return;
   }
@@ -687,8 +834,27 @@ function updateClockPosition(){
   if (toggleNavBtn){
     const rect = toggleNavBtn.getBoundingClientRect();
     const gap  = 12;
-    clockEl.style.left = (rect.right + gap) + 'px';
+    const left = rect.right + gap;
+    clockBar.style.left = left + 'px';
   }
+}
+
+function setupScaleDropdown(){
+  if(!scaleDropdown || !scaleToggle || !scaleMenu) return;
+
+  scaleToggle.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const willOpen = !scaleDropdown.classList.contains('open');
+    scaleDropdown.classList.toggle('open', willOpen);
+    scaleToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+  });
+
+  document.addEventListener('click', (e)=>{
+    if (!scaleDropdown.contains(e.target)){
+      scaleDropdown.classList.remove('open');
+      scaleToggle.setAttribute('aria-expanded','false');
+    }
+  });
 }
 function updateTopStackMode(){
   if (!topStack) return;
@@ -700,6 +866,7 @@ function updateTopStackMode(){
     topStack.classList.remove('sheet-mode','open');
     if (topStackFab) topStackFab.classList.remove('show','hidden');
     if (topStackOverlay) topStackOverlay.classList.remove('show');
+    document.body.classList.add('has-desktop-stack');
   } else {
     // iPad + desktop non plein écran : panneau coulissant + bouton rond
     topStack.classList.add('sheet-mode');
@@ -709,6 +876,7 @@ function updateTopStackMode(){
       topStackFab.classList.remove('hidden'); // visible quand panneau fermé
     }
     if (topStackOverlay) topStackOverlay.classList.remove('show');
+    document.body.classList.remove('has-desktop-stack');
   }
 
   updateAlertsFabPosition();
@@ -920,6 +1088,7 @@ function updateClock(){
 
   updateTopStackMode();
   updateClockPosition();
+  setupScaleDropdown();
 
   if (clockEl){
     updateClock();
