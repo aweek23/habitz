@@ -10,6 +10,7 @@
   --accent:#4b7cff;
   --ok:#34d399;
   --warn:#ff8a8a;
+  --sidebar-width:215px;
 }
 *,*::before,*::after{ box-sizing:border-box; }
 html,body{ height:100%; }
@@ -29,26 +30,71 @@ body{
 .icon-mini svg{ width:18px; height:18px; }
 
 /* --- APP/NAV --- */
-.app{ display:flex; min-height:100vh; }
+.app{
+  display:flex;
+  min-height:100vh;
+  /* on laisse de la place pour la sidebar fixe :
+     280px (sidebar) + 24px de “respiration” */
+  margin-left:calc(280px + 24px);
+}
+/* En mode tablette (panneau coulissant), on remet le contenu à gauche */
+body.is-tablet .app{
+  margin-left:0;
+}
 
 /* Sidebar : style “carte” */
+/* Sidebar : carte + enfants alignés sur la largeur des boutons */
+/* Sidebar : style “carte” */
 .sidebar{
-  position:relative;
+  position:fixed;
+  top:12px;
+  bottom:12px;
+  left:12px;
   z-index:700;
-  width:auto;
+  width:var(--sidebar-width); /* largeur fixe pour bien caler tout le reste */
   background:var(--page-bg);
   border:1px solid var(--border);
   border-radius:12px;
   box-shadow:0 10px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
   padding:10px;
-  margin:12px 0 12px 12px;
-  display:flex; flex-direction:column; gap:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
   transition:transform .25s ease;
 }
 
-.side-top{ display:flex; align-items:center; justify-content:space-between; padding:4px 4px 8px; }
-.brand{ font-weight:700; color:var(--text-hi); }
-.nav{ display:flex; flex-direction:column; gap:8px; }
+/* header “Life Tracker” + bouton crayon */
+.side-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:4px 4px 8px;
+  width:100%;
+}
+
+/* zone scrollable : largeur calée sur les boutons */
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  align-self:flex-start;        /* <= la nav prend juste la largeur de son contenu (.menu) */
+  width:max-content;            /* <= donc la scrollbar vient se coller juste à droite des boutons */
+  padding-right:8px;     /* le contenu (les boutons) s’arrête ici */
+  margin-right:-8px;
+}
+
+/* Masquer la scrollbar de la nav, mais garder le scroll */
+.nav{
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge legacy */
+}
+.nav::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+}
 
 /* Liste = largeur du plus long bouton */
 .menu{
@@ -63,17 +109,33 @@ body.is-tablet .menu{ padding:0; width:100%; inline-size:auto; }
 /* Boutons NAV */
 .item{
   display:block; width:100%;
-  text-align:left; padding:10px 44px 10px 12px;
+  text-align:left;
+  padding:10px 44px 10px 12px; /* <= c'est ce 44px qui crée la grosse marge à droite */
   border-radius:10px; border:1px solid transparent;
   color:var(--text-hi); background:transparent; cursor:pointer;
 }
+
+
 .item:hover{ background:var(--item-hov); }
 .item .ico{ width:16px; height:16px; margin-right:8px; }
 
 /* Sous-menus */
-.has-sub .has-sub-btn{ display:flex; align-items:center; justify-content:space-between; width:100%; }
-.has-sub .chev{ width:16px; height:16px; transition:transform .18s ease; }
+.has-sub .has-sub-btn{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+}
+
+.has-sub .chev{
+  width:16px;
+  height:16px;
+  transition:transform .18s ease;
+}
+
 .has-sub.open .chev{ transform:rotate(180deg); }
+.has-sub.open > .submenu{ display:block; }
+
 
 .submenu{
   list-style:none; margin:4px 0 0 0; padding-left:8px; display:none; align-items:stretch;
@@ -91,8 +153,6 @@ body.is-tablet .menu{ padding:0; width:100%; inline-size:auto; }
 /* Réorganisation */
 .sidebar.reorder .menu-item{ border:1px dashed var(--border); border-radius:10px; padding:2px; }
 .sidebar.reorder .item{ cursor:grab; }
-.sidebar.reorder .menu-item[data-fixed="true"]{ border:none; padding:0; }
-.sidebar.reorder .menu-item[data-fixed="true"] .item{ cursor:default; }
 .menu-item.dragging{ opacity:.6; }
 
 /* Masquage + œil */
@@ -131,9 +191,8 @@ body.is-tablet .tablet-toggle{ display:grid; }
 
 /* Quand la navbar tablette est ouverte, on décale le burger à droite de la nav */
 body.is-tablet.nav-open .tablet-toggle{
-  left:calc(12px + 280px + 12px); /* 12 (margin) + 280 (sidebar) + 12 (gap) */
+  left:calc(12px + var(--sidebar-width) + 12px); /* 12 (margin) + largeur sidebar + 12 (gap) */
 }
-
 /* Navbar iPad en mode card coulissante */
 body.is-tablet .sidebar{
   position:fixed;
@@ -141,13 +200,11 @@ body.is-tablet .sidebar{
   top:12px;
   bottom:12px;
   z-index:700;
-  width:280px;
+  width:var(--sidebar-width);
   margin:0;
   border-radius:12px;
   border:1px solid var(--border);
-  background:var(--page-bg);
-  box-shadow:0 10px 24px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
-  transform:translateX(0);
+  bac...
 }
 body.is-tablet .sidebar.collapsed{ transform:translateX(-105%); }
 body.is-tablet .nav-overlay.show{ display:block; }
@@ -192,7 +249,6 @@ body.is-tablet .nav-overlay.show{ display:block; }
   align-items:center;
   gap:8px;
   width:100%;
-  flex:1;
   height:40px;
   padding:0 10px;
   background:var(--page-bg);
@@ -375,23 +431,32 @@ body.is-tablet .nav-overlay.show{ display:block; }
   pointer-events:auto;
 }
 
-/* Barre utilitaires + recherche + horloge alignées */
-.top-bar{
+/* Boutons Messages + Notifications flottants */
+.alerts-fab{
+  position:fixed;
+  top:12px;
+  right:16px;
+  z-index:750;
   display:flex;
-  align-items:center;
-  gap:10px;
-  width:100%;
-}
-.top-actions{
-  display:flex;
-  align-items:center;
   gap:6px;
+}
+.alerts-fab-btn{
+  width:40px;
+  height:40px;       /* même hauteur que la barre de recherche */
+  background:transparent;
+}
+.alerts-fab.with-right-stack{
+  right:calc(320px + 24px); /* à gauche de la colonne de droite */
 }
 
 /* Horloge HH:MM:SS */
 .top-clock{
-  height:36px;
-  padding:0 12px;
+  position:fixed;
+  top:12px;
+  left:64px; /* valeur initiale, recalée par JS */
+  z-index:750;
+  height:40px;
+  padding:0 10px;
   border-radius:8px;
   border:1px solid var(--border);
   background:rgba(12,16,22,.85);
@@ -401,10 +466,18 @@ body.is-tablet .nav-overlay.show{ display:block; }
   align-items:center;
   justify-content:center;
   font-variant-numeric:tabular-nums;
-  white-space:nowrap;
 }
 
-/* cacher certains éléments sur mobile */
+/* Bouton crayon en haut à droite */
+#reorderBtn{
+  margin-right: 8px; /* ajuste 6 / 8 / 10 selon ce que tu vois à l’écran */
+}
+
+/* cacher les éléments flot. sur mobile */
 @media (max-width: 599px){
-  .tablet-toggle{ display:none !important; }
+  .alerts-fab,
+  .top-clock,
+  .tablet-toggle{
+    display:none !important;
+  }
 }
