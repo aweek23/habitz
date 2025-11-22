@@ -280,6 +280,8 @@ try {
       <?php
         $modules = [
           [
+            'key'   => 'budget',
+            'class' => 'module-card module-card--flush',
             'icon'  => null,
             'title' => null,
             'desc'  => null,
@@ -308,30 +310,40 @@ try {
             ]
           ],
           [
+            'key'   => 'dashboard',
+            'class' => 'module-card',
             'icon'  => '📊',
             'title' => 'Tableau de bord',
             'desc'  => 'Visualise l’évolution de tes comptes et de tes catégories clés.',
             'pill'  => 'Vue globale'
           ],
           [
+            'key'   => 'cards',
+            'class' => 'module-card',
             'icon'  => '💳',
             'title' => 'Cartes & abonnements',
             'desc'  => 'Gère les paiements récurrents et les prochaines échéances.',
             'pill'  => '12 abonnements'
           ],
           [
+            'key'   => 'income',
+            'class' => 'module-card',
             'icon'  => '💼',
             'title' => 'Revenus & salaires',
             'desc'  => 'Planifie les prochaines entrées d’argent et leurs répartitions.',
             'pill'  => 'Prévisions'
           ],
           [
+            'key'   => 'accounts',
+            'class' => 'module-card',
             'icon'  => '🏦',
             'title' => 'Comptes & banques',
             'desc'  => 'Synchronise ou saisis tes comptes courants, épargne et placements.',
             'pill'  => '5 comptes'
           ],
           [
+            'key'   => 'goals',
+            'class' => 'module-card',
             'icon'  => '🎯',
             'title' => 'Objectifs',
             'desc'  => 'Fixe des objectifs d’épargne ou de remboursement et suis-les.',
@@ -341,7 +353,8 @@ try {
 
         foreach ($modules as $module):
       ?>
-        <article class="module-card">
+        <div class="module-block module-<?php echo htmlspecialchars($module['key'], ENT_QUOTES, 'UTF-8'); ?>">
+          <article class="<?php echo htmlspecialchars($module['class'], ENT_QUOTES, 'UTF-8'); ?>">
           <?php if (!empty($module['icon'])): ?>
             <div class="module-icon" aria-hidden="true"><?php echo htmlspecialchars($module['icon'], ENT_QUOTES, 'UTF-8'); ?></div>
           <?php endif; ?>
@@ -372,7 +385,8 @@ try {
               </div>
             <?php endif; ?>
           </div>
-        </article>
+          </article>
+        </div>
       <?php endforeach; ?>
     </section>
   </main>
