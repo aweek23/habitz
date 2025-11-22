@@ -283,7 +283,29 @@ try {
             'icon'  => '€',
             'title' => 'Budget mensuel',
             'desc'  => 'Équilibre tes revenus et tes dépenses pour chaque mois.',
-            'pill'  => 'Suivi actif'
+            'pill'  => 'Suivi actif',
+            'stats' => [
+              [
+                'label' => 'Revenus prévus',
+                'value' => '7 200 €',
+                'detail'=> '+ 300 € vs dernier mois'
+              ],
+              [
+                'label' => 'Dépenses prévues',
+                'value' => '4 950 €',
+                'detail'=> '63 % du budget'
+              ],
+              [
+                'label' => 'Épargne projetée',
+                'value' => '1 150 €',
+                'detail'=> 'Taux 16 %'
+              ],
+              [
+                'label' => 'Reste à budgéter',
+                'value' => '1 100 €',
+                'detail'=> 'Inclut 350 € de marge'
+              ],
+            ]
           ],
           [
             'icon'  => '📊',
@@ -330,6 +352,17 @@ try {
                 <?php echo htmlspecialchars($module['pill'], ENT_QUOTES, 'UTF-8'); ?>
               </span>
             </div>
+            <?php if (!empty($module['stats']) && is_array($module['stats'])): ?>
+              <div class="module-stats">
+                <?php foreach ($module['stats'] as $stat): ?>
+                  <article class="stat-card">
+                    <p class="stat-label"><?php echo htmlspecialchars($stat['label'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="stat-value"><?php echo htmlspecialchars($stat['value'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="stat-detail"><?php echo htmlspecialchars($stat['detail'], ENT_QUOTES, 'UTF-8'); ?></p>
+                  </article>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
           </div>
         </article>
       <?php endforeach; ?>
