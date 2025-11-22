@@ -768,7 +768,7 @@ body.is-tablet .nav-overlay.show {
 
 /* Bouton crayon en haut à droite */
 #reorderBtn {
-  margin-right: 8px;
+  margin-right: 0;
 }
 
 /* cacher les éléments flot. sur mobile */
