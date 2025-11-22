@@ -766,11 +766,6 @@ body.is-tablet .nav-overlay.show {
   color: #dce9ff;
 }
 
-/* Bouton crayon en haut à droite */
-#reorderBtn {
-  margin-right: 8px;
-}
-
 /* cacher les éléments flot. sur mobile */
 @media (max-width: 599px) {
   .alerts-fab,
