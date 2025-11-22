@@ -277,6 +277,62 @@ try {
 
   <main class="main dashboard">
     <section class="dashboard-grid budget-grid">
+      <?php
+        $modules = [
+          [
+            'icon'  => '€',
+            'title' => 'Budget mensuel',
+            'desc'  => 'Équilibre tes revenus et tes dépenses pour chaque mois.',
+            'pill'  => 'Suivi actif'
+          ],
+          [
+            'icon'  => '📊',
+            'title' => 'Tableau de bord',
+            'desc'  => 'Visualise l’évolution de tes comptes et de tes catégories clés.',
+            'pill'  => 'Vue globale'
+          ],
+          [
+            'icon'  => '💳',
+            'title' => 'Cartes & abonnements',
+            'desc'  => 'Gère les paiements récurrents et les prochaines échéances.',
+            'pill'  => '12 abonnements'
+          ],
+          [
+            'icon'  => '💼',
+            'title' => 'Revenus & salaires',
+            'desc'  => 'Planifie les prochaines entrées d’argent et leurs répartitions.',
+            'pill'  => 'Prévisions'
+          ],
+          [
+            'icon'  => '🏦',
+            'title' => 'Comptes & banques',
+            'desc'  => 'Synchronise ou saisis tes comptes courants, épargne et placements.',
+            'pill'  => '5 comptes'
+          ],
+          [
+            'icon'  => '🎯',
+            'title' => 'Objectifs',
+            'desc'  => 'Fixe des objectifs d’épargne ou de remboursement et suis-les.',
+            'pill'  => 'En cours'
+          ],
+        ];
+
+        foreach ($modules as $module):
+      ?>
+        <article class="module-card">
+          <div class="module-icon" aria-hidden="true"><?php echo htmlspecialchars($module['icon'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <div class="module-body">
+            <h3 class="module-title"><?php echo htmlspecialchars($module['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+            <p class="module-desc"><?php echo htmlspecialchars($module['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
+            <div class="module-meta">
+              <span class="module-pill">
+                <span class="module-pill-dot" aria-hidden="true"></span>
+                <?php echo htmlspecialchars($module['pill'], ENT_QUOTES, 'UTF-8'); ?>
+              </span>
+            </div>
+          </div>
+        </article>
+      <?php endforeach; ?>
     </section>
   </main>
 </div>
