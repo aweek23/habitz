@@ -277,117 +277,102 @@ try {
 
   <main class="main dashboard">
     <section class="dashboard-grid budget-grid">
-      <?php
-        $modules = [
-          [
-            'key'   => 'budget',
-            'class' => 'module-card module-card--flush',
-            'icon'  => null,
-            'title' => null,
-            'desc'  => null,
-            'pill'  => null,
-            'stats' => [
-              [
-                'label' => 'Revenus prévus',
-                'value' => '7 200 €',
-                'detail'=> '+ 300 € vs dernier mois'
-              ],
-              [
-                'label' => 'Dépenses prévues',
-                'value' => '4 950 €',
-                'detail'=> '63 % du budget'
-              ],
-              [
-                'label' => 'Épargne projetée',
-                'value' => '1 150 €',
-                'detail'=> 'Taux 16 %'
-              ],
-              [
-                'label' => 'Reste à budgéter',
-                'value' => '1 100 €',
-                'detail'=> 'Inclut 350 € de marge'
-              ],
-            ]
-          ],
-          [
-            'key'   => 'dashboard',
-            'class' => 'module-card',
-            'icon'  => '📊',
-            'title' => 'Tableau de bord',
-            'desc'  => 'Visualise l’évolution de tes comptes et de tes catégories clés.',
-            'pill'  => 'Vue globale'
-          ],
-          [
-            'key'   => 'cards',
-            'class' => 'module-card',
-            'icon'  => '💳',
-            'title' => 'Cartes & abonnements',
-            'desc'  => 'Gère les paiements récurrents et les prochaines échéances.',
-            'pill'  => '12 abonnements'
-          ],
-          [
-            'key'   => 'income',
-            'class' => 'module-card',
-            'icon'  => '💼',
-            'title' => 'Revenus & salaires',
-            'desc'  => 'Planifie les prochaines entrées d’argent et leurs répartitions.',
-            'pill'  => 'Prévisions'
-          ],
-          [
-            'key'   => 'accounts',
-            'class' => 'module-card',
-            'icon'  => '🏦',
-            'title' => 'Comptes & banques',
-            'desc'  => 'Synchronise ou saisis tes comptes courants, épargne et placements.',
-            'pill'  => '5 comptes'
-          ],
-          [
-            'key'   => 'goals',
-            'class' => 'module-card',
-            'icon'  => '🎯',
-            'title' => 'Objectifs',
-            'desc'  => 'Fixe des objectifs d’épargne ou de remboursement et suis-les.',
-            'pill'  => 'En cours'
-          ],
-        ];
-
-        foreach ($modules as $module):
-      ?>
-        <div class="module-block module-<?php echo htmlspecialchars($module['key'], ENT_QUOTES, 'UTF-8'); ?>">
-          <article class="<?php echo htmlspecialchars($module['class'], ENT_QUOTES, 'UTF-8'); ?>">
-          <?php if (!empty($module['icon'])): ?>
-            <div class="module-icon" aria-hidden="true"><?php echo htmlspecialchars($module['icon'], ENT_QUOTES, 'UTF-8'); ?></div>
-          <?php endif; ?>
-          <div class="module-body">
-            <?php if (!empty($module['title'])): ?>
-              <h3 class="module-title"><?php echo htmlspecialchars($module['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
-            <?php endif; ?>
-            <?php if (!empty($module['desc'])): ?>
-              <p class="module-desc"><?php echo htmlspecialchars($module['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
-            <?php endif; ?>
-            <?php if (!empty($module['pill'])): ?>
-              <div class="module-meta">
-                <span class="module-pill">
-                  <span class="module-pill-dot" aria-hidden="true"></span>
-                  <?php echo htmlspecialchars($module['pill'], ENT_QUOTES, 'UTF-8'); ?>
-                </span>
-              </div>
-            <?php endif; ?>
-            <?php if (!empty($module['stats']) && is_array($module['stats'])): ?>
-              <div class="module-stats">
-                <?php foreach ($module['stats'] as $stat): ?>
-                  <article class="stat-card">
-                    <p class="stat-label"><?php echo htmlspecialchars($stat['label'], ENT_QUOTES, 'UTF-8'); ?></p>
-                    <p class="stat-value"><?php echo htmlspecialchars($stat['value'], ENT_QUOTES, 'UTF-8'); ?></p>
-                    <p class="stat-detail"><?php echo htmlspecialchars($stat['detail'], ENT_QUOTES, 'UTF-8'); ?></p>
-                  </article>
-                <?php endforeach; ?>
-              </div>
-            <?php endif; ?>
+      <div class="budget-module">
+        <div class="budget-body">
+          <div class="budget-stats">
+            <article class="budget-stat-card">
+              <p class="stat-label">Revenus prévus</p>
+              <p class="stat-value">7 200 €</p>
+              <p class="stat-detail">+ 300 € vs dernier mois</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Dépenses prévues</p>
+              <p class="stat-value">4 950 €</p>
+              <p class="stat-detail">63 % du budget</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Épargne projetée</p>
+              <p class="stat-value">1 150 €</p>
+              <p class="stat-detail">Taux 16 %</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Reste à budgéter</p>
+              <p class="stat-value">1 100 €</p>
+              <p class="stat-detail">Inclut 350 € de marge</p>
+            </article>
           </div>
-          </article>
         </div>
-      <?php endforeach; ?>
+      </div>
+
+      <div class="dashboard-module">
+        <div class="dashboard-icon" aria-hidden="true">📊</div>
+        <div class="dashboard-body">
+          <h3 class="module-title">Tableau de bord</h3>
+          <p class="module-desc">Visualise l’évolution de tes comptes et de tes catégories clés.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              Vue globale
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-module">
+        <div class="cards-icon" aria-hidden="true">💳</div>
+        <div class="cards-body">
+          <h3 class="module-title">Cartes & abonnements</h3>
+          <p class="module-desc">Gère les paiements récurrents et les prochaines échéances.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              12 abonnements
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="income-module">
+        <div class="income-icon" aria-hidden="true">💼</div>
+        <div class="income-body">
+          <h3 class="module-title">Revenus & salaires</h3>
+          <p class="module-desc">Planifie les prochaines entrées d’argent et leurs répartitions.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              Prévisions
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="accounts-module">
+        <div class="accounts-icon" aria-hidden="true">🏦</div>
+        <div class="accounts-body">
+          <h3 class="module-title">Comptes & banques</h3>
+          <p class="module-desc">Synchronise ou saisis tes comptes courants, épargne et placements.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              5 comptes
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="goals-module">
+        <div class="goals-icon" aria-hidden="true">🎯</div>
+        <div class="goals-body">
+          <h3 class="module-title">Objectifs</h3>
+          <p class="module-desc">Fixe des objectifs d’épargne ou de remboursement et suis-les.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              En cours
+            </span>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </div>
