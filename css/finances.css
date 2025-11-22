@@ -37,6 +37,10 @@
   gap:16px;
 }
 
+.module-block{
+  display:flex;
+}
+
 @media (min-width:1600px){
   .dashboard-grid{ grid-template-columns:repeat(3, minmax(0,1fr)); }
 }
@@ -52,6 +56,10 @@
   box-shadow:
     0 10px 28px rgba(0,0,0,.28),
     inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.module-card--flush{
+  padding:0;
 }
 
 .module-icon{
