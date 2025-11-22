@@ -277,6 +277,102 @@ try {
 
   <main class="main dashboard">
     <section class="dashboard-grid budget-grid">
+      <div class="budget-module">
+        <div class="budget-body">
+          <div class="budget-stats">
+            <article class="budget-stat-card">
+              <p class="stat-label">Revenus prévus</p>
+              <p class="stat-value">7 200 €</p>
+              <p class="stat-detail">+ 300 € vs dernier mois</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Dépenses prévues</p>
+              <p class="stat-value">4 950 €</p>
+              <p class="stat-detail">63 % du budget</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Épargne projetée</p>
+              <p class="stat-value">1 150 €</p>
+              <p class="stat-detail">Taux 16 %</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Reste à budgéter</p>
+              <p class="stat-value">1 100 €</p>
+              <p class="stat-detail">Inclut 350 € de marge</p>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-module">
+        <div class="dashboard-icon" aria-hidden="true">📊</div>
+        <div class="dashboard-body">
+          <h3 class="module-title">Tableau de bord</h3>
+          <p class="module-desc">Visualise l’évolution de tes comptes et de tes catégories clés.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              Vue globale
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-module">
+        <div class="cards-icon" aria-hidden="true">💳</div>
+        <div class="cards-body">
+          <h3 class="module-title">Cartes & abonnements</h3>
+          <p class="module-desc">Gère les paiements récurrents et les prochaines échéances.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              12 abonnements
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="income-module">
+        <div class="income-icon" aria-hidden="true">💼</div>
+        <div class="income-body">
+          <h3 class="module-title">Revenus & salaires</h3>
+          <p class="module-desc">Planifie les prochaines entrées d’argent et leurs répartitions.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              Prévisions
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="accounts-module">
+        <div class="accounts-icon" aria-hidden="true">🏦</div>
+        <div class="accounts-body">
+          <h3 class="module-title">Comptes & banques</h3>
+          <p class="module-desc">Synchronise ou saisis tes comptes courants, épargne et placements.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              5 comptes
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="goals-module">
+        <div class="goals-icon" aria-hidden="true">🎯</div>
+        <div class="goals-body">
+          <h3 class="module-title">Objectifs</h3>
+          <p class="module-desc">Fixe des objectifs d’épargne ou de remboursement et suis-les.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              En cours
+            </span>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </div>
