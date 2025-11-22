@@ -277,6 +277,103 @@ try {
 
   <main class="main dashboard">
     <section class="dashboard-grid budget-grid">
+      <?php
+        $modules = [
+          [
+            'icon'  => null,
+            'title' => null,
+            'desc'  => null,
+            'pill'  => null,
+            'stats' => [
+              [
+                'label' => 'Revenus prévus',
+                'value' => '7 200 €',
+                'detail'=> '+ 300 € vs dernier mois'
+              ],
+              [
+                'label' => 'Dépenses prévues',
+                'value' => '4 950 €',
+                'detail'=> '63 % du budget'
+              ],
+              [
+                'label' => 'Épargne projetée',
+                'value' => '1 150 €',
+                'detail'=> 'Taux 16 %'
+              ],
+              [
+                'label' => 'Reste à budgéter',
+                'value' => '1 100 €',
+                'detail'=> 'Inclut 350 € de marge'
+              ],
+            ]
+          ],
+          [
+            'icon'  => '📊',
+            'title' => 'Tableau de bord',
+            'desc'  => 'Visualise l’évolution de tes comptes et de tes catégories clés.',
+            'pill'  => 'Vue globale'
+          ],
+          [
+            'icon'  => '💳',
+            'title' => 'Cartes & abonnements',
+            'desc'  => 'Gère les paiements récurrents et les prochaines échéances.',
+            'pill'  => '12 abonnements'
+          ],
+          [
+            'icon'  => '💼',
+            'title' => 'Revenus & salaires',
+            'desc'  => 'Planifie les prochaines entrées d’argent et leurs répartitions.',
+            'pill'  => 'Prévisions'
+          ],
+          [
+            'icon'  => '🏦',
+            'title' => 'Comptes & banques',
+            'desc'  => 'Synchronise ou saisis tes comptes courants, épargne et placements.',
+            'pill'  => '5 comptes'
+          ],
+          [
+            'icon'  => '🎯',
+            'title' => 'Objectifs',
+            'desc'  => 'Fixe des objectifs d’épargne ou de remboursement et suis-les.',
+            'pill'  => 'En cours'
+          ],
+        ];
+
+        foreach ($modules as $module):
+      ?>
+        <article class="module-card">
+          <?php if (!empty($module['icon'])): ?>
+            <div class="module-icon" aria-hidden="true"><?php echo htmlspecialchars($module['icon'], ENT_QUOTES, 'UTF-8'); ?></div>
+          <?php endif; ?>
+          <div class="module-body">
+            <?php if (!empty($module['title'])): ?>
+              <h3 class="module-title"><?php echo htmlspecialchars($module['title'], ENT_QUOTES, 'UTF-8'); ?></h3>
+            <?php endif; ?>
+            <?php if (!empty($module['desc'])): ?>
+              <p class="module-desc"><?php echo htmlspecialchars($module['desc'], ENT_QUOTES, 'UTF-8'); ?></p>
+            <?php endif; ?>
+            <?php if (!empty($module['pill'])): ?>
+              <div class="module-meta">
+                <span class="module-pill">
+                  <span class="module-pill-dot" aria-hidden="true"></span>
+                  <?php echo htmlspecialchars($module['pill'], ENT_QUOTES, 'UTF-8'); ?>
+                </span>
+              </div>
+            <?php endif; ?>
+            <?php if (!empty($module['stats']) && is_array($module['stats'])): ?>
+              <div class="module-stats">
+                <?php foreach ($module['stats'] as $stat): ?>
+                  <article class="stat-card">
+                    <p class="stat-label"><?php echo htmlspecialchars($stat['label'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="stat-value"><?php echo htmlspecialchars($stat['value'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <p class="stat-detail"><?php echo htmlspecialchars($stat['detail'], ENT_QUOTES, 'UTF-8'); ?></p>
+                  </article>
+                <?php endforeach; ?>
+              </div>
+            <?php endif; ?>
+          </div>
+        </article>
+      <?php endforeach; ?>
     </section>
   </main>
 </div>
