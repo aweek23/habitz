@@ -1,0 +1,781 @@
+:root {
+  --nav-bg: #0c1016;
+  --page-bg: #0b0f13;
+  --item-hov: #131923;
+  --item-act: #1a2230;
+  --text-hi: #e5e7eb;
+  --text-lo: #a5b4c3;
+  --border: rgba(255, 255, 255, 0.06);
+  --ring: rgba(59, 130, 246, 0.45);
+  --accent: #4b7cff;
+  --ok: #34d399;
+  --warn: #ff8a8a;
+  --sidebar-width: 215px;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+:root {
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  background: var(--page-bg);
+  color: var(--text-hi);
+  font:
+    15px/1.4 system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial;
+}
+.hidden {
+  display: none !important;
+}
+.trim-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.icon-mini {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-lo);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.icon-mini:hover {
+  background: var(--item-hov);
+  color: var(--text-hi);
+}
+.icon-mini svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* --- APP/NAV --- */
+.app {
+  display: flex;
+  min-height: 100vh;
+  /* on laisse de la place pour la sidebar fixe :
+     280px (sidebar) + 24px de “respiration” */
+  margin-left: calc(280px + 24px);
+}
+/* En mode tablette (panneau coulissant), on remet le contenu à gauche */
+body.is-tablet .app {
+  margin-left: 0;
+}
+
+/* Sidebar : style “carte” */
+.sidebar {
+  position: fixed;
+  top: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 700;
+  width: var(--sidebar-width); /* largeur fixe pour bien caler tout le reste */
+  background: var(--page-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.25s ease;
+}
+
+/* header “Life Tracker” + bouton crayon */
+.side-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 4px 8px;
+  width: 100%;
+}
+
+/* zone scrollable : largeur calée sur les boutons */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  align-self: flex-start;
+  width: max-content;
+  padding-right: 8px;
+  margin-right: -8px;
+}
+
+/* Masquer la scrollbar de la nav, mais garder le scroll */
+.nav {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge legacy */
+}
+.nav::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Liste = largeur du plus long bouton */
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
+  width: max-content;
+  inline-size: max-content;
+}
+body.is-tablet .menu {
+  padding: 0;
+  width: 100%;
+  inline-size: auto;
+}
+
+.menu-item {
+  user-select: none;
+  position: relative;
+}
+
+/* Boutons NAV */
+.item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 44px 10px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  color: var(--text-hi);
+  background: transparent;
+  cursor: pointer;
+}
+
+.item:hover {
+  background: var(--item-hov);
+}
+.item .ico {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+/* Sous-menus */
+.has-sub .has-sub-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.has-sub .chev {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.18s ease;
+}
+
+.has-sub.open .chev {
+  transform: rotate(180deg);
+}
+.has-sub.open > .submenu {
+  display: block;
+}
+
+.submenu {
+  list-style: none;
+  margin: 4px 0 0 0;
+  padding-left: 8px;
+  display: none;
+  align-items: stretch;
+}
+.has-sub.open > .submenu {
+  display: block;
+}
+.submenu li {
+  list-style: none;
+}
+.subitem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px 8px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: var(--text-hi);
+  background: transparent;
+  cursor: pointer;
+}
+.subitem:hover {
+  background: var(--item-hov);
+}
+
+/* Réorganisation */
+.sidebar.reorder .menu-item {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 2px;
+}
+.sidebar.reorder .item {
+  cursor: grab;
+}
+.menu-item.dragging {
+  opacity: 0.6;
+}
+
+/* Masquage + œil */
+.menu-item.disabled .item {
+  opacity: 0.45;
+}
+.sidebar:not(.reorder) .menu-item.disabled {
+  display: none;
+}
+.vis-toggle {
+  display: none;
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-lo);
+  place-items: center;
+  cursor: pointer;
+}
+.vis-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+.sidebar.reorder .vis-toggle {
+  display: grid;
+}
+.vis-toggle:hover {
+  background: var(--item-hov);
+  color: var(--text-hi);
+}
+
+/* Contenu principal */
+.main {
+  flex: 1;
+  padding: 24px;
+  position: relative;
+  z-index: 0;
+}
+
+/* --- Tablet / overlay --- */
+.tablet-toggle {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  z-index: 1200;
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--nav-bg);
+  color: var(--text-hi);
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+.tablet-toggle:hover {
+  background: #101620;
+}
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  z-index: 600; /* sous navbar + colonne + boutons */
+}
+
+body.is-tablet .tablet-toggle {
+  display: grid;
+}
+
+/* Quand la navbar tablette est ouverte, on décale le burger à droite de la nav */
+body.is-tablet.nav-open .tablet-toggle {
+  left: calc(
+    12px + var(--sidebar-width) + 12px
+  );
+}
+/* Navbar iPad en mode card coulissante */
+body.is-tablet .sidebar {
+  position: fixed;
+  left: 12px;
+  top: 12px;
+  bottom: 12px;
+  z-index: 700;
+  width: var(--sidebar-width);
+  margin: 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--page-bg);
+}
+body.is-tablet .sidebar.collapsed {
+  transform: translateX(-105%);
+}
+body.is-tablet .nav-overlay.show {
+  display: block;
+}
+
+/* --- Colonne droite : barre + panneaux --- */
+.top-stack {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  bottom: 12px;
+  z-index: 650;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+/* Mode desktop plein écran : colonne fixe */
+.top-stack.desktop-static {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Mode panneau coulissant (iPad + desktop non plein écran) */
+.top-stack.sheet-mode {
+  transform: translateX(110%);
+  opacity: 0;
+  pointer-events: none;
+}
+.top-stack.sheet-mode.open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* barre de recherche (40px de haut) */
+.top-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 0 10px;
+  background: var(--page-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.top-search .search-ico {
+  width: 18px;
+  height: 18px;
+  color: var(--text-lo);
+}
+.top-search input[type="search"] {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--text-hi);
+  font-size: 14px;
+}
+
+/* cartes de la colonne droite */
+.top-panel {
+  position: relative;
+  width: 100%;
+  background: var(--page-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  padding: 12px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* la carte Raccourcis rapides remplit l’espace dispo entre search et profil */
+#topPanel {
+  flex: 1;
+  padding-bottom: 56px; /* espace pour le bouton plume */
+}
+
+.top-panel h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+.top-panel p {
+  margin: 0;
+  color: var(--text-lo);
+  font-size: 14px;
+}
+
+/* Onglets For you / Followings / Discover */
+.top-panel-tabs {
+  display: flex;
+  margin: 0 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.top-tab {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  border: none;
+  background: transparent;
+  color: var(--text-lo);
+  font-size: 14px;
+  padding: 4px 0;
+  cursor: pointer;
+}
+.top-tab.active {
+  color: var(--text-hi);
+  font-weight: 600;
+}
+.top-tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 2px;
+  border-radius: 999px;
+  background: transparent;
+}
+.top-tab.active::after {
+  background: var(--accent);
+}
+
+/* Bouton plume en bas à droite du panneau */
+.top-panel-compose {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--accent);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+.top-panel-compose svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* --- Carte profil utilisateur --- */
+.top-panel-user {
+  min-height: auto;
+  padding: 10px 12px;
+}
+
+.top-user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* bloc gauche : avatar + pseudo */
+.top-user-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.top-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), #22c55e);
+  flex-shrink: 0;
+}
+
+.top-user-name {
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* bloc droite : boutons sur la même ligne */
+.top-user-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Bouton rond pour le panneau coulissant */
+.topstack-fab {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--accent);
+  color: #fff;
+  display: none; /* JS ajoute .show */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+  z-index: 750;
+}
+.topstack-fab svg {
+  width: 24px;
+  height: 24px;
+}
+.topstack-fab:hover {
+  filter: brightness(1.06);
+}
+.topstack-fab.show {
+  display: flex;
+}
+.topstack-fab.hidden {
+  display: none !important;
+}
+
+/* Overlay pour le panneau coulissant */
+.topstack-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.topstack-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Boutons Messages + Notifications flottants */
+.alerts-fab {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: 750;
+  display: flex;
+  gap: 6px;
+}
+.alerts-fab-btn {
+  width: 40px;
+  height: 40px; /* même hauteur que la barre de recherche */
+  background: transparent;
+}
+.alerts-fab.with-right-stack {
+  right: calc(320px + 24px); /* à gauche de la colonne de droite */
+}
+
+/* Horloge HH:MM:SS + contrôles période */
+.top-clock-bar {
+  position: fixed;
+  top: 12px;
+  left: 64px; /* valeur initiale, recalée par JS */
+  z-index: 750;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+}
+
+.top-clock {
+  position: relative;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(12, 16, 22, 0.85);
+  color: var(--text-lo);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.top-clock-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.period-cycle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: rgba(12, 16, 22, 0.85);
+  border: 1px solid var(--border);
+  color: var(--text-hi);
+  font-size: 13px;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.period-cycle:hover {
+  border-color: #4b7cff;
+  color: #dce9ff;
+}
+
+.period-cycle .label {
+  font-weight: 600;
+}
+.period-cycle .cycle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-lo);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.period-cycle .cycle-btn:hover {
+  color: #dce9ff;
+  background: rgba(75, 124, 255, 0.12);
+}
+.period-cycle .cycle-btn:focus-visible {
+  outline: 2px solid #4b7cff;
+  outline-offset: 2px;
+}
+
+.period-scale-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: rgba(12, 16, 22, 0.85);
+  border: 1px solid var(--border);
+  color: var(--text-hi);
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.period-scale-btn:hover {
+  border-color: #4b7cff;
+  color: #dce9ff;
+}
+
+.scale-dropdown {
+  position: relative;
+}
+.period-scale-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.scale-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 150px;
+  background: rgba(12, 16, 22, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 760;
+}
+
+.scale-dropdown.open .scale-menu {
+  display: flex;
+}
+
+.scale-menu button {
+  width: 100%;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-hi);
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.scale-menu button:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border);
+}
+.scale-menu button.active {
+  background: rgba(75, 124, 255, 0.15);
+  border-color: #4b7cff;
+  color: #dce9ff;
+}
+
+/* Bouton crayon en haut à droite */
+#reorderBtn {
+  margin-right: 8px;
+}
+
+/* cacher les éléments flot. sur mobile */
+@media (max-width: 599px) {
+  .alerts-fab,
+  .top-clock-bar,
+  .tablet-toggle {
+    display: none !important;
+  }
+}
