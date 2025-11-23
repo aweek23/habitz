@@ -166,13 +166,18 @@ try {
 
 <div id="navOverlay" class="nav-overlay"></div>
 
-<div class="app">
-  <aside class="sidebar" id="sidebar">
-    <div class="side-top">
-      <div class="brand">Life Tracker</div>
-    </div>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-top">
+        <div class="brand">Life Tracker</div>
+        <button id="reorderBtn" class="icon-mini reorder-btn" type="button" title="Réorganiser les modules">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M4 7h16M4 12h10M4 17h6" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        </button>
+      </div>
 
-    <nav class="nav">
+      <nav class="nav">
         <ul id="menuTop" class="menu">
   <!-- Tâches / Habitudes / Projets -->
   <li class="menu-item" data-key="tasks">
@@ -383,6 +388,7 @@ const topStackOverlay= $('#topStackOverlay');
 const alertsFab      = $('#alertsFab');
 const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
+const reorderBtn     = $('#reorderBtn');
 const scaleDropdown  = $('#scaleDropdown');
 const scaleToggle    = $('#scaleToggle');
 const scaleMenu      = $('#scaleMenu');
@@ -403,10 +409,13 @@ function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
   if(on){
     sidebar.classList.add('collapsed');
-    enableDrag(false);
+    setReorderMode(false);
+    if (reorderBtn) reorderBtn.setAttribute('disabled','disabled');
     toggleNavBtn.style.display='grid';
   }else{
     sidebar.classList.remove('collapsed');
+    if (reorderBtn) reorderBtn.removeAttribute('disabled');
+    enableDrag(sidebar.classList.contains('reorder'));
     toggleNavBtn.style.display='none';
     document.body.classList.remove('nav-open');
   }
@@ -605,6 +614,18 @@ function applyPrefs() {
   hidden.forEach(k => menuTop.appendChild(liOf(k)));
   $$('.vis-toggle').forEach(b => b.style.display = sidebar.classList.contains('reorder') ? 'grid' : 'none');
 }
+
+function setReorderMode(on){
+  const enable = !!on && !IS_TABLET;
+  sidebar.classList.toggle('reorder', enable);
+  enableDrag(enable);
+  $$('.vis-toggle').forEach(b => b.style.display = enable ? 'grid' : 'none');
+  if (reorderBtn){
+    reorderBtn.classList.toggle('active', enable);
+    reorderBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
+  }
+  applyPrefs();
+}
 async function loadPrefs(){
   const r=await fetch('php/modules_prefs.php?action=get',{credentials:'same-origin',cache:'no-store'});
   const data=r.ok?await r.json():{ok:false};
@@ -671,6 +692,13 @@ menuTop.addEventListener('dragover',e=>{
   menuTop.insertBefore(dragSrc, before?over:over.nextSibling);
 });
 
+if (reorderBtn){
+  reorderBtn.addEventListener('click', ()=>{
+    const willEnable = !sidebar.classList.contains('reorder');
+    setReorderMode(willEnable);
+  });
+}
+
 /* Sous-menus */
 $$('.has-sub .has-sub-btn').forEach(btn=>{
   btn.addEventListener('click',()=>btn.closest('.has-sub').classList.toggle('open'));
@@ -733,7 +761,7 @@ function updateClock(){
 (async function init(){
   IS_TABLET = detectTablet();
   applyTabletMode(IS_TABLET);
-  enableDrag(false);
+  setReorderMode(false);
   await loadPrefs();
 
   attachLogoutHandler($('#topLogoutBtn'));
