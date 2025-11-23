@@ -67,3 +67,8 @@
   left: calc(var(--sidebar-width) + 24px);
   right: 0;
 }
+
+.test-page.is-tablet .mid-column,
+.test-page.is-tablet .sidebar{
+  background: var(--page-bg);
+}

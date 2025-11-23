@@ -11,6 +11,7 @@
   --ok: #34d399;
   --warn: #ff8a8a;
   --sidebar-width: 190px;
+  --right-stack-width: 320px;
 }
 *,
 *::before,
@@ -642,7 +643,7 @@ body.is-tablet .alerts-fab {
   background: transparent;
 }
 .alerts-fab.with-right-stack {
-  right: calc(320px + 24px); /* à gauche de la colonne de droite */
+  right: calc(var(--right-stack-width) + 24px); /* à gauche de la colonne de droite */
 }
 
 /* Horloge HH:MM:SS + contrôles période */
