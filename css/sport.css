@@ -104,5 +104,19 @@
 .steps-evolution{ padding:16px 18px 18px; display:flex; flex-direction:column; gap:10px; height:100%; }
 .steps-evolution-header{ display:flex; align-items:center; justify-content:space-between; }
 .steps-evolution-title{ margin:0; font-size:15px; letter-spacing:0.01em; }
-.steps-chart{ background:rgba(255,255,255,.02); border:1px solid var(--card-border); border-radius:10px; padding:10px; }
+.steps-filters{ display:flex; gap:6px; }
+.steps-filter-btn{
+  background:transparent;
+  color:var(--muted);
+  border:1px solid var(--card-border);
+  border-radius:8px;
+  padding:5px 10px;
+  font-size:12px;
+  letter-spacing:0.01em;
+  cursor:pointer;
+  transition:all .16s ease;
+}
+.steps-filter-btn:hover{ border-color:rgba(255,255,255,.14); color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.24); }
+.steps-filter-btn:active{ transform:translateY(1px); }
+.steps-chart{ background:transparent; border:none; border-radius:0; padding:0; }
 .steps-chart svg{ width:100%; height:140px; display:block; }

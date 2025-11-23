@@ -205,6 +205,11 @@ $currentUsername = fetch_username($pdo, $userId);
           <div class="steps-evolution">
             <div class="steps-evolution-header">
               <h3 class="steps-evolution-title">Evolution du nombre de pas</h3>
+              <div class="steps-filters" role="group" aria-label="Période du graphique">
+                <button type="button" class="steps-filter-btn">7d</button>
+                <button type="button" class="steps-filter-btn">1m</button>
+                <button type="button" class="steps-filter-btn">1y</button>
+              </div>
             </div>
             <div class="steps-chart" role="img" aria-label="Graphique de l'évolution des pas">
               <svg viewBox="0 0 320 140" preserveAspectRatio="none">
