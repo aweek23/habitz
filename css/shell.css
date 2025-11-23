@@ -662,6 +662,11 @@ body.is-tablet .nav-overlay.show {
   gap: 8px;
 }
 
+.top-clock-bar.hide-controls .period-cycle,
+.top-clock-bar.hide-controls .scale-dropdown {
+  display: none;
+}
+
 .period-cycle {
   display: inline-flex;
   align-items: center;

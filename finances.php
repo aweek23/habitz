@@ -529,6 +529,19 @@ function setupScaleDropdown(){
     }
   });
 }
+
+function setClockControlsHidden(hide){
+  if (!clockBar) return;
+  clockBar.classList.toggle('hide-controls', !!hide);
+}
+function updateClockControlsVisibility(){
+  if (!topStack){
+    setClockControlsHidden(false);
+    return;
+  }
+  const hideControls = topStack.classList.contains('sheet-mode') && topStack.classList.contains('open');
+  setClockControlsHidden(hideControls);
+}
 function updateTopStackMode(){
   if (!topStack) return;
   const fullDesktop = (!IS_TABLET && isWindowMaximized());
@@ -554,6 +567,7 @@ function updateTopStackMode(){
 
   updateAlertsFabPosition();
   updateClockPosition();
+  updateClockControlsVisibility();
 }
 document.addEventListener('fullscreenchange', () => {
   updateTopStackMode();
@@ -566,8 +580,10 @@ function closeTopStackSheet(){
   topStack.classList.remove('open');
   if (topStackOverlay) topStackOverlay.classList.remove('show');
   if (topStackFab) topStackFab.classList.remove('hidden'); // re-affiche le bouton
+  setClockControlsHidden(false);
   updateAlertsFabPosition();
   updateClockPosition();
+  updateClockControlsVisibility();
 }
 if (topStackFab){
   topStackFab.addEventListener('click', ()=>{
@@ -578,6 +594,7 @@ if (topStackFab){
     if (topStackFab) topStackFab.classList.toggle('hidden', willOpen); // caché quand ouvert
     updateAlertsFabPosition();
     updateClockPosition();
+    updateClockControlsVisibility();
   });
 }
 if (topStackOverlay){
