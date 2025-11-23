@@ -94,24 +94,25 @@
 }
 
 .budget-split{
-  margin-top:6px;
+  margin-top:0;
   display:flex;
   justify-content:flex-end;
 }
 
 .budget-chart-frame{
-  max-width:720px;
-  width:100%;
-  border:1px solid var(--card-border);
-  border-radius:12px;
-  background:radial-gradient(circle at 20% 20%, rgba(255,255,255,.04), transparent 45%), var(--card-bg);
+  width:fit-content;
+  max-width:100%;
+  border:none;
+  border-radius:10px;
+  background:transparent;
   overflow:hidden;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  box-shadow:none;
 }
 
 .budget-chart-img{
   display:block;
-  width:100%;
+  width:420px;
+  max-width:100%;
   height:auto;
   object-fit:contain;
 }
@@ -149,7 +150,7 @@
 
 .dashboard-body-chart{
   flex-direction:row;
-  align-items:flex-start;
+  align-items:center;
   gap:16px;
   flex-wrap:wrap;
 }
