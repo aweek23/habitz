@@ -182,23 +182,22 @@ $currentUsername = fetch_username($pdo, $userId);
 </button>
 
 <!-- Horloge HH:MM:SS -->
-<div id="topClock" class="top-clock">--:--:--</div>
+<div id="topClockBar" class="top-clock-bar simple-clock-bar">
+  <div id="topClock" class="top-clock">--:--:--</div>
+</div>
 
 <div id="navOverlay" class="nav-overlay"></div>
 
-<div class="app">
-  <aside class="sidebar" id="sidebar">
-    <div class="side-top">
-      <div class="brand">Life Tracker</div>
-      <div style="display:flex; gap:6px;">
-        <button id="reorderBtn" class="icon-mini" title="Modifier l’ordre">
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-top">
+        <div class="brand">Life Tracker</div>
+        <button id="reorderBtn" class="icon-mini reorder-btn" type="button" title="Réorganiser les modules">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-            <path d="M12 20h9" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5z" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M4 7h16M4 12h10M4 17h6" stroke-width="1.8" stroke-linecap="round"></path>
           </svg>
         </button>
       </div>
-    </div>
 
       <nav class="nav">
         <ul id="menuTop" class="menu">
@@ -245,14 +244,15 @@ const $$ = (s)=>Array.from(document.querySelectorAll(s));
 
 const sidebar        = $('#sidebar');
 const menuTop        = $('#menuTop');
-const reorderBtn     = $('#reorderBtn');
 const toggleNavBtn   = $('#toggleNavBtn');
 const navOverlay     = $('#navOverlay');
 const topStack       = $('#topStack');
 const topStackFab    = $('#topStackFab');
 const topStackOverlay= $('#topStackOverlay');
 const alertsFab      = $('#alertsFab');
+const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
+const reorderBtn     = $('#reorderBtn');
 
 /* ===== Détection tablette / iPad ===== */
 function detectTablet(){
@@ -270,12 +270,13 @@ function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
   if(on){
     sidebar.classList.add('collapsed');
-    reorderBtn.style.display='';
-    enableDrag(false);
+    setReorderMode(false);
+    if (reorderBtn) reorderBtn.setAttribute('disabled','disabled');
     toggleNavBtn.style.display='grid';
   }else{
     sidebar.classList.remove('collapsed');
-    reorderBtn.style.display='';
+    if (reorderBtn) reorderBtn.removeAttribute('disabled');
+    enableDrag(sidebar.classList.contains('reorder'));
     toggleNavBtn.style.display='none';
     document.body.classList.remove('nav-open');
   }
@@ -344,7 +345,8 @@ function updateAlertsFabPosition(){
 
 /* Position dynamique de l'horloge */
 function updateClockPosition(){
-  if(!clockEl) return;
+  const clockTarget = clockBar || clockEl;
+  if(!clockTarget) return;
 
   const isMobile = window.innerWidth < 600;
   if (isMobile){
@@ -356,7 +358,7 @@ function updateClockPosition(){
     if (sidebar){
       const rect = sidebar.getBoundingClientRect();
       const gap  = 12;
-      clockEl.style.left = (rect.right + gap) + 'px';
+      clockTarget.style.left = (rect.right + gap) + 'px';
     }
     return;
   }
@@ -365,7 +367,7 @@ function updateClockPosition(){
   if (toggleNavBtn){
     const rect = toggleNavBtn.getBoundingClientRect();
     const gap  = 12;
-    clockEl.style.left = (rect.right + gap) + 'px';
+    clockTarget.style.left = (rect.right + gap) + 'px';
   }
 }
 function updateTopStackMode(){
@@ -451,6 +453,18 @@ function applyPrefs() {
   hidden.forEach(k => menuTop.appendChild(liOf(k)));
   $$('.vis-toggle').forEach(b => b.style.display = sidebar.classList.contains('reorder') ? 'grid' : 'none');
 }
+
+function setReorderMode(on){
+  const enable = !!on && !IS_TABLET;
+  sidebar.classList.toggle('reorder', enable);
+  enableDrag(enable);
+  $$('.vis-toggle').forEach(b => b.style.display = enable ? 'grid' : 'none');
+  if (reorderBtn){
+    reorderBtn.classList.toggle('active', enable);
+    reorderBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
+  }
+  applyPrefs();
+}
 async function loadPrefs(){
   const r=await fetch('php/modules_prefs.php?action=get',{credentials:'same-origin',cache:'no-store'});
   const data=r.ok?await r.json():{ok:false};
@@ -517,14 +531,12 @@ menuTop.addEventListener('dragover',e=>{
   menuTop.insertBefore(dragSrc, before?over:over.nextSibling);
 });
 
-/* Mode édition */
-let reordering=false;
-reorderBtn.addEventListener('click', ()=>{
-  reordering=!reordering;
-  sidebar.classList.toggle('reorder',reordering);
-  enableDrag(!IS_TABLET && reordering);
-  $$('.vis-toggle').forEach(b=> b.style.display = reordering ? 'grid' : 'none');
-});
+if (reorderBtn){
+  reorderBtn.addEventListener('click', ()=>{
+    const willEnable = !sidebar.classList.contains('reorder');
+    setReorderMode(willEnable);
+  });
+}
 
 /* Sous-menus */
 $$('.has-sub .has-sub-btn').forEach(btn=>{
@@ -588,7 +600,7 @@ function updateClock(){
 (async function init(){
   IS_TABLET = detectTablet();
   applyTabletMode(IS_TABLET);
-  enableDrag(false);
+  setReorderMode(false);
   await loadPrefs();
 
   attachLogoutHandler($('#topLogoutBtn'));

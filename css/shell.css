@@ -10,7 +10,7 @@
   --accent: #4b7cff;
   --ok: #34d399;
   --warn: #ff8a8a;
-  --sidebar-width: 215px;
+  --sidebar-width: 190px;
 }
 *,
 *::before,
@@ -69,9 +69,8 @@ body {
 .app {
   display: flex;
   min-height: 100vh;
-  /* on laisse de la place pour la sidebar fixe :
-     280px (sidebar) + 24px de “respiration” */
-  margin-left: calc(280px + 24px);
+  /* on laisse de la place pour la sidebar fixe : largeur réelle + respiration */
+  margin-left: calc(var(--sidebar-width) + 24px);
 }
 /* En mode tablette (panneau coulissant), on remet le contenu à gauche */
 body.is-tablet .app {
@@ -92,7 +91,7 @@ body.is-tablet .app {
   box-shadow:
     0 10px 24px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  padding: 10px;
+  padding: 10px 6px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -108,6 +107,24 @@ body.is-tablet .app {
   width: 100%;
 }
 
+.reorder-btn {
+  flex-shrink: 0;
+  margin-left: 8px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+}
+.reorder-btn.active {
+  border-color: var(--accent);
+  background: var(--item-hov);
+  color: var(--text-hi);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.reorder-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* zone scrollable : largeur calée sur les boutons */
 .nav {
   display: flex;
@@ -116,10 +133,10 @@ body.is-tablet .app {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  align-self: flex-start;
-  width: max-content;
-  padding-right: 8px;
-  margin-right: -8px;
+  width: 100%;
+  align-self: stretch;
+  padding-right: 0;
+  margin-right: 0;
 }
 
 /* Masquer la scrollbar de la nav, mais garder le scroll */
@@ -141,13 +158,13 @@ body.is-tablet .app {
   flex-direction: column;
   gap: 6px;
   align-items: stretch;
-  width: max-content;
-  inline-size: max-content;
+  width: 100%;
+  inline-size: 100%;
 }
 body.is-tablet .menu {
   padding: 0;
   width: 100%;
-  inline-size: auto;
+  inline-size: 100%;
 }
 
 .menu-item {
@@ -160,7 +177,7 @@ body.is-tablet .menu {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 10px 44px 10px 12px;
+  padding: 10px 12px 10px 12px;
   border-radius: 10px;
   border: 1px solid transparent;
   color: var(--text-hi);
@@ -181,8 +198,10 @@ body.is-tablet .menu {
 .has-sub .has-sub-btn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  column-gap: 8px;
   width: 100%;
+  padding-right: 12px;
 }
 
 .has-sub .chev {
@@ -215,7 +234,7 @@ body.is-tablet .menu {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 8px 12px 8px 14px;
+  padding: 8px 12px 8px 12px;
   border-radius: 8px;
   border: 1px solid transparent;
   color: var(--text-hi);
@@ -619,22 +638,33 @@ body.is-tablet .nav-overlay.show {
 .top-clock {
   position: relative;
   height: 40px;
-  padding: 0 10px;
+  padding: 0 14px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: rgba(12, 16, 22, 0.85);
-  color: var(--text-lo);
-  font-size: 13px;
+  color: var(--text-hi);
+  font-size: 14px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   font-variant-numeric: tabular-nums;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.simple-clock-bar {
+  gap: 0;
 }
 
 .top-clock-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.top-clock-bar.hide-controls .period-cycle,
+.top-clock-bar.hide-controls .scale-dropdown {
+  display: none;
 }
 
 .period-cycle {
@@ -764,11 +794,6 @@ body.is-tablet .nav-overlay.show {
   background: rgba(75, 124, 255, 0.15);
   border-color: #4b7cff;
   color: #dce9ff;
-}
-
-/* Bouton crayon en haut à droite */
-#reorderBtn {
-  margin-right: 8px;
 }
 
 /* cacher les éléments flot. sur mobile */
