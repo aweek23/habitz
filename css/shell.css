@@ -10,7 +10,7 @@
   --accent: #4b7cff;
   --ok: #34d399;
   --warn: #ff8a8a;
-  --sidebar-width: 215px;
+  --sidebar-width: 205px;
 }
 *,
 *::before,
@@ -69,9 +69,8 @@ body {
 .app {
   display: flex;
   min-height: 100vh;
-  /* on laisse de la place pour la sidebar fixe :
-     280px (sidebar) + 24px de “respiration” */
-  margin-left: calc(280px + 24px);
+  /* on laisse de la place pour la sidebar fixe : largeur réelle + respiration */
+  margin-left: calc(var(--sidebar-width) + 24px);
 }
 /* En mode tablette (panneau coulissant), on remet le contenu à gauche */
 body.is-tablet .app {
@@ -160,7 +159,7 @@ body.is-tablet .menu {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 10px 44px 10px 12px;
+  padding: 10px 26px 10px 12px;
   border-radius: 10px;
   border: 1px solid transparent;
   color: var(--text-hi);
@@ -215,7 +214,7 @@ body.is-tablet .menu {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 8px 12px 8px 14px;
+  padding: 8px 14px 8px 14px;
   border-radius: 8px;
   border: 1px solid transparent;
   color: var(--text-hi);
@@ -619,16 +618,22 @@ body.is-tablet .nav-overlay.show {
 .top-clock {
   position: relative;
   height: 40px;
-  padding: 0 10px;
+  padding: 0 14px;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: rgba(12, 16, 22, 0.85);
-  color: var(--text-lo);
-  font-size: 13px;
+  color: var(--text-hi);
+  font-size: 14px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   font-variant-numeric: tabular-nums;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+.simple-clock-bar {
+  gap: 0;
 }
 
 .top-clock-actions {

@@ -170,14 +170,6 @@ try {
   <aside class="sidebar" id="sidebar">
     <div class="side-top">
       <div class="brand">Life Tracker</div>
-      <div style="display:flex; gap:6px;">
-        <button id="reorderBtn" class="icon-mini" title="Modifier l’ordre">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-            <path d="M12 20h9" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5z" stroke-width="1.6" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
     </div>
 
     <nav class="nav">
@@ -383,7 +375,6 @@ const $$ = (s)=>Array.from(document.querySelectorAll(s));
 
 const sidebar        = $('#sidebar');
 const menuTop        = $('#menuTop');
-const reorderBtn     = $('#reorderBtn');
 const toggleNavBtn   = $('#toggleNavBtn');
 const navOverlay     = $('#navOverlay');
 const topStack       = $('#topStack');
@@ -412,12 +403,10 @@ function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
   if(on){
     sidebar.classList.add('collapsed');
-    reorderBtn.style.display='';
     enableDrag(false);
     toggleNavBtn.style.display='grid';
   }else{
     sidebar.classList.remove('collapsed');
-    reorderBtn.style.display='';
     toggleNavBtn.style.display='none';
     document.body.classList.remove('nav-open');
   }
@@ -680,15 +669,6 @@ menuTop.addEventListener('dragover',e=>{
   if (serverModules[over.dataset.key]?.visible !== 'Yes') return;
   const r=over.getBoundingClientRect(); const before=e.clientY<r.top+r.height/2;
   menuTop.insertBefore(dragSrc, before?over:over.nextSibling);
-});
-
-/* Mode édition */
-let reordering=false;
-reorderBtn.addEventListener('click', ()=>{
-  reordering=!reordering;
-  sidebar.classList.toggle('reorder',reordering);
-  enableDrag(!IS_TABLET && reordering);
-  $$('.vis-toggle').forEach(b=> b.style.display = reordering ? 'grid' : 'none');
 });
 
 /* Sous-menus */

@@ -182,7 +182,9 @@ $currentUsername = fetch_username($pdo, $userId);
 </button>
 
 <!-- Horloge HH:MM:SS -->
-<div id="topClock" class="top-clock">--:--:--</div>
+<div id="topClockBar" class="top-clock-bar simple-clock-bar">
+  <div id="topClock" class="top-clock">--:--:--</div>
+</div>
 
 <div id="navOverlay" class="nav-overlay"></div>
 
@@ -243,6 +245,7 @@ const topStack       = $('#topStack');
 const topStackFab    = $('#topStackFab');
 const topStackOverlay= $('#topStackOverlay');
 const alertsFab      = $('#alertsFab');
+const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
 
 /* ===== Détection tablette / iPad ===== */
@@ -333,7 +336,8 @@ function updateAlertsFabPosition(){
 
 /* Position dynamique de l'horloge */
 function updateClockPosition(){
-  if(!clockEl) return;
+  const clockTarget = clockBar || clockEl;
+  if(!clockTarget) return;
 
   const isMobile = window.innerWidth < 600;
   if (isMobile){
@@ -345,7 +349,7 @@ function updateClockPosition(){
     if (sidebar){
       const rect = sidebar.getBoundingClientRect();
       const gap  = 12;
-      clockEl.style.left = (rect.right + gap) + 'px';
+      clockTarget.style.left = (rect.right + gap) + 'px';
     }
     return;
   }
@@ -354,7 +358,7 @@ function updateClockPosition(){
   if (toggleNavBtn){
     const rect = toggleNavBtn.getBoundingClientRect();
     const gap  = 12;
-    clockEl.style.left = (rect.right + gap) + 'px';
+    clockTarget.style.left = (rect.right + gap) + 'px';
   }
 }
 function updateTopStackMode(){
