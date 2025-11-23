@@ -553,6 +553,7 @@ if (toggleNavBtn){
     if (navOverlay){
       navOverlay.classList.toggle('show', shouldOpen);
     }
+    requestAnimationFrame(updateClockPosition);
   };
 
   toggleNavBtn.addEventListener('click', ()=> setNavOpen());
@@ -564,6 +565,7 @@ if (navOverlay){
     if (sidebar){
       sidebar.classList.add('collapsed');
     }
+    requestAnimationFrame(updateClockPosition);
   });
 }
 
