@@ -63,3 +63,7 @@
 .test-page .top-stack.sheet-mode.open{ transform:translateX(0); opacity:1; pointer-events:auto; }
 
 .test-page .nav-overlay{ z-index:900; }
+.test-page.is-tablet.nav-open .nav-overlay{
+  left: calc(var(--sidebar-width) + 24px);
+  right: 0;
+}
