@@ -316,8 +316,12 @@ function updateAlertsFabPosition(){
   alertsFab.style.display = 'flex';
 
   alertsFab.classList.remove('with-right-stack');
+  alertsFab.style.right = '';
 
   const fullDesktop = (!IS_TABLET && isWindowMaximized());
+  const tabletGap   = IS_TABLET ? 12 : 16;
+  const stackWidth  = rightColumn ? Math.round(rightColumn.getBoundingClientRect().width) : 320;
+  document.documentElement.style.setProperty('--right-stack-width', `${stackWidth}px`);
 
   if (fullDesktop){
     let hasRightStack = false;
@@ -338,6 +342,9 @@ function updateAlertsFabPosition(){
     }
     if (sheetOpen){
       alertsFab.classList.add('with-right-stack');
+      alertsFab.style.right = `calc(${stackWidth}px + ${tabletGap + 12}px)`;
+    } else {
+      alertsFab.style.right = `${tabletGap}px`;
     }
   }
 }
@@ -544,15 +551,28 @@ if (menuTop){
 }
 
 if (toggleNavBtn){
-  toggleNavBtn.addEventListener('click', ()=>{
-    document.body.classList.toggle('nav-open');
-    navOverlay.classList.toggle('show');
-  });
+  const setNavOpen = (open)=>{
+    const shouldOpen = open !== undefined ? open : !document.body.classList.contains('nav-open');
+    document.body.classList.toggle('nav-open', shouldOpen);
+    if (sidebar){
+      sidebar.classList.toggle('collapsed', !shouldOpen);
+    }
+    if (navOverlay){
+      navOverlay.classList.toggle('show', shouldOpen);
+    }
+    requestAnimationFrame(updateClockPosition);
+  };
+
+  toggleNavBtn.addEventListener('click', ()=> setNavOpen());
 }
 if (navOverlay){
   navOverlay.addEventListener('click', ()=>{
     document.body.classList.remove('nav-open');
     navOverlay.classList.remove('show');
+    if (sidebar){
+      sidebar.classList.add('collapsed');
+    }
+    requestAnimationFrame(updateClockPosition);
   });
 }
 

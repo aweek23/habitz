@@ -11,6 +11,7 @@
   --ok: #34d399;
   --warn: #ff8a8a;
   --sidebar-width: 190px;
+  --right-stack-width: 320px;
 }
 *,
 *::before,
@@ -364,6 +365,15 @@ body.is-tablet .sidebar {
 body.is-tablet .sidebar.collapsed {
   transform: translateX(-105%);
 }
+body.is-tablet:not(.nav-open) .sidebar {
+  transform: translateX(-105%);
+}
+body.is-tablet.nav-open .sidebar {
+  transform: translateX(0);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
 body.is-tablet .nav-overlay.show {
   display: block;
 }
@@ -624,13 +634,16 @@ body.is-tablet .nav-overlay.show {
   display: flex;
   gap: 6px;
 }
+body.is-tablet .alerts-fab {
+  right: 12px;
+}
 .alerts-fab-btn {
   width: 40px;
   height: 40px; /* même hauteur que la barre de recherche */
   background: transparent;
 }
 .alerts-fab.with-right-stack {
-  right: calc(320px + 24px); /* à gauche de la colonne de droite */
+  right: calc(var(--right-stack-width) + 24px); /* à gauche de la colonne de droite */
 }
 
 /* Horloge HH:MM:SS + contrôles période */
