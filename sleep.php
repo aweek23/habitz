@@ -253,32 +253,13 @@ try {
   </aside>
 
   <main class="main dashboard">
-    <section class="sleep-grid">
-      <div class="sleep-module sleep-module-blank" aria-label="Module vide"></div>
-
-      <div class="sleep-module sleep-module-dashboard">
-        <h3 class="module-title">Tableau de bord</h3>
-      </div>
-
-      <div class="sleep-module sleep-module-cards">
-        <div class="sleep-module-icon" aria-hidden="true">💳</div>
-        <h3 class="module-title">Cartes & abonnements</h3>
-      </div>
-
-      <div class="sleep-module sleep-module-income">
-        <div class="sleep-module-icon" aria-hidden="true">💼</div>
-        <h3 class="module-title">Revenus & salaires</h3>
-      </div>
-
-      <div class="sleep-module sleep-module-accounts">
-        <div class="sleep-module-icon" aria-hidden="true">🏦</div>
-        <h3 class="module-title">Comptes & banques</h3>
-      </div>
-
-      <div class="sleep-module sleep-module-goals">
-        <div class="sleep-module-icon" aria-hidden="true">🎯</div>
-        <h3 class="module-title">Objectifs</h3>
-      </div>
+    <section class="dashboard-grid sleep-grid">
+      <div class="sleep-module-shell sleep-module-budget" aria-label="Module budget"></div>
+      <div class="sleep-module-shell sleep-module-dashboard" aria-label="Module tableau de bord"></div>
+      <div class="sleep-module-shell sleep-module-cards" aria-label="Module cartes"></div>
+      <div class="sleep-module-shell sleep-module-income" aria-label="Module revenus"></div>
+      <div class="sleep-module-shell sleep-module-accounts" aria-label="Module comptes"></div>
+      <div class="sleep-module-shell sleep-module-goals" aria-label="Module objectifs"></div>
     </section>
   </main>
 </div>
