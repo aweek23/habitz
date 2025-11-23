@@ -74,3 +74,35 @@
 .test-page.is-tablet .sidebar{
   background: var(--page-bg);
 }
+
+.pedometer-card{ padding:16px 18px 14px; display:flex; flex-direction:column; gap:12px; height:100%; }
+.pedometer-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.pedometer-title{ margin:0; font-size:15px; letter-spacing:0.01em; }
+.pedometer-open{
+  background:transparent;
+  border:1px solid var(--card-border);
+  color:var(--muted);
+  border-radius:10px;
+  padding:6px 7px;
+  cursor:pointer;
+  line-height:0;
+  transition:all .16s ease;
+}
+.pedometer-open svg{ width:18px; height:18px; display:block; }
+.pedometer-open:hover{ border-color:rgba(255,255,255,.14); color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.24); }
+.pedometer-open:active{ transform:translateY(1px); }
+.pedometer-stats{ display:flex; align-items:flex-end; gap:8px; }
+.pedometer-stats .steps-current{ font-size:32px; font-weight:700; line-height:1; }
+.pedometer-stats .steps-goal{ font-size:13px; color:var(--muted); margin-bottom:4px; }
+.pedometer-progress{ width:100%; height:8px; border-radius:6px; background:rgba(255,255,255,.06); overflow:hidden; box-shadow:inset 0 1px 0 rgba(255,255,255,.05); }
+.pedometer-progress-bar{ height:100%; background:linear-gradient(90deg, #5ad1ff, #7df1c4); border-radius:inherit; box-shadow:0 6px 16px rgba(90,209,255,.32); }
+.pedometer-metrics{ display:flex; gap:16px; color:var(--muted); font-size:13px; }
+.metric{ display:flex; flex-direction:column; gap:2px; }
+.metric-value{ color:#fff; font-weight:600; font-size:14px; }
+.metric-label{ letter-spacing:0.01em; }
+
+.steps-evolution{ padding:16px 18px 18px; display:flex; flex-direction:column; gap:10px; height:100%; }
+.steps-evolution-header{ display:flex; align-items:center; justify-content:space-between; }
+.steps-evolution-title{ margin:0; font-size:15px; letter-spacing:0.01em; }
+.steps-chart{ background:rgba(255,255,255,.02); border:1px solid var(--card-border); border-radius:10px; padding:10px; }
+.steps-chart svg{ width:100%; height:140px; display:block; }

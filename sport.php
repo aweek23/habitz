@@ -167,8 +167,71 @@ $currentUsername = fetch_username($pdo, $userId);
 
     <div class="main dashboard">
       <div class="test-grid">
-        <div class="test-module test-module-a"></div>
-        <div class="test-module test-module-b"></div>
+        <div class="test-module test-module-a">
+          <div class="pedometer-card">
+            <div class="pedometer-header">
+              <h3 class="pedometer-title">Podomètre</h3>
+              <button type="button" class="pedometer-open" title="Ouvrir dans une fenêtre">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                  <rect x="5" y="5" width="14" height="14" rx="2" ry="2" stroke-width="1.6"></rect>
+                  <path d="M10 14h4" stroke-width="1.6" stroke-linecap="round"></path>
+                  <path d="M14 10v4" stroke-width="1.6" stroke-linecap="round"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="pedometer-stats">
+              <div class="steps-current">8 540</div>
+              <div class="steps-goal">/10 000</div>
+            </div>
+
+            <div class="pedometer-progress" role="presentation" aria-hidden="true">
+              <div class="pedometer-progress-bar" style="width:85%;"></div>
+            </div>
+
+            <div class="pedometer-metrics">
+              <div class="metric">
+                <div class="metric-value">6,4 km</div>
+                <div class="metric-label">Distance</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">320 kcal</div>
+                <div class="metric-label">Brûlées</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="test-module test-module-b">
+          <div class="steps-evolution">
+            <div class="steps-evolution-header">
+              <h3 class="steps-evolution-title">Evolution du nombre de pas</h3>
+            </div>
+            <div class="steps-chart" role="img" aria-label="Graphique de l'évolution des pas">
+              <svg viewBox="0 0 320 140" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="stepsGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#7df1c4" stop-opacity="0.6" />
+                    <stop offset="100%" stop-color="#7df1c4" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <polyline
+                  fill="url(#stepsGradient)"
+                  stroke="#7df1c4"
+                  stroke-width="2"
+                  points="0,120 20,118 40,110 60,96 80,100 100,80 120,70 140,82 160,64 180,58 200,70 220,60 240,50 260,66 280,52 300,44 320,36 320,140 0,140"
+                />
+                <polyline
+                  fill="none"
+                  stroke="#5ad1ff"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  points="0,120 20,118 40,110 60,96 80,100 100,80 120,70 140,82 160,64 180,58 200,70 220,60 240,50 260,66 280,52 300,44 320,36"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
         <div class="test-module test-module-c"></div>
         <div class="test-module test-module-d"></div>
         <div class="test-module test-module-e"></div>
