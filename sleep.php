@@ -31,8 +31,8 @@ try {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Life Tracker — Tableau de bord</title>
-  <link rel="stylesheet" href="css/finances.css?v=<?php echo time(); ?>">
+  <title>Life Tracker — Sommeil</title>
+  <link rel="stylesheet" href="css/sleep.css?v=<?php echo time(); ?>">
   <link rel="stylesheet" href="css/shell.css?v=<?php echo time(); ?>">
   <script>
   (function(){
@@ -139,29 +139,9 @@ try {
   </svg>
 </button>
 
-<!-- Horloge HH:MM:SS + contrôles période/échelle -->
+<!-- Horloge HH:MM:SS -->
 <div id="topClockBar" class="top-clock-bar">
   <div id="topClock" class="top-clock">--:--:--</div>
-  <div class="top-clock-actions">
-    <div class="period-cycle" aria-label="Changer de période">
-      <button class="cycle-btn" type="button" aria-label="Période précédente">&#x276E;</button>
-      <span class="label">Septembre 2025</span>
-      <button class="cycle-btn" type="button" aria-label="Période suivante">&#x276F;</button>
-    </div>
-    <div id="scaleDropdown" class="scale-dropdown">
-      <button id="scaleToggle" class="period-scale-btn" type="button" aria-haspopup="true" aria-expanded="false">
-        Mensuel
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </button>
-      <div id="scaleMenu" class="scale-menu" role="menu" aria-label="Choisir l'échelle de temps">
-        <button type="button" role="menuitem">Annuel</button>
-        <button type="button" role="menuitem" class="active">Mensuel</button>
-        <button type="button" role="menuitem">Hebdomadaire</button>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div id="navOverlay" class="nav-overlay"></div>
@@ -273,108 +253,13 @@ try {
   </aside>
 
   <main class="main dashboard">
-    <section class="dashboard-grid budget-grid">
-      <div class="budget-module">
-        <div class="budget-body">
-          <div class="budget-stats">
-            <article class="budget-stat-card">
-              <p class="stat-label">Revenus prévus</p>
-              <p class="stat-value">7 200 €</p>
-              <p class="stat-detail">+ 300 € vs dernier mois</p>
-            </article>
-            <article class="budget-stat-card">
-              <p class="stat-label">Dépenses prévues</p>
-              <p class="stat-value">4 950 €</p>
-              <p class="stat-detail">63 % du budget</p>
-            </article>
-            <article class="budget-stat-card">
-              <p class="stat-label">Épargne projetée</p>
-              <p class="stat-value">1 150 €</p>
-              <p class="stat-detail">Taux 16 %</p>
-            </article>
-            <article class="budget-stat-card">
-              <p class="stat-label">Reste à budgéter</p>
-              <p class="stat-value">1 100 €</p>
-              <p class="stat-detail">Inclut 350 € de marge</p>
-            </article>
-          </div>
-        </div>
-      </div>
-
-      <div class="dashboard-module">
-        <div class="dashboard-body dashboard-body-chart">
-          <div class="dashboard-info">
-            <h3 class="module-title">Tableau de bord</h3>
-            <button type="button" class="define-budget-btn">Définir mon budget</button>
-          </div>
-          <div class="budget-split" aria-label="Répartition du budget par catégorie">
-            <div class="budget-chart-frame">
-              <img
-                src="php/budget_donut.php"
-                alt="Répartition du budget (Nourriture, Loisirs, Sport, Épargne, Autre)"
-                class="budget-chart-img"
-                loading="lazy"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="cards-module">
-        <div class="cards-icon" aria-hidden="true">💳</div>
-        <div class="cards-body">
-          <h3 class="module-title">Cartes & abonnements</h3>
-          <p class="module-desc">Gère les paiements récurrents et les prochaines échéances.</p>
-          <div class="module-meta">
-            <span class="module-pill">
-              <span class="module-pill-dot" aria-hidden="true"></span>
-              12 abonnements
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="income-module">
-        <div class="income-icon" aria-hidden="true">💼</div>
-        <div class="income-body">
-          <h3 class="module-title">Revenus & salaires</h3>
-          <p class="module-desc">Planifie les prochaines entrées d’argent et leurs répartitions.</p>
-          <div class="module-meta">
-            <span class="module-pill">
-              <span class="module-pill-dot" aria-hidden="true"></span>
-              Prévisions
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="accounts-module">
-        <div class="accounts-icon" aria-hidden="true">🏦</div>
-        <div class="accounts-body">
-          <h3 class="module-title">Comptes & banques</h3>
-          <p class="module-desc">Synchronise ou saisis tes comptes courants, épargne et placements.</p>
-          <div class="module-meta">
-            <span class="module-pill">
-              <span class="module-pill-dot" aria-hidden="true"></span>
-              5 comptes
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="goals-module">
-        <div class="goals-icon" aria-hidden="true">🎯</div>
-        <div class="goals-body">
-          <h3 class="module-title">Objectifs</h3>
-          <p class="module-desc">Fixe des objectifs d’épargne ou de remboursement et suis-les.</p>
-          <div class="module-meta">
-            <span class="module-pill">
-              <span class="module-pill-dot" aria-hidden="true"></span>
-              En cours
-            </span>
-          </div>
-        </div>
-      </div>
+    <section class="dashboard-grid sleep-grid">
+      <div class="sleep-module-shell sleep-module-budget" aria-label="Module budget"></div>
+      <div class="sleep-module-shell sleep-module-dashboard" aria-label="Module tableau de bord"></div>
+      <div class="sleep-module-shell sleep-module-cards" aria-label="Module cartes"></div>
+      <div class="sleep-module-shell sleep-module-income" aria-label="Module revenus"></div>
+      <div class="sleep-module-shell sleep-module-accounts" aria-label="Module comptes"></div>
+      <div class="sleep-module-shell sleep-module-goals" aria-label="Module objectifs"></div>
     </section>
   </main>
 </div>
