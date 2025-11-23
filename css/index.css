@@ -38,6 +38,7 @@
 .test-page.is-tablet .right-column.sheet-open{ pointer-events:auto; }
 
 .test-page .main.dashboard{ flex:1; padding:0 12px 16px; margin-top:calc(40px + 10px); }
+.test-page.is-tablet .main.dashboard{ padding:0 0 16px; }
 .test-page .page-head{ display:flex; justify-content:space-between; align-items:flex-start; }
 .test-page .title-stack h1{ margin:0 0 4px; }
 .test-page .title-stack .muted{ margin:0; color:var(--muted); }

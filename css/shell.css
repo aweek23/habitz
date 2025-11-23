@@ -633,6 +633,9 @@ body.is-tablet .nav-overlay.show {
   display: flex;
   gap: 6px;
 }
+body.is-tablet .alerts-fab {
+  right: 12px;
+}
 .alerts-fab-btn {
   width: 40px;
   height: 40px; /* même hauteur que la barre de recherche */
