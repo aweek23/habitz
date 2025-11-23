@@ -302,15 +302,17 @@ try {
       </div>
 
       <div class="dashboard-module">
-        <div class="dashboard-icon" aria-hidden="true">📊</div>
-        <div class="dashboard-body">
+        <div class="dashboard-body dashboard-body-chart">
           <h3 class="module-title">Tableau de bord</h3>
-          <p class="module-desc">Visualise l’évolution de tes comptes et de tes catégories clés.</p>
-          <div class="module-meta">
-            <span class="module-pill">
-              <span class="module-pill-dot" aria-hidden="true"></span>
-              Vue globale
-            </span>
+          <div class="budget-split" aria-label="Répartition du budget par catégorie">
+            <div class="budget-chart-frame">
+              <img
+                src="php/budget_donut.php"
+                alt="Répartition du budget (Nourriture, Loisirs, Sport, Épargne, Autre)"
+                class="budget-chart-img"
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
       </div>
