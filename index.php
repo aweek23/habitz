@@ -544,15 +544,26 @@ if (menuTop){
 }
 
 if (toggleNavBtn){
-  toggleNavBtn.addEventListener('click', ()=>{
-    document.body.classList.toggle('nav-open');
-    navOverlay.classList.toggle('show');
-  });
+  const setNavOpen = (open)=>{
+    const shouldOpen = open !== undefined ? open : !document.body.classList.contains('nav-open');
+    document.body.classList.toggle('nav-open', shouldOpen);
+    if (sidebar){
+      sidebar.classList.toggle('collapsed', !shouldOpen);
+    }
+    if (navOverlay){
+      navOverlay.classList.toggle('show', shouldOpen);
+    }
+  };
+
+  toggleNavBtn.addEventListener('click', ()=> setNavOpen());
 }
 if (navOverlay){
   navOverlay.addEventListener('click', ()=>{
     document.body.classList.remove('nav-open');
     navOverlay.classList.remove('show');
+    if (sidebar){
+      sidebar.classList.add('collapsed');
+    }
   });
 }
 
