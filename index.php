@@ -44,7 +44,7 @@ $menuItems = [
         'key' => 'body',
         'label' => 'Corps',
         'submenu' => [
-            ['label' => 'Sommeil'],
+            ['label' => 'Sommeil', 'href' => 'sleep.php'],
             ['label' => 'Poids'],
             ['label' => 'Glycémie'],
             ['label' => 'Pression artérielle'],
@@ -56,7 +56,7 @@ $menuItems = [
         'key' => 'finances',
         'label' => 'Finances',
         'submenu' => [
-            ['label' => 'Budget'],
+            ['label' => 'Budget', 'href' => 'finances.php'],
             ['label' => 'Patrimoine'],
             ['label' => 'Comptes'],
         ],
@@ -191,7 +191,7 @@ $currentUsername = fetch_username($pdo, $userId);
   <div class="app">
     <aside class="sidebar" id="sidebar">
       <div class="side-top">
-        <div class="brand">Life Tracker</div>
+        <a class="brand brand-link" href="index.php">Life Tracker</a>
         <button id="reorderBtn" class="icon-mini reorder-btn" type="button" title="Réorganiser les modules">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
             <path d="M4 7h16M4 12h10M4 17h6" stroke-width="1.8" stroke-linecap="round"></path>
@@ -217,9 +217,15 @@ $currentUsername = fetch_username($pdo, $userId);
                 <ul class="submenu">
                   <?php foreach ($item['submenu'] as $subItem): ?>
                     <li>
-                      <button class="subitem" type="button">
-                        <?php echo esc($subItem['label']); ?>
-                      </button>
+                      <?php if (!empty($subItem['href'])): ?>
+                        <a class="subitem" href="<?php echo esc($subItem['href']); ?>">
+                          <?php echo esc($subItem['label']); ?>
+                        </a>
+                      <?php else: ?>
+                        <button class="subitem" type="button">
+                          <?php echo esc($subItem['label']); ?>
+                        </button>
+                      <?php endif; ?>
                     </li>
                   <?php endforeach; ?>
                 </ul>
