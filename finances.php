@@ -303,7 +303,10 @@ try {
 
       <div class="dashboard-module">
         <div class="dashboard-body dashboard-body-chart">
-          <h3 class="module-title">Tableau de bord</h3>
+          <div class="dashboard-info">
+            <h3 class="module-title">Tableau de bord</h3>
+            <button type="button" class="define-budget-btn">Définir mon budget</button>
+          </div>
           <div class="budget-split" aria-label="Répartition du budget par catégorie">
             <div class="budget-chart-frame">
               <img
