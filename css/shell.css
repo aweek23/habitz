@@ -364,6 +364,15 @@ body.is-tablet .sidebar {
 body.is-tablet .sidebar.collapsed {
   transform: translateX(-105%);
 }
+body.is-tablet:not(.nav-open) .sidebar {
+  transform: translateX(-105%);
+}
+body.is-tablet.nav-open .sidebar {
+  transform: translateX(0);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
 body.is-tablet .nav-overlay.show {
   display: block;
 }
