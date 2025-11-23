@@ -166,21 +166,18 @@ try {
 
 <div id="navOverlay" class="nav-overlay"></div>
 
-<div class="app">
-  <aside class="sidebar" id="sidebar">
-    <div class="side-top">
-      <div class="brand">Life Tracker</div>
-      <div style="display:flex; gap:6px;">
-        <button id="reorderBtn" class="icon-mini" title="Modifier l’ordre">
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-top">
+        <div class="brand">Life Tracker</div>
+        <button id="reorderBtn" class="icon-mini reorder-btn" type="button" title="Réorganiser les modules">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-            <path d="M12 20h9" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5z" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M4 7h16M4 12h10M4 17h6" stroke-width="1.8" stroke-linecap="round"></path>
           </svg>
         </button>
       </div>
-    </div>
 
-    <nav class="nav">
+      <nav class="nav">
         <ul id="menuTop" class="menu">
   <!-- Tâches / Habitudes / Projets -->
   <li class="menu-item" data-key="tasks">
@@ -277,6 +274,104 @@ try {
 
   <main class="main dashboard">
     <section class="dashboard-grid budget-grid">
+      <div class="budget-module">
+        <div class="budget-body">
+          <div class="budget-stats">
+            <article class="budget-stat-card">
+              <p class="stat-label">Revenus prévus</p>
+              <p class="stat-value">7 200 €</p>
+              <p class="stat-detail">+ 300 € vs dernier mois</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Dépenses prévues</p>
+              <p class="stat-value">4 950 €</p>
+              <p class="stat-detail">63 % du budget</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Épargne projetée</p>
+              <p class="stat-value">1 150 €</p>
+              <p class="stat-detail">Taux 16 %</p>
+            </article>
+            <article class="budget-stat-card">
+              <p class="stat-label">Reste à budgéter</p>
+              <p class="stat-value">1 100 €</p>
+              <p class="stat-detail">Inclut 350 € de marge</p>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-module">
+        <div class="dashboard-body dashboard-body-chart">
+          <h3 class="module-title">Tableau de bord</h3>
+          <div class="budget-split" aria-label="Répartition du budget par catégorie">
+            <div class="budget-chart-frame">
+              <img
+                src="php/budget_donut.php"
+                alt="Répartition du budget (Nourriture, Loisirs, Sport, Épargne, Autre)"
+                class="budget-chart-img"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-module">
+        <div class="cards-icon" aria-hidden="true">💳</div>
+        <div class="cards-body">
+          <h3 class="module-title">Cartes & abonnements</h3>
+          <p class="module-desc">Gère les paiements récurrents et les prochaines échéances.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              12 abonnements
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="income-module">
+        <div class="income-icon" aria-hidden="true">💼</div>
+        <div class="income-body">
+          <h3 class="module-title">Revenus & salaires</h3>
+          <p class="module-desc">Planifie les prochaines entrées d’argent et leurs répartitions.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              Prévisions
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="accounts-module">
+        <div class="accounts-icon" aria-hidden="true">🏦</div>
+        <div class="accounts-body">
+          <h3 class="module-title">Comptes & banques</h3>
+          <p class="module-desc">Synchronise ou saisis tes comptes courants, épargne et placements.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              5 comptes
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="goals-module">
+        <div class="goals-icon" aria-hidden="true">🎯</div>
+        <div class="goals-body">
+          <h3 class="module-title">Objectifs</h3>
+          <p class="module-desc">Fixe des objectifs d’épargne ou de remboursement et suis-les.</p>
+          <div class="module-meta">
+            <span class="module-pill">
+              <span class="module-pill-dot" aria-hidden="true"></span>
+              En cours
+            </span>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </div>
@@ -287,7 +382,6 @@ const $$ = (s)=>Array.from(document.querySelectorAll(s));
 
 const sidebar        = $('#sidebar');
 const menuTop        = $('#menuTop');
-const reorderBtn     = $('#reorderBtn');
 const toggleNavBtn   = $('#toggleNavBtn');
 const navOverlay     = $('#navOverlay');
 const topStack       = $('#topStack');
@@ -296,6 +390,7 @@ const topStackOverlay= $('#topStackOverlay');
 const alertsFab      = $('#alertsFab');
 const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
+const reorderBtn     = $('#reorderBtn');
 const scaleDropdown  = $('#scaleDropdown');
 const scaleToggle    = $('#scaleToggle');
 const scaleMenu      = $('#scaleMenu');
@@ -316,12 +411,13 @@ function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
   if(on){
     sidebar.classList.add('collapsed');
-    reorderBtn.style.display='';
-    enableDrag(false);
+    setReorderMode(false);
+    if (reorderBtn) reorderBtn.setAttribute('disabled','disabled');
     toggleNavBtn.style.display='grid';
   }else{
     sidebar.classList.remove('collapsed');
-    reorderBtn.style.display='';
+    if (reorderBtn) reorderBtn.removeAttribute('disabled');
+    enableDrag(sidebar.classList.contains('reorder'));
     toggleNavBtn.style.display='none';
     document.body.classList.remove('nav-open');
   }
@@ -435,6 +531,19 @@ function setupScaleDropdown(){
     }
   });
 }
+
+function setClockControlsHidden(hide){
+  if (!clockBar) return;
+  clockBar.classList.toggle('hide-controls', !!hide);
+}
+function updateClockControlsVisibility(){
+  if (!topStack){
+    setClockControlsHidden(false);
+    return;
+  }
+  const hideControls = topStack.classList.contains('sheet-mode') && topStack.classList.contains('open');
+  setClockControlsHidden(hideControls);
+}
 function updateTopStackMode(){
   if (!topStack) return;
   const fullDesktop = (!IS_TABLET && isWindowMaximized());
@@ -460,6 +569,7 @@ function updateTopStackMode(){
 
   updateAlertsFabPosition();
   updateClockPosition();
+  updateClockControlsVisibility();
 }
 document.addEventListener('fullscreenchange', () => {
   updateTopStackMode();
@@ -472,8 +582,10 @@ function closeTopStackSheet(){
   topStack.classList.remove('open');
   if (topStackOverlay) topStackOverlay.classList.remove('show');
   if (topStackFab) topStackFab.classList.remove('hidden'); // re-affiche le bouton
+  setClockControlsHidden(false);
   updateAlertsFabPosition();
   updateClockPosition();
+  updateClockControlsVisibility();
 }
 if (topStackFab){
   topStackFab.addEventListener('click', ()=>{
@@ -484,6 +596,7 @@ if (topStackFab){
     if (topStackFab) topStackFab.classList.toggle('hidden', willOpen); // caché quand ouvert
     updateAlertsFabPosition();
     updateClockPosition();
+    updateClockControlsVisibility();
   });
 }
 if (topStackOverlay){
@@ -519,6 +632,18 @@ function applyPrefs() {
   const hidden = Object.keys(serverModules).filter(k => serverModules[k].visible === 'No');
   hidden.forEach(k => menuTop.appendChild(liOf(k)));
   $$('.vis-toggle').forEach(b => b.style.display = sidebar.classList.contains('reorder') ? 'grid' : 'none');
+}
+
+function setReorderMode(on){
+  const enable = !!on && !IS_TABLET;
+  sidebar.classList.toggle('reorder', enable);
+  enableDrag(enable);
+  $$('.vis-toggle').forEach(b => b.style.display = enable ? 'grid' : 'none');
+  if (reorderBtn){
+    reorderBtn.classList.toggle('active', enable);
+    reorderBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
+  }
+  applyPrefs();
 }
 async function loadPrefs(){
   const r=await fetch('php/modules_prefs.php?action=get',{credentials:'same-origin',cache:'no-store'});
@@ -586,14 +711,12 @@ menuTop.addEventListener('dragover',e=>{
   menuTop.insertBefore(dragSrc, before?over:over.nextSibling);
 });
 
-/* Mode édition */
-let reordering=false;
-reorderBtn.addEventListener('click', ()=>{
-  reordering=!reordering;
-  sidebar.classList.toggle('reorder',reordering);
-  enableDrag(!IS_TABLET && reordering);
-  $$('.vis-toggle').forEach(b=> b.style.display = reordering ? 'grid' : 'none');
-});
+if (reorderBtn){
+  reorderBtn.addEventListener('click', ()=>{
+    const willEnable = !sidebar.classList.contains('reorder');
+    setReorderMode(willEnable);
+  });
+}
 
 /* Sous-menus */
 $$('.has-sub .has-sub-btn').forEach(btn=>{
@@ -657,7 +780,7 @@ function updateClock(){
 (async function init(){
   IS_TABLET = detectTablet();
   applyTabletMode(IS_TABLET);
-  enableDrag(false);
+  setReorderMode(false);
   await loadPrefs();
 
   attachLogoutHandler($('#topLogoutBtn'));
