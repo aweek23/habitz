@@ -150,13 +150,13 @@ $currentUsername = fetch_username($pdo, $userId);
     <div id="topClockBar" class="top-clock-bar simple-clock-bar">
       <div id="topClock" class="top-clock">--:--:--</div>
       <button id="dateNavBtn" class="date-nav" type="button" aria-label="Date du jour">
-        <span class="date-nav-icon" aria-hidden="true">
+        <span class="date-nav-icon date-prev" data-dir="-1" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" focusable="false">
             <path d="M14 7l-5 5 5 5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
         </span>
         <span id="dateLabel" class="date-label">--</span>
-        <span class="date-nav-icon" aria-hidden="true">
+        <span class="date-nav-icon date-next" data-dir="1" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" focusable="false">
             <path d="M10 7l5 5-5 5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
@@ -351,10 +351,14 @@ const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
 const dateNavBtn     = $('#dateNavBtn');
 const dateLabel      = $('#dateLabel');
+const datePrev       = dateNavBtn ? dateNavBtn.querySelector('[data-dir="-1"]') : null;
+const dateNext       = dateNavBtn ? dateNavBtn.querySelector('[data-dir="1"]') : null;
 const reorderBtn     = $('#reorderBtn');
 const rightColumn    = document.querySelector('.right-column');
 const modulesGrid    = $('#modulesGrid');
 const layoutSwitcher = $('#layoutSwitcher');
+
+let currentNavDate = new Date();
 
 function getDefaultLayoutForViewport(){
   const w = window.innerWidth || document.documentElement.clientWidth || screen.width || 0;
@@ -834,6 +838,9 @@ function setModuleReorderMode(on){
     editDashboardBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
     editDashboardBtn.classList.toggle('active', enable);
   }
+  if (dateNavBtn){
+    dateNavBtn.classList.toggle('hidden', enable);
+  }
   if (layoutSwitcher){
     layoutSwitcher.classList.toggle('visible', enable);
   }
@@ -1050,11 +1057,42 @@ function startClock(){
   setInterval(update, 1000);
 }
 
+function formatNavDate(d){
+  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  return d.toLocaleDateString('fr-FR', options);
+}
+
+function updateDateNav(){
+  if (!dateLabel) return;
+  dateLabel.textContent = formatNavDate(currentNavDate);
+}
+
+function shiftDate(delta){
+  const next = new Date(currentNavDate);
+  next.setDate(currentNavDate.getDate() + delta);
+  currentNavDate = next;
+  updateDateNav();
+}
+
 function startDateNav(){
   if (!dateLabel) return;
-  const options = { day: 'numeric', month: 'long', year: 'numeric' };
-  const today = new Date();
-  dateLabel.textContent = today.toLocaleDateString('fr-FR', options);
+  currentNavDate = new Date();
+  updateDateNav();
+
+  const handleDir = (dir)=>{
+    if (!dir) return;
+    const delta = Number(dir);
+    if (Number.isNaN(delta)) return;
+    shiftDate(delta);
+  };
+
+  if (dateNavBtn){
+    dateNavBtn.addEventListener('click',(e)=>{
+      const dirEl = e.target.closest('[data-dir]');
+      if (!dirEl) return;
+      handleDir(dirEl.dataset.dir);
+    });
+  }
 }
 
 async function init(){

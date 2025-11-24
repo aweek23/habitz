@@ -120,6 +120,7 @@
 }
 .date-nav:hover{ border-color:rgba(255,255,255,.18); color:#fff; }
 .date-nav:active{ transform:translateY(1px); }
+.date-nav.hidden{ display:none; }
 .date-nav-icon{
   display:inline-flex;
   align-items:center;
