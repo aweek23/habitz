@@ -138,6 +138,11 @@ function insert_user(PDO $pdo, array $data, bool $allowGender): int
 
 function seed_navigation(PDO $pdo, int $userId, string $gender): void
 {
+    $navCanon = [
+        'tasks', 'habits', 'projects', 'sport', 'food', 'calendar', 'body', 'finances',
+        'clock', 'events', 'news', 'drive',
+    ];
+
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS `' . TABLE_USER_NAV . '` (
             `user_id` INT NOT NULL,
@@ -146,6 +151,19 @@ function seed_navigation(PDO $pdo, int $userId, string $gender): void
             `disabled_keys` TEXT NOT NULL,
             `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (`user_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;'
+    );
+
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS `' . TABLE_USER_NAV_ITEMS . '` (
+            `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `user_id` INT NOT NULL,
+            `nav_key` VARCHAR(64) NOT NULL,
+            `visible` ENUM("Yes","No") NOT NULL DEFAULT "Yes",
+            `ord` INT NULL,
+            `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `u_user_nav_item` (`user_id`,`nav_key`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;'
     );
 
@@ -160,6 +178,23 @@ function seed_navigation(PDO $pdo, int $userId, string $gender): void
 
     if ($gender !== 'Homme' && $gender !== 'Autre') {
         return;
+    }
+
+    // Seed des items si absent
+    try {
+        $st = $pdo->prepare('SELECT COUNT(*) c FROM `' . TABLE_USER_NAV_ITEMS . '` WHERE user_id=:u');
+        $st->execute([':u' => $userId]);
+        $has = (int) $st->fetchColumn() > 0;
+        if (!$has) {
+            $ins = $pdo->prepare(
+                'INSERT INTO `' . TABLE_USER_NAV_ITEMS . '` (user_id, nav_key, visible, ord) VALUES (:u,:k,"Yes",:o)'
+            );
+            foreach ($navCanon as $idx => $key) {
+                $ins->execute([':u' => $userId, ':k' => $key, ':o' => $idx + 1]);
+            }
+        }
+    } catch (Throwable $exception) {
+        // Préférences optionnelles : on ignore les erreurs.
     }
 
     $seed = $pdo->prepare(
