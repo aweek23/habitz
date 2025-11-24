@@ -483,18 +483,18 @@ async function loadMenuPrefs(){
   navOpenSections = new Set();
 
   try{
-    const res = await fetch(`${NAV_PREF_ENDPOINT}?ts=${Date.now()}`, { credentials:'same-origin', cache:'no-store' });
+    const res = await fetch(`${NAV_PREF_ENDPOINT}?action=get&ts=${Date.now()}`, { credentials:'same-origin', cache:'no-store' });
     if (res.ok){
       const data = await res.json();
       if (data && data.ok){
-        const ordMap = new Map();
-        (Array.isArray(data.menu_order) ? data.menu_order : []).forEach((k, idx)=> ordMap.set(k, idx));
-        Object.entries(menuPrefs).forEach(([k,v])=>{
-          if (ordMap.has(k)) v.ord = ordMap.get(k);
+        const items = data.items || {};
+        Object.entries(items).forEach(([k,v])=>{
+          if (!menuPrefs[k]) menuPrefs[k] = { visible:true, ord: 0 };
+          menuPrefs[k].visible = v && v.visible === 'No' ? false : true;
+          if (v && typeof v.ord !== 'undefined' && v.ord !== null) {
+            menuPrefs[k].ord = Number(v.ord) || 0;
+          }
         });
-
-        const disabled = new Set(Array.isArray(data.disabled_keys) ? data.disabled_keys : []);
-        disabled.forEach(k => { if (menuPrefs[k]) menuPrefs[k].visible = false; });
 
         const openSections = Array.isArray(data.open_sections) ? data.open_sections : [];
         navOpenSections = new Set(openSections.filter(k => menuPrefs[k]));
@@ -516,12 +516,6 @@ async function loadMenuPrefs(){
 }
 
 function persistMenuPrefs(saveRemote = true){
-  const order = Object.entries(menuPrefs)
-    .sort((a,b)=>(a[1].ord||0)-(b[1].ord||0))
-    .map(([k])=>k);
-  const disabled = Object.entries(menuPrefs)
-    .filter(([,v])=>v.visible === false)
-    .map(([k])=>k);
   const open = [...navOpenSections];
 
   try{ localStorage.setItem(MENU_PREF_KEY, JSON.stringify({ prefs: menuPrefs, open })); }catch(e){}
@@ -531,8 +525,22 @@ function persistMenuPrefs(saveRemote = true){
     method:'POST',
     headers:{'Content-Type':'application/json'},
     credentials:'same-origin',
-    body: JSON.stringify({ menu_order: order, open_sections: open, disabled_keys: disabled })
+    body: JSON.stringify({ action:'open_sections', open_sections: open })
   }).catch(()=>{});
+}
+
+async function persistNavOrder(){
+  if (!menuTop) return;
+  const order = [...menuTop.children]
+    .map(li => li.dataset.key || '')
+    .filter(k => k && menuPrefs[k] && menuPrefs[k].visible !== false);
+  if (!order.length) return;
+  try{
+    await fetch(NAV_PREF_ENDPOINT, {
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
+      body: JSON.stringify({ action:'reorder', order })
+    });
+  }catch(err){ /* ignore */ }
 }
 
 function ensureToggleButtons(){
@@ -546,13 +554,23 @@ function ensureToggleButtons(){
       <circle cx="12" cy="12" r="3"></circle>
     </svg>`;
     li.appendChild(btn);
-    btn.addEventListener('click',(e)=>{
+    btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
       const key = li.dataset.key;
       if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: [...menuTop.children].indexOf(li) };
-      menuPrefs[key].visible = !menuPrefs[key].visible;
+      const currentVisible = menuPrefs[key].visible !== false;
+      const nextVisible = !currentVisible;
+      menuPrefs[key].visible = nextVisible;
       applyMenuPrefs();
       persistMenuPrefs();
+      try{
+        await fetch(NAV_PREF_ENDPOINT, {
+          method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
+          body: JSON.stringify({ action:'toggle', key, visible: nextVisible ? 'Yes' : 'No' })
+        });
+        await loadMenuPrefs();
+        applyMenuPrefs();
+      }catch(err){ /* ignore */ }
     });
   });
 }
@@ -629,6 +647,7 @@ if (menuTop){
       });
       applyMenuPrefs();
       persistMenuPrefs();
+      persistNavOrder();
     }
     dragSrc=null;
   });
