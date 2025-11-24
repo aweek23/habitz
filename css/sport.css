@@ -106,4 +106,11 @@
 .steps-filter-btn:hover{ border-color:rgba(255,255,255,.14); color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.24); }
 .steps-filter-btn:active{ transform:translateY(1px); }
 .steps-chart{ background:transparent; border:none; border-radius:0; padding:0; }
-.steps-chart-img{ width:100%; height:160px; object-fit:cover; display:block; border-radius:0; }
+.steps-chart-img{
+  width:100%;
+  max-width:100%;
+  height:auto;
+  object-fit:contain;
+  display:block;
+  border-radius:0;
+}

@@ -152,6 +152,7 @@ $currentUsername = fetch_username($pdo, $userId);
     </div>
 
     <div id="alertsFab" class="alerts-fab">
+      <button id="editDashboardBtn" class="edit-dashboard-btn alerts-fab-btn" type="button" title="Modifier dashboard">Modifier dashboard</button>
       <button id="msgFab"   class="icon-mini alerts-fab-btn" type="button" title="Messages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H9l-4 4v-4H7a3 3 0 0 1-3-3V6z" stroke-width="1.6" stroke-linejoin="round"></path>
@@ -165,7 +166,62 @@ $currentUsername = fetch_username($pdo, $userId);
       </button>
     </div>
 
-    <div class="main dashboard"></div>
+    <div class="main dashboard">
+      <div class="test-grid">
+        <div class="test-module test-module-a">
+          <div class="pedometer-card">
+            <div class="pedometer-header">
+              <h3 class="pedometer-title">Podomètre</h3>
+            </div>
+
+            <div class="pedometer-stats">
+              <div class="steps-current">8 540</div>
+              <div class="steps-goal">/10 000</div>
+            </div>
+
+            <div class="pedometer-progress" role="presentation" aria-hidden="true">
+              <div class="pedometer-progress-bar" style="width:85%;"></div>
+            </div>
+
+            <div class="pedometer-metrics">
+              <div class="metric">
+                <div class="metric-value">6,4 km</div>
+                <div class="metric-label">Distance</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">320 kcal</div>
+                <div class="metric-label">Brûlées</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="test-module test-module-b">
+          <div class="steps-evolution">
+            <div class="steps-evolution-header">
+              <h3 class="steps-evolution-title">Evolution du nombre de pas</h3>
+              <div class="steps-filters" role="group" aria-label="Période du graphique">
+                <button type="button" class="steps-filter-btn">7d</button>
+                <button type="button" class="steps-filter-btn">1m</button>
+                <button type="button" class="steps-filter-btn">1y</button>
+              </div>
+            </div>
+              <div class="steps-chart" role="img" aria-label="Graphique de l'évolution des pas">
+                <img src="php/steps_line.php" alt="Graphique de l'évolution des pas" class="steps-chart-img">
+              </div>
+          </div>
+        </div>
+        <div class="test-module test-module-c"></div>
+        <div class="test-module test-module-d"></div>
+        <div class="test-module test-module-e"></div>
+        <div class="test-module test-module-f"></div>
+        <div class="test-module test-module-d"></div>
+        <div class="test-module test-module-e"></div>
+        <div class="test-module test-module-f"></div>
+        <div class="test-module test-module-d"></div>
+        <div class="test-module test-module-e"></div>
+        <div class="test-module test-module-f"></div>
+      </div>
+    </div>
 
     <button id="topStackFab" class="topstack-fab" title="Panneau rapide">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
