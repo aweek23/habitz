@@ -94,7 +94,36 @@
 @media (max-width:1200px){ .test-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media (max-width:640px){ .test-grid{ grid-template-columns:1fr; } }
 
-.test-module{ background:var(--card-bg); border:1px solid var(--card-border); border-radius:12px; min-height:140px; box-shadow:0 10px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03); }
+.test-module{
+  position:relative;
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:12px;
+  min-height:140px;
+  box-shadow:0 10px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
+}
+.test-grid.modules-reorder .test-module{ outline:1px dashed var(--border-strong); }
+.test-module.dragging{ opacity:0.5; }
+.module-toggle{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:28px;
+  height:28px;
+  display:none;
+  place-items:center;
+  border:1px solid var(--card-border);
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .16s ease;
+  box-shadow:0 8px 20px rgba(0,0,0,.22);
+}
+.module-toggle svg{ width:16px; height:16px; }
+.module-toggle:hover{ border-color:rgba(255,255,255,.14); color:#fff; background:rgba(255,255,255,.06); }
+.test-grid.modules-reorder .module-toggle{ display:grid; }
+.test-grid.modules-reorder .test-module.hidden-slot{ opacity:0.35; filter:saturate(0.4); }
 
 .pedometer-card{ padding:16px 18px 14px; display:flex; flex-direction:column; gap:12px; height:100%; }
 .pedometer-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
