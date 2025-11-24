@@ -149,6 +149,19 @@ $currentUsername = fetch_username($pdo, $userId);
 
     <div id="topClockBar" class="top-clock-bar simple-clock-bar">
       <div id="topClock" class="top-clock">--:--:--</div>
+      <button id="dateNavBtn" class="date-nav" type="button" aria-label="Date du jour">
+        <span class="date-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" focusable="false">
+            <path d="M14 7l-5 5 5 5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+        <span id="dateLabel" class="date-label">--</span>
+        <span class="date-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" focusable="false">
+            <path d="M10 7l5 5-5 5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+      </button>
       <div id="layoutSwitcher" class="layout-switcher" role="group" aria-label="Disposition des modules">
         <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="4" title="Grille 4 colonnes">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -336,6 +349,8 @@ const alertsFab      = $('#alertsFab');
 const editDashboardBtn = $('#editDashboardBtn');
 const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
+const dateNavBtn     = $('#dateNavBtn');
+const dateLabel      = $('#dateLabel');
 const reorderBtn     = $('#reorderBtn');
 const rightColumn    = document.querySelector('.right-column');
 const modulesGrid    = $('#modulesGrid');
@@ -1035,6 +1050,13 @@ function startClock(){
   setInterval(update, 1000);
 }
 
+function startDateNav(){
+  if (!dateLabel) return;
+  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  const today = new Date();
+  dateLabel.textContent = today.toLocaleDateString('fr-FR', options);
+}
+
 async function init(){
   await loadMenuPrefs();
   ensureToggleButtons();
@@ -1044,6 +1066,7 @@ async function init(){
   applyModuleLayout();
   applyTabletMode(IS_TABLET);
   startClock();
+  startDateNav();
   updateAlertsFabPosition();
   updateTopStackMode();
 }

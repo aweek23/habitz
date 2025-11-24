@@ -101,6 +101,36 @@
   gap:6px;
   margin-left:10px;
 }
+.date-nav{
+  height:40px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  margin-left:10px;
+  padding:0 14px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:rgba(12,16,22,0.82);
+  color:var(--text-hi);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.01em;
+  box-shadow:0 10px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
+  transition:all .16s ease;
+}
+.date-nav:hover{ border-color:rgba(255,255,255,.18); color:#fff; }
+.date-nav:active{ transform:translateY(1px); }
+.date-nav-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:18px;
+  height:18px;
+}
+.date-nav-icon svg path{
+  stroke:currentColor;
+}
+.date-label{ white-space:nowrap; text-transform:capitalize; }
 .layout-switcher.visible{ display:flex; }
 .modules-reorder-active .layout-switcher{ display:flex; }
 .layout-btn{
