@@ -152,7 +152,7 @@ $currentUsername = fetch_username($pdo, $userId);
     </div>
 
     <div id="alertsFab" class="alerts-fab">
-      <button id="editDashboardBtn" class="edit-dashboard-btn alerts-fab-btn" type="button" title="Modifier l'ordre">Modifier ordre</button>
+      <button id="editDashboardBtn" class="edit-dashboard-btn alerts-fab-btn" type="button" title="Modifier dashboard">Modifier dashboard</button>
       <button id="msgFab"   class="icon-mini alerts-fab-btn" type="button" title="Messages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H9l-4 4v-4H7a3 3 0 0 1-3-3V6z" stroke-width="1.6" stroke-linejoin="round"></path>
@@ -617,6 +617,7 @@ function enableModuleDrag(on){
 function setModuleReorderMode(on){
   const enable = !!on;
   modulesReorder = enable;
+  document.body.classList.toggle('modules-reorder-active', enable);
   if (modulesGrid) modulesGrid.classList.toggle('modules-reorder', enable);
   enableModuleDrag(enable);
   if (editDashboardBtn){
