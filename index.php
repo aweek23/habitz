@@ -152,6 +152,7 @@ $currentUsername = fetch_username($pdo, $userId);
     </div>
 
     <div id="alertsFab" class="alerts-fab">
+      <button id="editDashboardBtn" class="edit-dashboard-btn alerts-fab-btn" type="button" title="Modifier l'ordre">Modifier ordre</button>
       <button id="msgFab"   class="icon-mini alerts-fab-btn" type="button" title="Messages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H9l-4 4v-4H7a3 3 0 0 1-3-3V6z" stroke-width="1.6" stroke-linejoin="round"></path>
@@ -165,7 +166,62 @@ $currentUsername = fetch_username($pdo, $userId);
       </button>
     </div>
 
-    <div class="main dashboard"></div>
+    <div class="main dashboard">
+      <div class="test-grid" id="modulesGrid">
+        <div class="test-module test-module-a" data-module-key="pedometer">
+          <div class="pedometer-card">
+            <div class="pedometer-header">
+              <h3 class="pedometer-title">Podomètre</h3>
+            </div>
+
+            <div class="pedometer-stats">
+              <div class="steps-current">8 540</div>
+              <div class="steps-goal">/10 000</div>
+            </div>
+
+            <div class="pedometer-progress" role="presentation" aria-hidden="true">
+              <div class="pedometer-progress-bar" style="width:85%;"></div>
+            </div>
+
+            <div class="pedometer-metrics">
+              <div class="metric">
+                <div class="metric-value">6,4 km</div>
+                <div class="metric-label">Distance</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">320 kcal</div>
+                <div class="metric-label">Brûlées</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="test-module test-module-b" data-module-key="steps">
+          <div class="steps-evolution">
+            <div class="steps-evolution-header">
+              <h3 class="steps-evolution-title">Evolution du nombre de pas</h3>
+              <div class="steps-filters" role="group" aria-label="Période du graphique">
+                <button type="button" class="steps-filter-btn">7d</button>
+                <button type="button" class="steps-filter-btn">1m</button>
+                <button type="button" class="steps-filter-btn">1y</button>
+              </div>
+            </div>
+              <div class="steps-chart" role="img" aria-label="Graphique de l'évolution des pas">
+                <img src="php/graphiques/steps_line.php" alt="Graphique de l'évolution des pas" class="steps-chart-img">
+              </div>
+          </div>
+        </div>
+        <div class="test-module test-module-c" data-module-key="module-c"></div>
+        <div class="test-module test-module-d" data-module-key="module-d"></div>
+        <div class="test-module test-module-e" data-module-key="module-e"></div>
+        <div class="test-module test-module-f" data-module-key="module-f"></div>
+        <div class="test-module test-module-d" data-module-key="module-g"></div>
+        <div class="test-module test-module-e" data-module-key="module-h"></div>
+        <div class="test-module test-module-f" data-module-key="module-i"></div>
+        <div class="test-module test-module-d" data-module-key="module-j"></div>
+        <div class="test-module test-module-e" data-module-key="module-k"></div>
+        <div class="test-module test-module-f" data-module-key="module-l"></div>
+      </div>
+    </div>
 
     <button id="topStackFab" class="topstack-fab" title="Panneau rapide">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -248,10 +304,12 @@ const topStack       = $('#topStack');
 const topStackFab    = $('#topStackFab');
 const topStackOverlay= $('#topStackOverlay');
 const alertsFab      = $('#alertsFab');
+const editDashboardBtn = $('#editDashboardBtn');
 const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
 const reorderBtn     = $('#reorderBtn');
 const rightColumn    = document.querySelector('.right-column');
+const modulesGrid    = $('#modulesGrid');
 
 function detectTablet(){
   const ua = navigator.userAgent || navigator.vendor || window.opera || '';
@@ -265,6 +323,9 @@ function detectTablet(){
 let IS_TABLET = detectTablet();
 const MENU_PREF_KEY = 'testMenuPrefs';
 let menuPrefs = {};
+const MODULE_PREF_KEY = 'dashboardModulePrefs';
+let modulePrefs = {};
+let modulesReorder = false;
 
 function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
@@ -296,6 +357,17 @@ function isWindowMaximized(){
   return (window.innerWidth >= minWidth && window.innerHeight >= minHeight);
 }
 
+function shouldHideEditButton(){
+  const nonFull = !isWindowMaximized();
+  const sheetOpen = topStack && topStack.classList.contains('open');
+  return nonFull && sheetOpen;
+}
+
+function updateEditButtonVisibility(){
+  if (!editDashboardBtn) return;
+  editDashboardBtn.style.display = shouldHideEditButton() ? 'none' : '';
+}
+
 function updateAlertsFabPosition(){
   if (!alertsFab) return;
 
@@ -308,6 +380,8 @@ function updateAlertsFabPosition(){
 
   alertsFab.classList.remove('with-right-stack');
   alertsFab.style.right = '';
+
+  updateEditButtonVisibility();
 
   const fullDesktop = (!IS_TABLET && isWindowMaximized());
   const tabletGap   = IS_TABLET ? 12 : 16;
@@ -393,6 +467,7 @@ function updateTopStackMode(){
   }
 
   updateAlertsFabPosition();
+  updateEditButtonVisibility();
 }
 
 function toggleTopStack(open){
@@ -410,6 +485,7 @@ if (topStackFab) topStackFab.addEventListener('click', ()=>toggleTopStack(true))
 if (topStackOverlay) topStackOverlay.addEventListener('click', ()=>toggleTopStack(false));
 
 function liOf(key){ return menuTop ? menuTop.querySelector(`.menu-item[data-key="${key}"]`) : null; }
+function moduleOf(key){ return modulesGrid ? modulesGrid.querySelector(`[data-module-key="${key}"]`) : null; }
 
 function saveMenuPrefs(){
   try{ localStorage.setItem(MENU_PREF_KEY, JSON.stringify(menuPrefs)); }catch(e){}
@@ -425,6 +501,22 @@ function loadMenuPrefs(){
     if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: idx };
   });
   saveMenuPrefs();
+}
+
+function saveModulePrefs(){
+  try{ localStorage.setItem(MODULE_PREF_KEY, JSON.stringify(modulePrefs)); }catch(e){}
+}
+
+function loadModulePrefs(){
+  try{
+    modulePrefs = JSON.parse(localStorage.getItem(MODULE_PREF_KEY) || '{}') || {};
+  }catch(e){ modulePrefs = {}; }
+  if (!modulesGrid) return;
+  [...modulesGrid.children].forEach((mod, idx)=>{
+    const key = mod.dataset.moduleKey || `mod-${idx}`;
+    if (!modulePrefs[key]) modulePrefs[key] = { visible:true, ord: idx };
+  });
+  saveModulePrefs();
 }
 
 function ensureToggleButtons(){
@@ -470,6 +562,70 @@ function applyMenuPrefs(){
   saveMenuPrefs();
 }
 
+function ensureModuleToggles(){
+  if (!modulesGrid) return;
+  [...modulesGrid.children].forEach(mod => {
+    if (mod.querySelector('.module-toggle')) return;
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='module-toggle';
+    btn.title='Afficher / masquer ce module';
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>`;
+    mod.appendChild(btn);
+    btn.addEventListener('click',(e)=>{
+      e.stopPropagation();
+      const key = mod.dataset.moduleKey;
+      if (!modulePrefs[key]) modulePrefs[key] = { visible:true, ord: [...modulesGrid.children].indexOf(mod) };
+      modulePrefs[key].visible = !modulePrefs[key].visible;
+      applyModulePrefs();
+    });
+  });
+}
+
+function applyModulePrefs(){
+  if (!modulesGrid) return;
+  [...modulesGrid.children].forEach((mod, idx)=>{
+    const key = mod.dataset.moduleKey || `mod-${idx}`;
+    if (!modulePrefs[key]) modulePrefs[key] = { visible:true, ord: idx };
+  });
+
+  const reorderActive = modulesGrid.classList.contains('modules-reorder');
+
+  Object.entries(modulePrefs).forEach(([k,v])=>{
+    const mod = moduleOf(k); if(!mod) return;
+    mod.classList.toggle('hidden-slot', v.visible === false);
+    mod.style.display = (v.visible === false && !reorderActive) ? 'none' : '';
+  });
+
+  const entries = Object.entries(modulePrefs).sort((a,b)=>(a[1].ord||0)-(b[1].ord||0));
+  entries.forEach(([k])=>{ const mod = moduleOf(k); if(mod) modulesGrid.appendChild(mod); });
+
+  saveModulePrefs();
+}
+
+function enableModuleDrag(on){
+  if (!modulesGrid) return;
+  modulesGrid.querySelectorAll('.test-module').forEach(mod=>{
+    mod.draggable = on;
+    mod.classList.toggle('draggable', on);
+  });
+}
+
+function setModuleReorderMode(on){
+  const enable = !!on;
+  modulesReorder = enable;
+  if (modulesGrid) modulesGrid.classList.toggle('modules-reorder', enable);
+  enableModuleDrag(enable);
+  if (editDashboardBtn){
+    editDashboardBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
+    editDashboardBtn.classList.toggle('active', enable);
+  }
+  applyModulePrefs();
+}
+
 function enableDrag(on){
   if (!menuTop) return;
   menuTop.querySelectorAll('.menu-item').forEach(li=>{
@@ -494,6 +650,13 @@ if (reorderBtn){
   reorderBtn.addEventListener('click', ()=>{
     const next = !sidebar.classList.contains('reorder');
     setReorderMode(next);
+  });
+}
+
+if (editDashboardBtn){
+  editDashboardBtn.addEventListener('click', ()=>{
+    const next = !modulesReorder;
+    setModuleReorderMode(next);
   });
 }
 
@@ -528,6 +691,40 @@ if (menuTop){
     const r = over.getBoundingClientRect();
     const before = e.clientY < r.top + r.height/2;
     menuTop.insertBefore(dragSrc, before ? over : over.nextSibling);
+  });
+}
+
+let dragModule=null;
+if (modulesGrid){
+  modulesGrid.addEventListener('dragstart',(e)=>{
+    if(!modulesReorder) return;
+    const mod = e.target.closest('.test-module');
+    if(!mod) return;
+    dragModule = mod;
+    e.dataTransfer.effectAllowed='move';
+    mod.classList.add('dragging');
+  });
+  modulesGrid.addEventListener('dragend',()=>{
+    if (dragModule) dragModule.classList.remove('dragging');
+    if (dragModule){
+      [...modulesGrid.children].forEach((mod, idx)=>{
+        const key = mod.dataset.moduleKey || `mod-${idx}`;
+        if (!modulePrefs[key]) modulePrefs[key] = { visible:true, ord: idx };
+        modulePrefs[key].ord = idx;
+      });
+      saveModulePrefs();
+      applyModulePrefs();
+    }
+    dragModule=null;
+  });
+  modulesGrid.addEventListener('dragover',(e)=>{
+    if(!dragModule || !modulesReorder) return;
+    const over = e.target.closest('.test-module');
+    if(!over || over === dragModule) return;
+    e.preventDefault();
+    const r = over.getBoundingClientRect();
+    const before = e.clientY < r.top + r.height/2;
+    modulesGrid.insertBefore(dragModule, before ? over : over.nextSibling);
   });
 }
 
@@ -584,6 +781,9 @@ function init(){
   loadMenuPrefs();
   ensureToggleButtons();
   applyMenuPrefs();
+  loadModulePrefs();
+  ensureModuleToggles();
+  applyModulePrefs();
   applyTabletMode(IS_TABLET);
   startClock();
   updateAlertsFabPosition();

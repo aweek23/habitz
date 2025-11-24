@@ -66,3 +66,101 @@
 .test-page.is-tablet .sidebar{
   background: var(--page-bg);
 }
+
+.alerts-fab { align-items: center; }
+.edit-dashboard-btn{
+  width:auto;
+  min-width:140px;
+  padding:0 14px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:rgba(12,16,22,0.82);
+  color:var(--text-hi);
+  font-size:13px;
+  font-weight:600;
+  letter-spacing:0.01em;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  transition:all .16s ease;
+  box-shadow:0 10px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
+}
+.edit-dashboard-btn:hover{ border-color:rgba(255,255,255,.14); color:#fff; }
+.edit-dashboard-btn:active{ transform:translateY(1px); }
+
+.test-grid{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+@media (min-width:1600px){ .test-grid{ grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media (max-width:1200px){ .test-grid{ grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (max-width:640px){ .test-grid{ grid-template-columns:1fr; } }
+
+.test-module{
+  position:relative;
+  background:var(--card-bg);
+  border:1px solid var(--card-border);
+  border-radius:12px;
+  min-height:140px;
+  box-shadow:0 10px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.03);
+}
+.test-grid.modules-reorder .test-module{ outline:1px dashed var(--border-strong); }
+.test-module.dragging{ opacity:0.5; }
+.module-toggle{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:28px;
+  height:28px;
+  display:none;
+  place-items:center;
+  border:1px solid var(--card-border);
+  border-radius:8px;
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+  cursor:pointer;
+  transition:all .16s ease;
+  box-shadow:0 8px 20px rgba(0,0,0,.22);
+}
+.module-toggle svg{ width:16px; height:16px; }
+.module-toggle:hover{ border-color:rgba(255,255,255,.14); color:#fff; background:rgba(255,255,255,.06); }
+.test-grid.modules-reorder .module-toggle{ display:grid; }
+.test-grid.modules-reorder .test-module.hidden-slot{ opacity:0.35; filter:saturate(0.4); }
+
+.pedometer-card{ padding:16px 18px 14px; display:flex; flex-direction:column; gap:12px; height:100%; }
+.pedometer-header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+.pedometer-title{ margin:0; font-size:15px; letter-spacing:0.01em; }
+.pedometer-stats{ display:flex; align-items:flex-end; gap:8px; }
+.pedometer-stats .steps-current{ font-size:32px; font-weight:700; line-height:1; }
+.pedometer-stats .steps-goal{ font-size:13px; color:var(--muted); margin-bottom:4px; }
+.pedometer-progress{ width:100%; height:8px; border-radius:6px; background:rgba(255,255,255,.06); overflow:hidden; box-shadow:inset 0 1px 0 rgba(255,255,255,.05); }
+.pedometer-progress-bar{ height:100%; background:linear-gradient(90deg, #5ad1ff, #7df1c4); border-radius:inherit; box-shadow:0 6px 16px rgba(90,209,255,.32); }
+.pedometer-metrics{ display:flex; gap:16px; color:var(--muted); font-size:13px; }
+.metric{ display:flex; flex-direction:column; gap:2px; }
+.metric-value{ color:#fff; font-weight:600; font-size:14px; }
+.metric-label{ letter-spacing:0.01em; }
+
+.steps-evolution{ padding:16px 18px 18px; display:flex; flex-direction:column; gap:10px; height:100%; }
+.steps-evolution-header{ display:flex; align-items:center; justify-content:space-between; }
+.steps-evolution-title{ margin:0; font-size:15px; letter-spacing:0.01em; }
+.steps-filters{ display:flex; gap:6px; }
+.steps-filter-btn{
+  background:transparent;
+  color:var(--muted);
+  border:1px solid var(--card-border);
+  border-radius:8px;
+  padding:5px 10px;
+  font-size:12px;
+  letter-spacing:0.01em;
+  cursor:pointer;
+  transition:all .16s ease;
+}
+.steps-filter-btn:hover{ border-color:rgba(255,255,255,.14); color:#fff; box-shadow:0 6px 14px rgba(0,0,0,.24); }
+.steps-filter-btn:active{ transform:translateY(1px); }
+.steps-chart{ background:transparent; border:none; border-radius:0; padding:0; }
+.steps-chart-img{
+  width:100%;
+  max-width:100%;
+  height:auto;
+  object-fit:contain;
+  display:block;
+  border-radius:0;
+}
