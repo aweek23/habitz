@@ -516,11 +516,9 @@ async function loadMenuPrefs(){
 }
 
 function persistMenuPrefs(saveRemote = true){
-  const order = menuTop
-    ? [...menuTop.children]
-        .map(li => li.dataset.key)
-        .filter(key => key && menuPrefs[key] && menuPrefs[key].visible !== false)
-    : [];
+  const order = Object.entries(menuPrefs)
+    .sort((a,b)=>(a[1].ord||0)-(b[1].ord||0))
+    .map(([k])=>k);
   const disabled = Object.entries(menuPrefs)
     .filter(([,v])=>v.visible === false)
     .map(([k])=>k);

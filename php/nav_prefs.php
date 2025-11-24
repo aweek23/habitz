@@ -42,9 +42,14 @@ function normalize_keys(array $values): array
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $stmt = $pdo->prepare('SELECT menu_order, open_sections, disabled_keys FROM `' . TABLE_USER_NAV . '` WHERE user_id = :uid LIMIT 1');
-    $stmt->execute([':uid' => $uid]);
-    $row = $stmt->fetch();
+    try {
+        $stmt = $pdo->prepare('SELECT menu_order, open_sections, disabled_keys FROM `' . TABLE_USER_NAV . '` WHERE user_id = :uid LIMIT 1');
+        $stmt->execute([':uid' => $uid]);
+        $row = $stmt->fetch();
+    } catch (Throwable $e) {
+        echo json_encode(['ok' => false, 'reason' => 'db_error']);
+        exit;
+    }
 
     $menuOrder = [];
     $openSections = [];

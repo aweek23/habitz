@@ -581,11 +581,9 @@ async function loadMenuPrefs(){
 }
 
 function persistMenuPrefs(saveRemote = true){
-  const order = menuTop
-    ? [...menuTop.children]
-        .map(li => li.dataset.key)
-        .filter(key => key && menuPrefs[key] && menuPrefs[key].visible !== false)
-    : [];
+  const order = Object.entries(menuPrefs)
+    .sort((a,b)=>(a[1].ord||0)-(b[1].ord||0))
+    .map(([k])=>k);
   const disabled = Object.entries(menuPrefs)
     .filter(([,v])=>v.visible === false)
     .map(([k])=>k);
@@ -600,81 +598,6 @@ function persistMenuPrefs(saveRemote = true){
     credentials:'same-origin',
     body: JSON.stringify({ menu_order: order, open_sections: open, disabled_keys: disabled })
   }).catch(()=>{});
-}
-
-function defaultModulePrefs(){
-  const prefs = {};
-  moduleCanon.forEach(({key, ord}) => {
-    prefs[key] = { visible:true, ord };
-  });
-  return prefs;
-}
-
-function normalizePrefsMap(mods){
-  const normalized = {};
-  Object.entries(mods || {}).forEach(([k,v])=>{
-    const visibleVal = v && typeof v.visible !== 'undefined' ? v.visible : true;
-    const entry = {
-      visible: visibleVal === false || visibleVal === 'No' ? false : true,
-    };
-    if (v && typeof v.ord !== 'undefined' && v.ord !== null) {
-      entry.ord = Number(v.ord) || 0;
-    }
-    normalized[k] = entry;
-  });
-  return normalized;
-}
-
-function getLayoutPrefs(layout){
-  if (!modulePrefs[layout]) modulePrefs[layout] = defaultModulePrefs();
-  return modulePrefs[layout];
-}
-
-async function fetchModulePrefs(layout){
-  const query = layout === 'all' ? '?action=get&layout=all' : `?action=get&layout=${layout}`;
-  const res = await fetch(`${MODULE_PREF_ENDPOINT}${query}`, { credentials:'same-origin', cache:'no-store' });
-  if (!res.ok) throw new Error('network');
-  const data = await res.json();
-  if (!data || data.ok !== true) throw new Error('server');
-
-  if (data.layouts){
-    Object.entries(data.layouts).forEach(([layoutKey, mods]) => {
-      const base = defaultModulePrefs();
-      modulePrefs[layoutKey] = Object.assign(base, normalizePrefsMap(mods));
-    });
-  } else if (data.modules && data.layout){
-    const base = defaultModulePrefs();
-    modulePrefs[String(data.layout)] = Object.assign(base, normalizePrefsMap(data.modules));
-  }
-}
-
-async function ensureLayoutPrefs(layout){
-  if (modulePrefs[layout]) return;
-  try {
-    await fetchModulePrefs(layout);
-  } catch(e) {
-    modulePrefs[layout] = defaultModulePrefs();
-  }
-}
-
-function getActiveLayoutKey(){
-  return modulesReorder ? editLayout : activeViewLayout;
-}
-
-async function persistModuleOrder(layout){
-  const prefs = getLayoutPrefs(layout);
-  const order = [...modulesGrid.children]
-    .map(mod => mod.dataset.moduleKey || '')
-    .filter(key => key && prefs[key] && prefs[key].visible !== false);
-  if (!order.length) return;
-  try{
-    await fetch(MODULE_PREF_ENDPOINT, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      credentials:'same-origin',
-      body: JSON.stringify({ action:'reorder', layout:Number(layout), order })
-    });
-  }catch(err){ /* silencieux */ }
 }
 
 function defaultModulePrefs(){
@@ -798,89 +721,6 @@ function applyMenuPrefs(){
     const key = li.dataset.key;
     li.classList.toggle('open', navOpenSections.has(key));
   });
-}
-
-function ensureModuleToggles(){
-  if (!modulesGrid) return;
-  [...modulesGrid.children].forEach(mod => {
-    if (mod.querySelector('.module-toggle')) return;
-    const btn = document.createElement('button');
-    btn.type='button';
-    btn.className='module-toggle';
-    btn.title='Afficher / masquer ce module';
-    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
-      <circle cx="12" cy="12" r="3"></circle>
-    </svg>`;
-    mod.appendChild(btn);
-    btn.addEventListener('click', async (e)=>{
-      e.stopPropagation();
-      const layout = getActiveLayoutKey();
-      const prefs = getLayoutPrefs(layout);
-      const key = mod.dataset.moduleKey;
-      if (!prefs[key]) prefs[key] = { visible:true, ord: [...modulesGrid.children].indexOf(mod) };
-      const newVisible = prefs[key].visible === false;
-      prefs[key].visible = newVisible;
-      applyModulePrefs(layout);
-      try{
-        await fetch(MODULE_PREF_ENDPOINT, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          credentials:'same-origin',
-          body: JSON.stringify({ action:'toggle', layout:Number(layout), key, visible: prefs[key].visible ? 'Yes':'No' })
-        });
-      }catch(err){ /* silencieux */ }
-      // rafraîchit depuis le serveur pour rester cohérent
-      try { await fetchModulePrefs(layout); applyModulePrefs(layout); } catch(err){}
-    });
-  });
-}
-
-function applyModulePrefs(layout){
-  if (!modulesGrid) return;
-  const layoutKey = layout || getActiveLayoutKey();
-  const prefs = getLayoutPrefs(layoutKey);
-  const reorderActive = modulesGrid.classList.contains('modules-reorder');
-
-  Object.entries(prefs).forEach(([k,v])=>{
-    const mod = moduleOf(k); if(!mod) return;
-    mod.classList.toggle('hidden-slot', v.visible === false);
-    mod.style.display = (v.visible === false && !reorderActive) ? 'none' : '';
-  });
-
-  const entries = Object.entries(prefs).sort((a,b)=>(a[1].ord||0)-(b[1].ord||0));
-  entries.forEach(([k])=>{ const mod = moduleOf(k); if(mod) modulesGrid.appendChild(mod); });
-}
-
-function enableModuleDrag(on){
-  if (!modulesGrid) return;
-  modulesGrid.querySelectorAll('.test-module').forEach(mod=>{
-    mod.draggable = on;
-    mod.classList.toggle('draggable', on);
-  });
-}
-
-function setModuleReorderMode(on){
-  const enable = !!on;
-  modulesReorder = enable;
-  document.body.classList.toggle('modules-reorder-active', enable);
-  if (modulesGrid) modulesGrid.classList.toggle('modules-reorder', enable);
-  enableModuleDrag(enable);
-  if (editDashboardBtn){
-    editDashboardBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
-    editDashboardBtn.classList.toggle('active', enable);
-  }
-  if (layoutSwitcher){
-    layoutSwitcher.classList.toggle('visible', enable);
-  }
-  if (enable){
-    editLayout = getDefaultLayoutForViewport();
-    ensureLayoutPrefs(editLayout).then(()=> applyModulePrefs(editLayout));
-  } else {
-    activeViewLayout = getDefaultLayoutForViewport();
-    ensureLayoutPrefs(activeViewLayout).then(()=> applyModulePrefs(activeViewLayout));
-  }
-  applyModuleLayout();
 }
 
 function ensureModuleToggles(){
