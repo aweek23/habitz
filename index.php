@@ -361,11 +361,14 @@ function detectTablet(){
 let IS_TABLET = detectTablet();
 const MENU_PREF_KEY = 'testMenuPrefs';
 let menuPrefs = {};
-const MODULE_PREF_KEY = 'dashboardModulePrefs';
-let modulePrefs = {};
+const MODULE_PREF_ENDPOINT = 'php/modules_prefs.php';
+let modulePrefs = {}; // { layout: { key: {visible, ord} } }
 let modulesReorder = false;
-const MODULE_LAYOUT_KEY = 'dashboardModuleLayout';
-let moduleLayout = getDefaultLayoutForViewport();
+let activeViewLayout = getDefaultLayoutForViewport();
+let editLayout = activeViewLayout;
+const moduleCanon = modulesGrid
+  ? [...modulesGrid.children].map((mod, idx) => ({ key: mod.dataset.moduleKey || `mod-${idx}`, ord: idx }))
+  : [];
 
 function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
@@ -388,6 +391,7 @@ window.addEventListener('resize', () => {
   const now = detectTablet();
   if (now !== IS_TABLET) { IS_TABLET = now; applyTabletMode(IS_TABLET); }
   else { updateTopStackMode(); updateClockPosition(); }
+  syncActiveLayoutForViewport();
 });
 
 function isWindowMaximized(){
@@ -543,20 +547,79 @@ function loadMenuPrefs(){
   saveMenuPrefs();
 }
 
-function saveModulePrefs(){
-  try{ localStorage.setItem(MODULE_PREF_KEY, JSON.stringify(modulePrefs)); }catch(e){}
+function defaultModulePrefs(){
+  const prefs = {};
+  moduleCanon.forEach(({key, ord}) => {
+    prefs[key] = { visible:true, ord };
+  });
+  return prefs;
 }
 
-function loadModulePrefs(){
-  try{
-    modulePrefs = JSON.parse(localStorage.getItem(MODULE_PREF_KEY) || '{}') || {};
-  }catch(e){ modulePrefs = {}; }
-  if (!modulesGrid) return;
-  [...modulesGrid.children].forEach((mod, idx)=>{
-    const key = mod.dataset.moduleKey || `mod-${idx}`;
-    if (!modulePrefs[key]) modulePrefs[key] = { visible:true, ord: idx };
+function normalizePrefsMap(mods){
+  const normalized = {};
+  Object.entries(mods || {}).forEach(([k,v])=>{
+    const visibleVal = v && typeof v.visible !== 'undefined' ? v.visible : true;
+    const entry = {
+      visible: visibleVal === false || visibleVal === 'No' ? false : true,
+    };
+    if (v && typeof v.ord !== 'undefined' && v.ord !== null) {
+      entry.ord = Number(v.ord) || 0;
+    }
+    normalized[k] = entry;
   });
-  saveModulePrefs();
+  return normalized;
+}
+
+function getLayoutPrefs(layout){
+  if (!modulePrefs[layout]) modulePrefs[layout] = defaultModulePrefs();
+  return modulePrefs[layout];
+}
+
+async function fetchModulePrefs(layout){
+  const query = layout === 'all' ? '?action=get&layout=all' : `?action=get&layout=${layout}`;
+  const res = await fetch(`${MODULE_PREF_ENDPOINT}${query}`, { credentials:'same-origin', cache:'no-store' });
+  if (!res.ok) throw new Error('network');
+  const data = await res.json();
+  if (!data || data.ok !== true) throw new Error('server');
+
+  if (data.layouts){
+    Object.entries(data.layouts).forEach(([layoutKey, mods]) => {
+      const base = defaultModulePrefs();
+      modulePrefs[layoutKey] = Object.assign(base, normalizePrefsMap(mods));
+    });
+  } else if (data.modules && data.layout){
+    const base = defaultModulePrefs();
+    modulePrefs[String(data.layout)] = Object.assign(base, normalizePrefsMap(data.modules));
+  }
+}
+
+async function ensureLayoutPrefs(layout){
+  if (modulePrefs[layout]) return;
+  try {
+    await fetchModulePrefs(layout);
+  } catch(e) {
+    modulePrefs[layout] = defaultModulePrefs();
+  }
+}
+
+function getActiveLayoutKey(){
+  return modulesReorder ? editLayout : activeViewLayout;
+}
+
+async function persistModuleOrder(layout){
+  const prefs = getLayoutPrefs(layout);
+  const order = [...modulesGrid.children]
+    .map(mod => mod.dataset.moduleKey || '')
+    .filter(key => key && prefs[key] && prefs[key].visible !== false);
+  if (!order.length) return;
+  try{
+    await fetch(MODULE_PREF_ENDPOINT, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      body: JSON.stringify({ action:'reorder', layout:Number(layout), order })
+    });
+  }catch(err){ /* silencieux */ }
 }
 
 function ensureToggleButtons(){
@@ -615,35 +678,43 @@ function ensureModuleToggles(){
       <circle cx="12" cy="12" r="3"></circle>
     </svg>`;
     mod.appendChild(btn);
-    btn.addEventListener('click',(e)=>{
+    btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
+      const layout = getActiveLayoutKey();
+      const prefs = getLayoutPrefs(layout);
       const key = mod.dataset.moduleKey;
-      if (!modulePrefs[key]) modulePrefs[key] = { visible:true, ord: [...modulesGrid.children].indexOf(mod) };
-      modulePrefs[key].visible = !modulePrefs[key].visible;
-      applyModulePrefs();
+      if (!prefs[key]) prefs[key] = { visible:true, ord: [...modulesGrid.children].indexOf(mod) };
+      const newVisible = prefs[key].visible === false;
+      prefs[key].visible = newVisible;
+      applyModulePrefs(layout);
+      try{
+        await fetch(MODULE_PREF_ENDPOINT, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          credentials:'same-origin',
+          body: JSON.stringify({ action:'toggle', layout:Number(layout), key, visible: prefs[key].visible ? 'Yes':'No' })
+        });
+      }catch(err){ /* silencieux */ }
+      // rafraîchit depuis le serveur pour rester cohérent
+      try { await fetchModulePrefs(layout); applyModulePrefs(layout); } catch(err){}
     });
   });
 }
 
-function applyModulePrefs(){
+function applyModulePrefs(layout){
   if (!modulesGrid) return;
-  [...modulesGrid.children].forEach((mod, idx)=>{
-    const key = mod.dataset.moduleKey || `mod-${idx}`;
-    if (!modulePrefs[key]) modulePrefs[key] = { visible:true, ord: idx };
-  });
-
+  const layoutKey = layout || getActiveLayoutKey();
+  const prefs = getLayoutPrefs(layoutKey);
   const reorderActive = modulesGrid.classList.contains('modules-reorder');
 
-  Object.entries(modulePrefs).forEach(([k,v])=>{
+  Object.entries(prefs).forEach(([k,v])=>{
     const mod = moduleOf(k); if(!mod) return;
     mod.classList.toggle('hidden-slot', v.visible === false);
     mod.style.display = (v.visible === false && !reorderActive) ? 'none' : '';
   });
 
-  const entries = Object.entries(modulePrefs).sort((a,b)=>(a[1].ord||0)-(b[1].ord||0));
+  const entries = Object.entries(prefs).sort((a,b)=>(a[1].ord||0)-(b[1].ord||0));
   entries.forEach(([k])=>{ const mod = moduleOf(k); if(mod) modulesGrid.appendChild(mod); });
-
-  saveModulePrefs();
 }
 
 function enableModuleDrag(on){
@@ -668,10 +739,13 @@ function setModuleReorderMode(on){
     layoutSwitcher.classList.toggle('visible', enable);
   }
   if (enable){
-    moduleLayout = getDefaultLayoutForViewport();
+    editLayout = getDefaultLayoutForViewport();
+    ensureLayoutPrefs(editLayout).then(()=> applyModulePrefs(editLayout));
+  } else {
+    activeViewLayout = getDefaultLayoutForViewport();
+    ensureLayoutPrefs(activeViewLayout).then(()=> applyModulePrefs(activeViewLayout));
   }
   applyModuleLayout();
-  applyModulePrefs();
 }
 
 function enableDrag(on){
@@ -755,13 +829,15 @@ if (modulesGrid){
   modulesGrid.addEventListener('dragend',()=>{
     if (dragModule) dragModule.classList.remove('dragging');
     if (dragModule){
+      const layoutKey = getActiveLayoutKey();
+      const prefs = getLayoutPrefs(layoutKey);
       [...modulesGrid.children].forEach((mod, idx)=>{
         const key = mod.dataset.moduleKey || `mod-${idx}`;
-        if (!modulePrefs[key]) modulePrefs[key] = { visible:true, ord: idx };
-        modulePrefs[key].ord = idx;
+        if (!prefs[key]) prefs[key] = { visible:true, ord: idx };
+        prefs[key].ord = idx;
       });
-      saveModulePrefs();
-      applyModulePrefs();
+      persistModuleOrder(layoutKey);
+      applyModulePrefs(layoutKey);
     }
     dragModule=null;
   });
@@ -780,28 +856,37 @@ function applyModuleLayout(){
   if (!modulesGrid) return;
   modulesGrid.classList.remove('layout-4','layout-3','layout-2','layout-1');
   if (modulesReorder){
-    const cls = moduleLayout ? `layout-${moduleLayout}` : '';
+    const cls = editLayout ? `layout-${editLayout}` : '';
     if (cls) modulesGrid.classList.add(cls);
   }
   if (layoutSwitcher){
     layoutSwitcher.querySelectorAll('[data-layout]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.layout === moduleLayout);
+      btn.classList.toggle('active', btn.dataset.layout === String(editLayout));
     });
   }
 }
 
-function setModuleLayout(layout){
-  moduleLayout = layout || '3';
-  try { localStorage.setItem(MODULE_LAYOUT_KEY, moduleLayout); } catch(e) {}
-  applyModuleLayout();
+async function syncActiveLayoutForViewport(){
+  if (modulesReorder) return;
+  const next = getDefaultLayoutForViewport();
+  if (next === activeViewLayout) return;
+  activeViewLayout = next;
+  await ensureLayoutPrefs(activeViewLayout);
+  applyModulePrefs(activeViewLayout);
 }
 
-function loadModuleLayout(){
-  try {
-    const saved = localStorage.getItem(MODULE_LAYOUT_KEY);
-    if (saved) moduleLayout = saved;
-  } catch(e) { moduleLayout = '3'; }
+async function setModuleLayout(layout){
+  editLayout = layout || '3';
   applyModuleLayout();
+  await ensureLayoutPrefs(editLayout);
+  applyModulePrefs(editLayout);
+}
+
+async function bootstrapModulePrefs(){
+  try { await fetchModulePrefs('all'); }
+  catch(err) { /* fallback sur defaults */ }
+  await ensureLayoutPrefs(activeViewLayout);
+  applyModulePrefs(activeViewLayout);
 }
 
 if (layoutSwitcher){
@@ -865,10 +950,9 @@ function init(){
   loadMenuPrefs();
   ensureToggleButtons();
   applyMenuPrefs();
-  loadModulePrefs();
   ensureModuleToggles();
-  applyModulePrefs();
-  loadModuleLayout();
+  bootstrapModulePrefs().catch(()=> applyModulePrefs(activeViewLayout));
+  applyModuleLayout();
   applyTabletMode(IS_TABLET);
   startClock();
   updateAlertsFabPosition();
