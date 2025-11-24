@@ -1,6 +1,17 @@
 <?php
 require __DIR__ . '/config.php';
 
+/*
+  API nav_prefs.php
+    GET  ?action=get
+      -> { ok:true, items:{ key:{ visible:"Yes"|"No", ord:int }, ... }, open_sections:[...] }
+
+    POST JSON
+      { action:"toggle", key:"tasks", visible:"Yes"|"No" }
+      { action:"reorder", order:["tasks","habits", ... visibles dans l'ordre choisi] }
+      { action:"open_sections", open_sections:["tasks", ...] }
+*/
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Pragma: no-cache');
@@ -11,34 +22,25 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
+$uid = (int) $_SESSION['user_id'];
+
 if (!defined('TABLE_USER_NAV_ITEMS')) {
     define('TABLE_USER_NAV_ITEMS', 'user_nav_items');
 }
+if (!defined('TABLE_USER_NAV')) {
+    define('TABLE_USER_NAV', 'user_nav');
+}
 
-$uid = (int) $_SESSION['user_id'];
-
-// Canon des boutons de la navbar (même ordre que le HTML)
-$NAV_CANON = [
+// Canon de la navbar (même séquence que le HTML)
+$NAV_KEYS = [
     'tasks', 'habits', 'projects', 'sport', 'food', 'calendar', 'body', 'finances',
     'clock', 'events', 'news', 'drive',
 ];
-$NAV_KEYS = $NAV_CANON;
 
-function normalize_keys(array $values): array
+// -- Helpers ---------------------------------------------------------------
+function ensure_tables(PDO $pdo): void
 {
-    $out = [];
-    foreach ($values as $val) {
-        if (!is_string($val) || $val === '') {
-            continue;
-        }
-        $out[] = $val;
-    }
-    return array_values(array_unique($out));
-}
-
-function ensure_nav_tables(PDO $pdo): void
-{
-    // Table des items (ordre + visibilité)
+    // Ordre + visibilité
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS `' . TABLE_USER_NAV_ITEMS . '` (' .
         '  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,' .
@@ -52,7 +54,7 @@ function ensure_nav_tables(PDO $pdo): void
         ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;'
     );
 
-    // Table des sections ouvertes (on réutilise TABLE_USER_NAV pour stocker l’état)
+    // Sections ouvertes (facultatif)
     $pdo->exec(
         'CREATE TABLE IF NOT EXISTS `' . TABLE_USER_NAV . '` (' .
         '  `user_id` INT NOT NULL,' .
@@ -75,7 +77,7 @@ function seed_nav_items(PDO $pdo, int $uid, array $canon): void
     $pdo->beginTransaction();
     try {
         $ins = $pdo->prepare(
-            'INSERT INTO `' . TABLE_USER_NAV_ITEMS . '` (user_id, nav_key, visible, ord) VALUES (:u, :k, "Yes", :o)'
+            'INSERT INTO `' . TABLE_USER_NAV_ITEMS . '` (user_id, nav_key, visible, ord) VALUES (:u,:k,"Yes",:o)'
         );
         foreach ($canon as $idx => $key) {
             $ins->execute([':u' => $uid, ':k' => $key, ':o' => $idx + 1]);
@@ -87,72 +89,73 @@ function seed_nav_items(PDO $pdo, int $uid, array $canon): void
     }
 }
 
-function migrate_legacy_nav(PDO $pdo, int $uid, array $canon): void
+function fetch_items(PDO $pdo, int $uid, array $canon): array
 {
-    try {
-        $hasMenuOrder = $pdo->query("SHOW COLUMNS FROM `" . TABLE_USER_NAV . "` LIKE 'menu_order'")->rowCount() > 0;
-        $hasDisabled  = $pdo->query("SHOW COLUMNS FROM `" . TABLE_USER_NAV . "` LIKE 'disabled_keys'")->rowCount() > 0;
-    } catch (Throwable $e) {
-        return;
+    $st = $pdo->prepare('SELECT nav_key, visible, ord FROM `' . TABLE_USER_NAV_ITEMS . '` WHERE user_id=:u');
+    $st->execute([':u' => $uid]);
+
+    $out = [];
+    foreach ($st->fetchAll() as $row) {
+        $key = $row['nav_key'];
+        if (!in_array($key, $canon, true)) continue;
+        $out[$key] = [
+            'visible' => $row['visible'],
+            'ord'     => is_null($row['ord']) ? null : (int) $row['ord'],
+        ];
     }
 
-    if (!$hasMenuOrder && !$hasDisabled) {
-        return;
+    // ajoute les manquants en mémoire
+    $max = 0;
+    foreach ($out as $v) {
+        if (!is_null($v['ord'])) {
+            $max = max($max, (int) $v['ord']);
+        }
+    }
+    $idx = $max;
+    foreach ($canon as $key) {
+        if (!isset($out[$key])) {
+            $idx++;
+            $out[$key] = ['visible' => 'Yes', 'ord' => $idx];
+        }
     }
 
-    $stmt = $pdo->prepare('SELECT menu_order, disabled_keys FROM `' . TABLE_USER_NAV . '` WHERE user_id=:u LIMIT 1');
-    $stmt->execute([':u' => $uid]);
-    $row = $stmt->fetch();
-    if (!$row) {
-        return;
-    }
+    return $out;
+}
 
-    $order = normalize_keys(json_decode($row['menu_order'] ?? '[]', true) ?: []);
-    $disabled = normalize_keys(json_decode($row['disabled_keys'] ?? '[]', true) ?: []);
-
-    if (empty($order) && empty($disabled)) {
-        return;
-    }
-
+function save_items(PDO $pdo, int $uid, array $orderedKeys, array $current): void
+{
     $pdo->beginTransaction();
     try {
-        $i = 1;
         $upd = $pdo->prepare(
-            'UPDATE `' . TABLE_USER_NAV_ITEMS . '` SET ord=:o, visible="Yes" WHERE user_id=:u AND nav_key=:k'
+            'UPDATE `' . TABLE_USER_NAV_ITEMS . '` SET ord=:o WHERE user_id=:u AND nav_key=:k'
         );
-        foreach ($order as $k) {
-            if (!in_array($k, $canon, true)) continue;
-            $upd->execute([':o' => $i, ':u' => $uid, ':k' => $k]);
-            $i++;
-        }
-        foreach ($canon as $k) {
-            if (in_array($k, $order, true)) continue;
-            $upd->execute([':o' => $i, ':u' => $uid, ':k' => $k]);
-            $i++;
+        foreach ($orderedKeys as $idx => $key) {
+            $upd->execute([':o' => $idx + 1, ':u' => $uid, ':k' => $key]);
         }
 
-        if (!empty($disabled)) {
-            $hide = $pdo->prepare('UPDATE `' . TABLE_USER_NAV_ITEMS . '` SET visible="No", ord=NULL WHERE user_id=:u AND nav_key=:k');
-            foreach ($disabled as $k) {
-                if (!in_array($k, $canon, true)) continue;
-                $hide->execute([':u' => $uid, ':k' => $k]);
+        // ajoute les lignes manquantes au besoin
+        $ins = $pdo->prepare(
+            'INSERT IGNORE INTO `' . TABLE_USER_NAV_ITEMS . '` (user_id, nav_key, visible, ord) VALUES (:u,:k,"Yes",:o)'
+        );
+        foreach ($orderedKeys as $idx => $key) {
+            if (!isset($current[$key])) {
+                $ins->execute([':u' => $uid, ':k' => $key, ':o' => $idx + 1]);
             }
         }
 
         $pdo->commit();
     } catch (Throwable $e) {
         $pdo->rollBack();
+        throw $e;
     }
 }
 
 function fetch_open_sections(PDO $pdo, int $uid): array
 {
-    $stmt = $pdo->prepare('SELECT open_sections FROM `' . TABLE_USER_NAV . '` WHERE user_id=:u LIMIT 1');
-    $stmt->execute([':u' => $uid]);
-    $row = $stmt->fetch();
+    $st = $pdo->prepare('SELECT open_sections FROM `' . TABLE_USER_NAV . '` WHERE user_id=:u LIMIT 1');
+    $st->execute([':u' => $uid]);
+    $row = $st->fetch();
     if (!$row) {
-        $pdo->prepare('INSERT INTO `' . TABLE_USER_NAV . '` (user_id, open_sections) VALUES (:u, :os)')
-            ->execute([':u' => $uid, ':os' => '[]']);
         return [];
     }
     return json_decode($row['open_sections'], true) ?: [];
@@ -160,190 +163,134 @@ function fetch_open_sections(PDO $pdo, int $uid): array
 
 function save_open_sections(PDO $pdo, int $uid, array $sections): void
 {
-    $stmt = $pdo->prepare(
-        'INSERT INTO `' . TABLE_USER_NAV . '` (user_id, open_sections) VALUES (:u, :os) ' .
-        'ON DUPLICATE KEY UPDATE open_sections = VALUES(open_sections)'
+    $st = $pdo->prepare(
+        'INSERT INTO `' . TABLE_USER_NAV . '` (user_id, open_sections) VALUES (:u, :os)' .
+        ' ON DUPLICATE KEY UPDATE open_sections = VALUES(open_sections)'
     );
-    $stmt->execute([
-        ':u'  => $uid,
-        ':os' => json_encode(array_values($sections), JSON_UNESCAPED_UNICODE),
-    ]);
+    $st->execute([':u' => $uid, ':os' => json_encode(array_values($sections), JSON_UNESCAPED_UNICODE)]);
 }
 
-function fetch_items(PDO $pdo, int $uid, array $canon): array
-{
-    $stmt = $pdo->prepare('SELECT nav_key, visible, ord FROM `' . TABLE_USER_NAV_ITEMS . '` WHERE user_id=:u');
-    $stmt->execute([':u' => $uid]);
-    $out = [];
-    foreach ($stmt->fetchAll() as $row) {
-        $k = $row['nav_key'];
-        $out[$k] = [
-            'visible' => $row['visible'],
-            'ord' => is_null($row['ord']) ? null : (int) $row['ord'],
-        ];
-    }
-
-    // ajoute les clés manquantes
-    $max = 0;
-    foreach ($out as $v) {
-        if (!is_null($v['ord']) && $v['visible'] === 'Yes') {
-            $max = max($max, (int) $v['ord']);
-        }
-    }
-
-    $pdo->beginTransaction();
-    try {
-        $ins = $pdo->prepare(
-            'INSERT INTO `' . TABLE_USER_NAV_ITEMS . '` (user_id, nav_key, visible, ord) VALUES (:u,:k, "Yes", :o)'
-        );
-        foreach ($canon as $idx => $key) {
-            if (isset($out[$key])) {
-                continue;
-            }
-            $max++;
-            $ins->execute([':u' => $uid, ':k' => $key, ':o' => $max]);
-            $out[$key] = ['visible' => 'Yes', 'ord' => $max];
-        }
-        $pdo->commit();
-    } catch (Throwable $e) {
-        $pdo->rollBack();
-        throw $e;
-    }
-
-    return $out;
-}
-
-function reorder_items(PDO $pdo, int $uid, array $order, array $canon): void
-{
-    $valid = array_values(array_intersect($order, $canon));
-    if (empty($valid)) {
-        return;
-    }
-    $pdo->beginTransaction();
-    try {
-        $upd = $pdo->prepare(
-            'UPDATE `' . TABLE_USER_NAV_ITEMS . '` SET ord=:o WHERE user_id=:u AND nav_key=:k AND visible="Yes"'
-        );
-        $i = 1;
-        foreach ($valid as $k) {
-            $upd->execute([':o' => $i, ':u' => $uid, ':k' => $k]);
-            $i++;
-        }
-        $pdo->commit();
-    } catch (Throwable $e) {
-        $pdo->rollBack();
-        throw $e;
-    }
-}
-
-function toggle_item(PDO $pdo, int $uid, string $key, string $visible, array $canon): void
-{
-    if (!in_array($key, $canon, true) || !in_array($visible, ['Yes', 'No'], true)) {
-        throw new InvalidArgumentException('bad_args');
-    }
-
-    // assure l’existence de la ligne
-    $pdo->prepare(
-        'INSERT IGNORE INTO `' . TABLE_USER_NAV_ITEMS . '` (user_id, nav_key, visible, ord) VALUES (:u,:k,"Yes",NULL)'
-    )->execute([':u' => $uid, ':k' => $key]);
-
-    $stmt = $pdo->prepare('SELECT visible, ord FROM `' . TABLE_USER_NAV_ITEMS . '` WHERE user_id=:u AND nav_key=:k LIMIT 1');
-    $stmt->execute([':u' => $uid, ':k' => $key]);
-    $row = $stmt->fetch();
-    if (!$row) {
-        throw new RuntimeException('not_found');
-    }
-
-    if ($visible === 'No' && $row['visible'] === 'Yes') {
-        $oldOrd = (int) $row['ord'];
-        $pdo->beginTransaction();
-        try {
-            $pdo->prepare('UPDATE `' . TABLE_USER_NAV_ITEMS . '` SET visible="No", ord=NULL WHERE user_id=:u AND nav_key=:k')
-                ->execute([':u' => $uid, ':k' => $key]);
-            $pdo->prepare(
-                'UPDATE `' . TABLE_USER_NAV_ITEMS . '` SET ord=ord-1 WHERE user_id=:u AND visible="Yes" AND ord>:o'
-            )->execute([':u' => $uid, ':o' => $oldOrd]);
-            $pdo->commit();
-        } catch (Throwable $e) {
-            $pdo->rollBack();
-            throw $e;
-        }
-    } elseif ($visible === 'Yes' && $row['visible'] === 'No') {
-        $maxStmt = $pdo->prepare('SELECT COALESCE(MAX(ord),0) FROM `' . TABLE_USER_NAV_ITEMS . '` WHERE user_id=:u AND visible="Yes"');
-        $maxStmt->execute([':u' => $uid]);
-        $new = (int) $maxStmt->fetchColumn() + 1;
-        $pdo->prepare('UPDATE `' . TABLE_USER_NAV_ITEMS . '` SET visible="Yes", ord=:o WHERE user_id=:u AND nav_key=:k')
-            ->execute([':o' => $new, ':u' => $uid, ':k' => $key]);
-    }
-}
-
+// -- Boot ---------------------------------------------------------------
 try {
-    ensure_nav_tables($pdo);
-    seed_nav_items($pdo, $uid, $NAV_CANON);
-    migrate_legacy_nav($pdo, $uid, $NAV_CANON);
+    ensure_tables($pdo);
+    seed_nav_items($pdo, $uid, $NAV_KEYS);
 } catch (Throwable $e) {
     echo json_encode(['ok' => false, 'reason' => 'db_error']);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    try {
-        $items = fetch_items($pdo, $uid, $NAV_CANON);
-        $openSections = normalize_keys(fetch_open_sections($pdo, $uid));
-    } catch (Throwable $e) {
-        echo json_encode(['ok' => false, 'reason' => 'db_error']);
-        exit;
-    }
+$method = $_SERVER['REQUEST_METHOD'];
+$action = $_GET['action'] ?? '';
 
-    echo json_encode([
-        'ok' => true,
-        'items' => $items,
-        'open_sections' => $openSections,
-    ], JSON_UNESCAPED_UNICODE);
+if ($method === 'GET' && $action === 'get') {
+    $items = fetch_items($pdo, $uid, $NAV_KEYS);
+    $open  = fetch_open_sections($pdo, $uid);
+    echo json_encode(['ok' => true, 'items' => $items, 'open_sections' => $open], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $raw = file_get_contents('php://input');
+if ($method === 'POST') {
+    $raw  = file_get_contents('php://input');
     $json = json_decode($raw, true);
     if (!is_array($json)) {
         echo json_encode(['ok' => false, 'reason' => 'bad_json']);
         exit;
     }
 
-    $action = $json['action'] ?? '';
+    $act = $json['action'] ?? '';
 
-    try {
-        if ($action === 'toggle') {
-            toggle_item($pdo, $uid, $json['key'] ?? '', $json['visible'] ?? '', $NAV_CANON);
-            echo json_encode(['ok' => true]);
+    if ($act === 'toggle') {
+        $key = $json['key'] ?? '';
+        $vis = $json['visible'] ?? '';
+        if (!in_array($key, $NAV_KEYS, true) || !in_array($vis, ['Yes', 'No'], true)) {
+            echo json_encode(['ok' => false, 'reason' => 'bad_args']);
             exit;
         }
 
-        if ($action === 'reorder') {
-            $order = $json['order'] ?? null;
-            if (!is_array($order) || empty($order)) {
-                echo json_encode(['ok' => false, 'reason' => 'bad_order']);
-                exit;
-            }
-            reorder_items($pdo, $uid, $order, $NAV_CANON);
-            echo json_encode(['ok' => true]);
-            exit;
+        $existing = fetch_items($pdo, $uid, $NAV_KEYS);
+        $nextOrd  = count($existing) + 1;
+        if (isset($existing[$key]) && isset($existing[$key]['ord'])) {
+            $nextOrd = (int) $existing[$key]['ord'];
         }
 
-        if ($action === 'open_sections') {
-            $sections = normalize_keys($json['open_sections'] ?? []);
-            save_open_sections($pdo, $uid, $sections);
+        $stmt = $pdo->prepare(
+            'INSERT INTO `' . TABLE_USER_NAV_ITEMS . '` (user_id, nav_key, visible, ord)'
+            . ' VALUES (:u,:k,:v,:o)'
+            . ' ON DUPLICATE KEY UPDATE visible=VALUES(visible), ord=IF(ord IS NULL, VALUES(ord), ord)'
+        );
+        try {
+            $stmt->execute([':u' => $uid, ':k' => $key, ':v' => $vis, ':o' => $nextOrd]);
             echo json_encode(['ok' => true]);
-            exit;
+        } catch (Throwable $e) {
+            echo json_encode(['ok' => false, 'reason' => 'db_error']);
         }
-    } catch (Throwable $e) {
-        echo json_encode(['ok' => false, 'reason' => 'db_error']);
         exit;
     }
 
-    echo json_encode(['ok' => false, 'reason' => 'unsupported']);
+    if ($act === 'reorder') {
+        $order = $json['order'] ?? [];
+        if (!is_array($order)) {
+            echo json_encode(['ok' => false, 'reason' => 'bad_order']);
+            exit;
+        }
+
+        $normalized = [];
+        foreach ($order as $k) {
+            if (is_string($k) && in_array($k, $NAV_KEYS, true) && !in_array($k, $normalized, true)) {
+                $normalized[] = $k;
+            }
+        }
+
+        // on complète avec les clés restantes, en respectant l'ordre existant
+        $current = fetch_items($pdo, $uid, $NAV_KEYS);
+        uasort($current, function ($a, $b) {
+            $ao = $a['ord'] ?? PHP_INT_MAX;
+            $bo = $b['ord'] ?? PHP_INT_MAX;
+            if ($ao === $bo) return 0;
+            return ($ao < $bo) ? -1 : 1;
+        });
+
+        foreach (array_keys($current) as $existingKey) {
+            if (in_array($existingKey, $normalized, true)) continue;
+            $normalized[] = $existingKey;
+        }
+        foreach ($NAV_KEYS as $canonKey) {
+            if (in_array($canonKey, $normalized, true)) continue;
+            $normalized[] = $canonKey;
+        }
+
+        try {
+            save_items($pdo, $uid, $normalized, $current);
+            echo json_encode(['ok' => true]);
+        } catch (Throwable $e) {
+            echo json_encode(['ok' => false, 'reason' => 'db_error']);
+        }
+        exit;
+    }
+
+    if ($act === 'open_sections') {
+        $open = $json['open_sections'] ?? [];
+        if (!is_array($open)) {
+            echo json_encode(['ok' => false, 'reason' => 'bad_open_sections']);
+            exit;
+        }
+        $valid = [];
+        foreach ($open as $k) {
+            if (is_string($k) && in_array($k, $NAV_KEYS, true) && !in_array($k, $valid, true)) {
+                $valid[] = $k;
+            }
+        }
+        try {
+            save_open_sections($pdo, $uid, $valid);
+            echo json_encode(['ok' => true]);
+        } catch (Throwable $e) {
+            echo json_encode(['ok' => false, 'reason' => 'db_error']);
+        }
+        exit;
+    }
+
+    echo json_encode(['ok' => false, 'reason' => 'bad_action']);
     exit;
 }
 
-echo json_encode(['ok' => false, 'reason' => 'unsupported']);
+echo json_encode(['ok' => false, 'reason' => 'bad_request']);

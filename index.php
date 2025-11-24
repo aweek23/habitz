@@ -538,9 +538,19 @@ function defaultMenuPrefs(){
   if (!menuTop) return prefs;
   [...menuTop.children].forEach((li, idx)=>{
     const key = li.dataset.key;
-    prefs[key] = { visible:true, ord: idx };
+    prefs[key] = { visible:true, ord: idx + 1 };
   });
   return prefs;
+}
+
+function normalizeMenuOrders(){
+  const entries = Object.entries(menuPrefs);
+  entries
+    .sort((a,b)=>((a[1].ord||0)-(b[1].ord||0)))
+    .forEach(([k,v], idx)=>{
+      if (!v) menuPrefs[k] = { visible:true, ord: idx + 1 };
+      else menuPrefs[k].ord = idx + 1;
+    });
 }
 
 async function loadMenuPrefs(){
@@ -577,6 +587,7 @@ async function loadMenuPrefs(){
     }catch(err){ /* ignore */ }
   }
 
+  normalizeMenuOrders();
   persistMenuPrefs(false);
 }
 
@@ -597,7 +608,7 @@ async function persistNavOrder(){
   if (!menuTop) return;
   const order = [...menuTop.children]
     .map(li => li.dataset.key || '')
-    .filter(k => k && menuPrefs[k] && menuPrefs[k].visible !== false);
+    .filter(k => k && menuPrefs[k]);
   if (!order.length) return;
   try{
     await fetch(NAV_PREF_ENDPOINT, {
@@ -698,7 +709,7 @@ function ensureToggleButtons(){
     btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
       const key = li.dataset.key;
-      if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: [...menuTop.children].indexOf(li) };
+      if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: [...menuTop.children].indexOf(li) + 1 };
       const currentVisible = menuPrefs[key].visible !== false;
       const nextVisible = !currentVisible;
       menuPrefs[key].visible = nextVisible;
@@ -718,21 +729,17 @@ function ensureToggleButtons(){
 
 function applyMenuPrefs(){
   if (!menuTop) return;
-  Object.entries(menuPrefs).forEach(([k,v])=>{
-    const li = liOf(k); if(!li) return;
-    li.classList.toggle('disabled', v.visible === false);
-    li.style.display = (v.visible === false && !sidebar.classList.contains('reorder')) ? 'none' : '';
-  });
-
   const entries = Object.entries(menuPrefs);
   entries
-    .filter(([,v])=>v.visible !== false)
     .sort((a,b)=>(a[1].ord||0)-(b[1].ord||0))
-    .forEach(([k])=>{ const li = liOf(k); if(li) menuTop.appendChild(li); });
-  entries
-    .filter(([,v])=>v.visible === false)
-    .sort((a,b)=>(a[1].ord||0)-(b[1].ord||0))
-    .forEach(([k])=>{ const li = liOf(k); if(li) menuTop.appendChild(li); });
+    .forEach(([k,v], idx)=>{
+      const li = liOf(k); if(!li) return;
+      if (!v) menuPrefs[k] = { visible:true, ord: idx + 1 };
+      li.classList.toggle('disabled', v && v.visible === false);
+      li.style.display = (v && v.visible === false && !sidebar.classList.contains('reorder')) ? 'none' : '';
+      if (v) menuPrefs[k].ord = idx + 1;
+      menuTop.appendChild(li);
+    });
 
   $$('.vis-toggle').forEach(b => b.style.display = sidebar.classList.contains('reorder') ? 'grid' : 'none');
 
@@ -874,7 +881,7 @@ if (menuTop){
     if (dragSrc){
       [...menuTop.children].forEach((li, idx)=>{
         const key = li.dataset.key;
-        if(menuPrefs[key]) menuPrefs[key].ord = idx;
+        if(menuPrefs[key]) menuPrefs[key].ord = idx + 1;
       });
       applyMenuPrefs();
       persistMenuPrefs();
