@@ -167,8 +167,48 @@ $currentUsername = fetch_username($pdo, $userId);
 
     <div class="main dashboard">
       <div class="test-grid">
-        <div class="test-module test-module-a"></div>
-        <div class="test-module test-module-b"></div>
+        <div class="test-module test-module-a">
+          <div class="pedometer-card">
+            <div class="pedometer-header">
+              <h3 class="pedometer-title">Podomètre</h3>
+            </div>
+
+            <div class="pedometer-stats">
+              <div class="steps-current">8 540</div>
+              <div class="steps-goal">/10 000</div>
+            </div>
+
+            <div class="pedometer-progress" role="presentation" aria-hidden="true">
+              <div class="pedometer-progress-bar" style="width:85%;"></div>
+            </div>
+
+            <div class="pedometer-metrics">
+              <div class="metric">
+                <div class="metric-value">6,4 km</div>
+                <div class="metric-label">Distance</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">320 kcal</div>
+                <div class="metric-label">Brûlées</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="test-module test-module-b">
+          <div class="steps-evolution">
+            <div class="steps-evolution-header">
+              <h3 class="steps-evolution-title">Evolution du nombre de pas</h3>
+              <div class="steps-filters" role="group" aria-label="Période du graphique">
+                <button type="button" class="steps-filter-btn">7d</button>
+                <button type="button" class="steps-filter-btn">1m</button>
+                <button type="button" class="steps-filter-btn">1y</button>
+              </div>
+            </div>
+              <div class="steps-chart" role="img" aria-label="Graphique de l'évolution des pas">
+                <img src="php/steps_line.php" alt="Graphique de l'évolution des pas" class="steps-chart-img">
+              </div>
+          </div>
+        </div>
         <div class="test-module test-module-c"></div>
         <div class="test-module test-module-d"></div>
         <div class="test-module test-module-e"></div>
@@ -279,7 +319,9 @@ function detectTablet(){
 }
 let IS_TABLET = detectTablet();
 const MENU_PREF_KEY = 'testMenuPrefs';
+const NAV_PREF_ENDPOINT = 'php/nav_prefs.php';
 let menuPrefs = {};
+let navOpenSections = new Set();
 
 function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
@@ -426,20 +468,79 @@ if (topStackOverlay) topStackOverlay.addEventListener('click', ()=>toggleTopStac
 
 function liOf(key){ return menuTop ? menuTop.querySelector(`.menu-item[data-key="${key}"]`) : null; }
 
-function saveMenuPrefs(){
-  try{ localStorage.setItem(MENU_PREF_KEY, JSON.stringify(menuPrefs)); }catch(e){}
-}
-
-function loadMenuPrefs(){
-  try{
-    menuPrefs = JSON.parse(localStorage.getItem(MENU_PREF_KEY) || '{}') || {};
-  }catch(e){ menuPrefs = {}; }
-  if (!menuTop) return;
+function defaultMenuPrefs(){
+  const prefs = {};
+  if (!menuTop) return prefs;
   [...menuTop.children].forEach((li, idx)=>{
     const key = li.dataset.key;
-    if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: idx };
+    prefs[key] = { visible:true, ord: idx };
   });
-  saveMenuPrefs();
+  return prefs;
+}
+
+async function loadMenuPrefs(){
+  menuPrefs = defaultMenuPrefs();
+  navOpenSections = new Set();
+
+  try{
+    const res = await fetch(`${NAV_PREF_ENDPOINT}?action=get&ts=${Date.now()}`, { credentials:'same-origin', cache:'no-store' });
+    if (res.ok){
+      const data = await res.json();
+      if (data && data.ok){
+        const items = data.items || {};
+        Object.entries(items).forEach(([k,v])=>{
+          if (!menuPrefs[k]) menuPrefs[k] = { visible:true, ord: 0 };
+          menuPrefs[k].visible = v && v.visible === 'No' ? false : true;
+          if (v && typeof v.ord !== 'undefined' && v.ord !== null) {
+            menuPrefs[k].ord = Number(v.ord) || 0;
+          }
+        });
+
+        const openSections = Array.isArray(data.open_sections) ? data.open_sections : [];
+        navOpenSections = new Set(openSections.filter(k => menuPrefs[k]));
+      }
+    }
+  } catch(e){
+    try{
+      const cached = JSON.parse(localStorage.getItem(MENU_PREF_KEY) || '{}');
+      if (cached && cached.prefs){
+        menuPrefs = cached.prefs;
+      }
+      if (cached && Array.isArray(cached.open)){
+        navOpenSections = new Set(cached.open);
+      }
+    }catch(err){ /* ignore */ }
+  }
+
+  persistMenuPrefs(false);
+}
+
+function persistMenuPrefs(saveRemote = true){
+  const open = [...navOpenSections];
+
+  try{ localStorage.setItem(MENU_PREF_KEY, JSON.stringify({ prefs: menuPrefs, open })); }catch(e){}
+
+  if (!saveRemote) return;
+  fetch(NAV_PREF_ENDPOINT, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({ action:'open_sections', open_sections: open })
+  }).catch(()=>{});
+}
+
+async function persistNavOrder(){
+  if (!menuTop) return;
+  const order = [...menuTop.children]
+    .map(li => li.dataset.key || '')
+    .filter(k => k && menuPrefs[k] && menuPrefs[k].visible !== false);
+  if (!order.length) return;
+  try{
+    await fetch(NAV_PREF_ENDPOINT, {
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
+      body: JSON.stringify({ action:'reorder', order })
+    });
+  }catch(err){ /* ignore */ }
 }
 
 function ensureToggleButtons(){
@@ -453,12 +554,23 @@ function ensureToggleButtons(){
       <circle cx="12" cy="12" r="3"></circle>
     </svg>`;
     li.appendChild(btn);
-    btn.addEventListener('click',(e)=>{
+    btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
       const key = li.dataset.key;
       if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: [...menuTop.children].indexOf(li) };
-      menuPrefs[key].visible = !menuPrefs[key].visible;
+      const currentVisible = menuPrefs[key].visible !== false;
+      const nextVisible = !currentVisible;
+      menuPrefs[key].visible = nextVisible;
       applyMenuPrefs();
+      persistMenuPrefs();
+      try{
+        await fetch(NAV_PREF_ENDPOINT, {
+          method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
+          body: JSON.stringify({ action:'toggle', key, visible: nextVisible ? 'Yes' : 'No' })
+        });
+        await loadMenuPrefs();
+        applyMenuPrefs();
+      }catch(err){ /* ignore */ }
     });
   });
 }
@@ -482,7 +594,11 @@ function applyMenuPrefs(){
     .forEach(([k])=>{ const li = liOf(k); if(li) menuTop.appendChild(li); });
 
   $$('.vis-toggle').forEach(b => b.style.display = sidebar.classList.contains('reorder') ? 'grid' : 'none');
-  saveMenuPrefs();
+
+  $$('#menuTop .menu-item.has-sub').forEach(li => {
+    const key = li.dataset.key;
+    li.classList.toggle('open', navOpenSections.has(key));
+  });
 }
 
 function enableDrag(on){
@@ -529,8 +645,9 @@ if (menuTop){
         const key = li.dataset.key;
         if(menuPrefs[key]) menuPrefs[key].ord = idx;
       });
-      saveMenuPrefs();
       applyMenuPrefs();
+      persistMenuPrefs();
+      persistNavOrder();
     }
     dragSrc=null;
   });
@@ -553,6 +670,10 @@ if (menuTop){
     const item = btn.closest('.menu-item');
     if(!item) return;
     item.classList.toggle('open');
+    const key = item.dataset.key;
+    if (item.classList.contains('open')) navOpenSections.add(key);
+    else navOpenSections.delete(key);
+    persistMenuPrefs();
   });
 }
 
@@ -595,8 +716,8 @@ function startClock(){
   setInterval(update, 1000);
 }
 
-function init(){
-  loadMenuPrefs();
+async function init(){
+  await loadMenuPrefs();
   ensureToggleButtons();
   applyMenuPrefs();
   applyTabletMode(IS_TABLET);
@@ -604,7 +725,7 @@ function init(){
   updateAlertsFabPosition();
   updateTopStackMode();
 }
-window.addEventListener('load', init);
+window.addEventListener('load', ()=>{ init().catch(()=>{}); });
 </script>
 </body>
 </html>
