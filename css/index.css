@@ -65,8 +65,8 @@
 .modules-reorder-active .sidebar,
 .modules-reorder-active .right-column{
   filter:brightness(0.55);
-  pointer-events:none;
 }
+.modules-reorder-active .right-column{ pointer-events:none; }
 
 .test-page.is-tablet .mid-column,
 .test-page.is-tablet .sidebar{

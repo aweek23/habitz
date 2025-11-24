@@ -360,7 +360,9 @@ function detectTablet(){
 }
 let IS_TABLET = detectTablet();
 const MENU_PREF_KEY = 'testMenuPrefs';
+const NAV_PREF_ENDPOINT = 'php/nav_prefs.php';
 let menuPrefs = {};
+let navOpenSections = new Set();
 const MODULE_PREF_ENDPOINT = 'php/modules_prefs.php';
 let modulePrefs = {}; // { layout: { key: {visible, ord} } }
 let modulesReorder = false;
@@ -531,20 +533,148 @@ if (topStackOverlay) topStackOverlay.addEventListener('click', ()=>toggleTopStac
 function liOf(key){ return menuTop ? menuTop.querySelector(`.menu-item[data-key="${key}"]`) : null; }
 function moduleOf(key){ return modulesGrid ? modulesGrid.querySelector(`[data-module-key="${key}"]`) : null; }
 
-function saveMenuPrefs(){
-  try{ localStorage.setItem(MENU_PREF_KEY, JSON.stringify(menuPrefs)); }catch(e){}
-}
-
-function loadMenuPrefs(){
-  try{
-    menuPrefs = JSON.parse(localStorage.getItem(MENU_PREF_KEY) || '{}') || {};
-  }catch(e){ menuPrefs = {}; }
-  if (!menuTop) return;
+function defaultMenuPrefs(){
+  const prefs = {};
+  if (!menuTop) return prefs;
   [...menuTop.children].forEach((li, idx)=>{
     const key = li.dataset.key;
-    if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: idx };
+    prefs[key] = { visible:true, ord: idx };
   });
-  saveMenuPrefs();
+  return prefs;
+}
+
+async function loadMenuPrefs(){
+  menuPrefs = defaultMenuPrefs();
+  navOpenSections = new Set();
+
+  try{
+    const res = await fetch(`${NAV_PREF_ENDPOINT}?ts=${Date.now()}`, { credentials:'same-origin', cache:'no-store' });
+    if (res.ok){
+      const data = await res.json();
+      if (data && data.ok){
+        const ordMap = new Map();
+        (Array.isArray(data.menu_order) ? data.menu_order : []).forEach((k, idx)=> ordMap.set(k, idx));
+        Object.entries(menuPrefs).forEach(([k,v])=>{
+          if (ordMap.has(k)) v.ord = ordMap.get(k);
+        });
+
+        const disabled = new Set(Array.isArray(data.disabled_keys) ? data.disabled_keys : []);
+        disabled.forEach(k => { if (menuPrefs[k]) menuPrefs[k].visible = false; });
+
+        const openSections = Array.isArray(data.open_sections) ? data.open_sections : [];
+        navOpenSections = new Set(openSections.filter(k => menuPrefs[k]));
+      }
+    }
+  } catch(e){
+    try{
+      const cached = JSON.parse(localStorage.getItem(MENU_PREF_KEY) || '{}');
+      if (cached && cached.prefs){
+        menuPrefs = cached.prefs;
+      }
+      if (cached && Array.isArray(cached.open)){
+        navOpenSections = new Set(cached.open);
+      }
+    }catch(err){ /* ignore */ }
+  }
+
+  persistMenuPrefs(false);
+}
+
+function persistMenuPrefs(saveRemote = true){
+  const order = menuTop
+    ? [...menuTop.children]
+        .map(li => li.dataset.key)
+        .filter(key => key && menuPrefs[key] && menuPrefs[key].visible !== false)
+    : [];
+  const disabled = Object.entries(menuPrefs)
+    .filter(([,v])=>v.visible === false)
+    .map(([k])=>k);
+  const open = [...navOpenSections];
+
+  try{ localStorage.setItem(MENU_PREF_KEY, JSON.stringify({ prefs: menuPrefs, open })); }catch(e){}
+
+  if (!saveRemote) return;
+  fetch(NAV_PREF_ENDPOINT, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({ menu_order: order, open_sections: open, disabled_keys: disabled })
+  }).catch(()=>{});
+}
+
+function defaultModulePrefs(){
+  const prefs = {};
+  moduleCanon.forEach(({key, ord}) => {
+    prefs[key] = { visible:true, ord };
+  });
+  return prefs;
+}
+
+function normalizePrefsMap(mods){
+  const normalized = {};
+  Object.entries(mods || {}).forEach(([k,v])=>{
+    const visibleVal = v && typeof v.visible !== 'undefined' ? v.visible : true;
+    const entry = {
+      visible: visibleVal === false || visibleVal === 'No' ? false : true,
+    };
+    if (v && typeof v.ord !== 'undefined' && v.ord !== null) {
+      entry.ord = Number(v.ord) || 0;
+    }
+    normalized[k] = entry;
+  });
+  return normalized;
+}
+
+function getLayoutPrefs(layout){
+  if (!modulePrefs[layout]) modulePrefs[layout] = defaultModulePrefs();
+  return modulePrefs[layout];
+}
+
+async function fetchModulePrefs(layout){
+  const query = layout === 'all' ? '?action=get&layout=all' : `?action=get&layout=${layout}`;
+  const res = await fetch(`${MODULE_PREF_ENDPOINT}${query}`, { credentials:'same-origin', cache:'no-store' });
+  if (!res.ok) throw new Error('network');
+  const data = await res.json();
+  if (!data || data.ok !== true) throw new Error('server');
+
+  if (data.layouts){
+    Object.entries(data.layouts).forEach(([layoutKey, mods]) => {
+      const base = defaultModulePrefs();
+      modulePrefs[layoutKey] = Object.assign(base, normalizePrefsMap(mods));
+    });
+  } else if (data.modules && data.layout){
+    const base = defaultModulePrefs();
+    modulePrefs[String(data.layout)] = Object.assign(base, normalizePrefsMap(data.modules));
+  }
+}
+
+async function ensureLayoutPrefs(layout){
+  if (modulePrefs[layout]) return;
+  try {
+    await fetchModulePrefs(layout);
+  } catch(e) {
+    modulePrefs[layout] = defaultModulePrefs();
+  }
+}
+
+function getActiveLayoutKey(){
+  return modulesReorder ? editLayout : activeViewLayout;
+}
+
+async function persistModuleOrder(layout){
+  const prefs = getLayoutPrefs(layout);
+  const order = [...modulesGrid.children]
+    .map(mod => mod.dataset.moduleKey || '')
+    .filter(key => key && prefs[key] && prefs[key].visible !== false);
+  if (!order.length) return;
+  try{
+    await fetch(MODULE_PREF_ENDPOINT, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      body: JSON.stringify({ action:'reorder', layout:Number(layout), order })
+    });
+  }catch(err){ /* silencieux */ }
 }
 
 function defaultModulePrefs(){
@@ -639,6 +769,7 @@ function ensureToggleButtons(){
       if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: [...menuTop.children].indexOf(li) };
       menuPrefs[key].visible = !menuPrefs[key].visible;
       applyMenuPrefs();
+      persistMenuPrefs();
     });
   });
 }
@@ -662,7 +793,94 @@ function applyMenuPrefs(){
     .forEach(([k])=>{ const li = liOf(k); if(li) menuTop.appendChild(li); });
 
   $$('.vis-toggle').forEach(b => b.style.display = sidebar.classList.contains('reorder') ? 'grid' : 'none');
-  saveMenuPrefs();
+
+  $$('#menuTop .menu-item.has-sub').forEach(li => {
+    const key = li.dataset.key;
+    li.classList.toggle('open', navOpenSections.has(key));
+  });
+}
+
+function ensureModuleToggles(){
+  if (!modulesGrid) return;
+  [...modulesGrid.children].forEach(mod => {
+    if (mod.querySelector('.module-toggle')) return;
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='module-toggle';
+    btn.title='Afficher / masquer ce module';
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>`;
+    mod.appendChild(btn);
+    btn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const layout = getActiveLayoutKey();
+      const prefs = getLayoutPrefs(layout);
+      const key = mod.dataset.moduleKey;
+      if (!prefs[key]) prefs[key] = { visible:true, ord: [...modulesGrid.children].indexOf(mod) };
+      const newVisible = prefs[key].visible === false;
+      prefs[key].visible = newVisible;
+      applyModulePrefs(layout);
+      try{
+        await fetch(MODULE_PREF_ENDPOINT, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          credentials:'same-origin',
+          body: JSON.stringify({ action:'toggle', layout:Number(layout), key, visible: prefs[key].visible ? 'Yes':'No' })
+        });
+      }catch(err){ /* silencieux */ }
+      // rafraîchit depuis le serveur pour rester cohérent
+      try { await fetchModulePrefs(layout); applyModulePrefs(layout); } catch(err){}
+    });
+  });
+}
+
+function applyModulePrefs(layout){
+  if (!modulesGrid) return;
+  const layoutKey = layout || getActiveLayoutKey();
+  const prefs = getLayoutPrefs(layoutKey);
+  const reorderActive = modulesGrid.classList.contains('modules-reorder');
+
+  Object.entries(prefs).forEach(([k,v])=>{
+    const mod = moduleOf(k); if(!mod) return;
+    mod.classList.toggle('hidden-slot', v.visible === false);
+    mod.style.display = (v.visible === false && !reorderActive) ? 'none' : '';
+  });
+
+  const entries = Object.entries(prefs).sort((a,b)=>(a[1].ord||0)-(b[1].ord||0));
+  entries.forEach(([k])=>{ const mod = moduleOf(k); if(mod) modulesGrid.appendChild(mod); });
+}
+
+function enableModuleDrag(on){
+  if (!modulesGrid) return;
+  modulesGrid.querySelectorAll('.test-module').forEach(mod=>{
+    mod.draggable = on;
+    mod.classList.toggle('draggable', on);
+  });
+}
+
+function setModuleReorderMode(on){
+  const enable = !!on;
+  modulesReorder = enable;
+  document.body.classList.toggle('modules-reorder-active', enable);
+  if (modulesGrid) modulesGrid.classList.toggle('modules-reorder', enable);
+  enableModuleDrag(enable);
+  if (editDashboardBtn){
+    editDashboardBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
+    editDashboardBtn.classList.toggle('active', enable);
+  }
+  if (layoutSwitcher){
+    layoutSwitcher.classList.toggle('visible', enable);
+  }
+  if (enable){
+    editLayout = getDefaultLayoutForViewport();
+    ensureLayoutPrefs(editLayout).then(()=> applyModulePrefs(editLayout));
+  } else {
+    activeViewLayout = getDefaultLayoutForViewport();
+    ensureLayoutPrefs(activeViewLayout).then(()=> applyModulePrefs(activeViewLayout));
+  }
+  applyModuleLayout();
 }
 
 function ensureModuleToggles(){
@@ -799,8 +1017,8 @@ if (menuTop){
         const key = li.dataset.key;
         if(menuPrefs[key]) menuPrefs[key].ord = idx;
       });
-      saveMenuPrefs();
       applyMenuPrefs();
+      persistMenuPrefs();
     }
     dragSrc=null;
   });
@@ -904,6 +1122,10 @@ if (menuTop){
     const item = btn.closest('.menu-item');
     if(!item) return;
     item.classList.toggle('open');
+    const key = item.dataset.key;
+    if (item.classList.contains('open')) navOpenSections.add(key);
+    else navOpenSections.delete(key);
+    persistMenuPrefs();
   });
 }
 
@@ -946,8 +1168,8 @@ function startClock(){
   setInterval(update, 1000);
 }
 
-function init(){
-  loadMenuPrefs();
+async function init(){
+  await loadMenuPrefs();
   ensureToggleButtons();
   applyMenuPrefs();
   ensureModuleToggles();
@@ -958,7 +1180,7 @@ function init(){
   updateAlertsFabPosition();
   updateTopStackMode();
 }
-window.addEventListener('load', init);
+window.addEventListener('load', ()=>{ init().catch(()=>{}); });
 </script>
 </body>
 </html>
