@@ -150,7 +150,7 @@ $currentUsername = fetch_username($pdo, $userId);
     <div id="topClockBar" class="top-clock-bar simple-clock-bar">
       <div id="topClock" class="top-clock">--:--:--</div>
       <div id="layoutSwitcher" class="layout-switcher" role="group" aria-label="Disposition des modules">
-        <button type="button" class="layout-btn" data-layout="4" title="Grille 4 colonnes">
+        <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="4" title="Grille 4 colonnes">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <rect x="2.5" y="5" width="4" height="14" rx="1"></rect>
             <rect x="7.5" y="5" width="4" height="14" rx="1"></rect>
@@ -158,20 +158,20 @@ $currentUsername = fetch_username($pdo, $userId);
             <rect x="17.5" y="5" width="4" height="14" rx="1"></rect>
           </svg>
         </button>
-        <button type="button" class="layout-btn" data-layout="3" title="Grille 3 colonnes">
+        <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="3" title="Grille 3 colonnes">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <rect x="4" y="5" width="4" height="14" rx="1"></rect>
             <rect x="10" y="5" width="4" height="14" rx="1"></rect>
             <rect x="16" y="5" width="4" height="14" rx="1"></rect>
           </svg>
         </button>
-        <button type="button" class="layout-btn" data-layout="2" title="Grille 2 colonnes">
+        <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="2" title="Grille 2 colonnes">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <rect x="6" y="5" width="5" height="14" rx="1"></rect>
             <rect x="13" y="5" width="5" height="14" rx="1"></rect>
           </svg>
         </button>
-        <button type="button" class="layout-btn" data-layout="1" title="Vue smartphone">
+        <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="1" title="Vue smartphone">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <rect x="7" y="3" width="10" height="18" rx="2"></rect>
             <circle cx="12" cy="17" r="1"></circle>
@@ -659,6 +659,7 @@ function setModuleReorderMode(on){
   if (layoutSwitcher){
     layoutSwitcher.classList.toggle('visible', enable);
   }
+  applyModuleLayout();
   applyModulePrefs();
 }
 
@@ -767,8 +768,10 @@ if (modulesGrid){
 function applyModuleLayout(){
   if (!modulesGrid) return;
   modulesGrid.classList.remove('layout-4','layout-3','layout-2','layout-1');
-  const cls = moduleLayout ? `layout-${moduleLayout}` : '';
-  if (cls) modulesGrid.classList.add(cls);
+  if (modulesReorder){
+    const cls = moduleLayout ? `layout-${moduleLayout}` : '';
+    if (cls) modulesGrid.classList.add(cls);
+  }
   if (layoutSwitcher){
     layoutSwitcher.querySelectorAll('[data-layout]').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.layout === moduleLayout);
