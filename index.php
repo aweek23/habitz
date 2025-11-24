@@ -149,6 +149,35 @@ $currentUsername = fetch_username($pdo, $userId);
 
     <div id="topClockBar" class="top-clock-bar simple-clock-bar">
       <div id="topClock" class="top-clock">--:--:--</div>
+      <div id="layoutSwitcher" class="layout-switcher" role="group" aria-label="Disposition des modules">
+        <button type="button" class="layout-btn" data-layout="4" title="Grille 4 colonnes">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="2.5" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="7.5" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="12.5" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="17.5" y="5" width="4" height="14" rx="1"></rect>
+          </svg>
+        </button>
+        <button type="button" class="layout-btn" data-layout="3" title="Grille 3 colonnes">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="4" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="10" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="16" y="5" width="4" height="14" rx="1"></rect>
+          </svg>
+        </button>
+        <button type="button" class="layout-btn" data-layout="2" title="Grille 2 colonnes">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="6" y="5" width="5" height="14" rx="1"></rect>
+            <rect x="13" y="5" width="5" height="14" rx="1"></rect>
+          </svg>
+        </button>
+        <button type="button" class="layout-btn" data-layout="1" title="Vue smartphone">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="7" y="3" width="10" height="18" rx="2"></rect>
+            <circle cx="12" cy="17" r="1"></circle>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div id="alertsFab" class="alerts-fab">
@@ -310,6 +339,7 @@ const clockEl        = $('#topClock');
 const reorderBtn     = $('#reorderBtn');
 const rightColumn    = document.querySelector('.right-column');
 const modulesGrid    = $('#modulesGrid');
+const layoutSwitcher = $('#layoutSwitcher');
 
 function detectTablet(){
   const ua = navigator.userAgent || navigator.vendor || window.opera || '';
@@ -326,6 +356,8 @@ let menuPrefs = {};
 const MODULE_PREF_KEY = 'dashboardModulePrefs';
 let modulePrefs = {};
 let modulesReorder = false;
+const MODULE_LAYOUT_KEY = 'dashboardModuleLayout';
+let moduleLayout = '3';
 
 function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
@@ -624,6 +656,9 @@ function setModuleReorderMode(on){
     editDashboardBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
     editDashboardBtn.classList.toggle('active', enable);
   }
+  if (layoutSwitcher){
+    layoutSwitcher.classList.toggle('visible', enable);
+  }
   applyModulePrefs();
 }
 
@@ -729,6 +764,40 @@ if (modulesGrid){
   });
 }
 
+function applyModuleLayout(){
+  if (!modulesGrid) return;
+  modulesGrid.classList.remove('layout-4','layout-3','layout-2','layout-1');
+  const cls = moduleLayout ? `layout-${moduleLayout}` : '';
+  if (cls) modulesGrid.classList.add(cls);
+  if (layoutSwitcher){
+    layoutSwitcher.querySelectorAll('[data-layout]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.layout === moduleLayout);
+    });
+  }
+}
+
+function setModuleLayout(layout){
+  moduleLayout = layout || '3';
+  try { localStorage.setItem(MODULE_LAYOUT_KEY, moduleLayout); } catch(e) {}
+  applyModuleLayout();
+}
+
+function loadModuleLayout(){
+  try {
+    const saved = localStorage.getItem(MODULE_LAYOUT_KEY);
+    if (saved) moduleLayout = saved;
+  } catch(e) { moduleLayout = '3'; }
+  applyModuleLayout();
+}
+
+if (layoutSwitcher){
+  layoutSwitcher.addEventListener('click',(e)=>{
+    const btn = e.target.closest('[data-layout]');
+    if(!btn) return;
+    setModuleLayout(btn.dataset.layout);
+  });
+}
+
 if (menuTop){
   menuTop.addEventListener('click', (evt)=>{
     const btn = evt.target.closest('.has-sub-btn');
@@ -785,6 +854,7 @@ function init(){
   loadModulePrefs();
   ensureModuleToggles();
   applyModulePrefs();
+  loadModuleLayout();
   applyTabletMode(IS_TABLET);
   startClock();
   updateAlertsFabPosition();
