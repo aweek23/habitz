@@ -149,9 +149,52 @@ $currentUsername = fetch_username($pdo, $userId);
 
     <div id="topClockBar" class="top-clock-bar simple-clock-bar">
       <div id="topClock" class="top-clock">--:--:--</div>
+      <button id="dateNavBtn" class="date-nav" type="button" aria-label="Date du jour">
+        <span class="date-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" focusable="false">
+            <path d="M14 7l-5 5 5 5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+        <span id="dateLabel" class="date-label">--</span>
+        <span class="date-nav-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" focusable="false">
+            <path d="M10 7l5 5-5 5" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+      </button>
+      <div id="layoutSwitcher" class="layout-switcher" role="group" aria-label="Disposition des modules">
+        <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="4" title="Grille 4 colonnes">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="2.5" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="7.5" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="12.5" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="17.5" y="5" width="4" height="14" rx="1"></rect>
+          </svg>
+        </button>
+        <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="3" title="Grille 3 colonnes">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="4" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="10" y="5" width="4" height="14" rx="1"></rect>
+            <rect x="16" y="5" width="4" height="14" rx="1"></rect>
+          </svg>
+        </button>
+        <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="2" title="Grille 2 colonnes">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="6" y="5" width="5" height="14" rx="1"></rect>
+            <rect x="13" y="5" width="5" height="14" rx="1"></rect>
+          </svg>
+        </button>
+        <button type="button" class="layout-btn icon-mini alerts-fab-btn" data-layout="1" title="Vue smartphone">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <rect x="7" y="3" width="10" height="18" rx="2"></rect>
+            <circle cx="12" cy="17" r="1"></circle>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div id="alertsFab" class="alerts-fab">
+      <button id="editDashboardBtn" class="edit-dashboard-btn alerts-fab-btn" type="button" title="Modifier dashboard">Modifier dashboard</button>
       <button id="msgFab"   class="icon-mini alerts-fab-btn" type="button" title="Messages">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
           <path d="M4 6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H9l-4 4v-4H7a3 3 0 0 1-3-3V6z" stroke-width="1.6" stroke-linejoin="round"></path>
@@ -165,7 +208,62 @@ $currentUsername = fetch_username($pdo, $userId);
       </button>
     </div>
 
-    <div class="main dashboard"></div>
+    <div class="main dashboard">
+      <div class="test-grid" id="modulesGrid">
+        <div class="test-module test-module-a" data-module-key="pedometer">
+          <div class="pedometer-card">
+            <div class="pedometer-header">
+              <h3 class="pedometer-title">Podomètre</h3>
+            </div>
+
+            <div class="pedometer-stats">
+              <div class="steps-current">8 540</div>
+              <div class="steps-goal">/10 000</div>
+            </div>
+
+            <div class="pedometer-progress" role="presentation" aria-hidden="true">
+              <div class="pedometer-progress-bar" style="width:85%;"></div>
+            </div>
+
+            <div class="pedometer-metrics">
+              <div class="metric">
+                <div class="metric-value">6,4 km</div>
+                <div class="metric-label">Distance</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">320 kcal</div>
+                <div class="metric-label">Brûlées</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="test-module test-module-b" data-module-key="steps">
+          <div class="steps-evolution">
+            <div class="steps-evolution-header">
+              <h3 class="steps-evolution-title">Evolution du nombre de pas</h3>
+              <div class="steps-filters" role="group" aria-label="Période du graphique">
+                <button type="button" class="steps-filter-btn">7d</button>
+                <button type="button" class="steps-filter-btn">1m</button>
+                <button type="button" class="steps-filter-btn">1y</button>
+              </div>
+            </div>
+              <div class="steps-chart" role="img" aria-label="Graphique de l'évolution des pas">
+                <img src="php/graphiques/steps_line.php" alt="Graphique de l'évolution des pas" class="steps-chart-img">
+              </div>
+          </div>
+        </div>
+        <div class="test-module test-module-c" data-module-key="module-c"></div>
+        <div class="test-module test-module-d" data-module-key="module-d"></div>
+        <div class="test-module test-module-e" data-module-key="module-e"></div>
+        <div class="test-module test-module-f" data-module-key="module-f"></div>
+        <div class="test-module test-module-d" data-module-key="module-g"></div>
+        <div class="test-module test-module-e" data-module-key="module-h"></div>
+        <div class="test-module test-module-f" data-module-key="module-i"></div>
+        <div class="test-module test-module-d" data-module-key="module-j"></div>
+        <div class="test-module test-module-e" data-module-key="module-k"></div>
+        <div class="test-module test-module-f" data-module-key="module-l"></div>
+      </div>
+    </div>
 
     <button id="topStackFab" class="topstack-fab" title="Panneau rapide">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -248,10 +346,23 @@ const topStack       = $('#topStack');
 const topStackFab    = $('#topStackFab');
 const topStackOverlay= $('#topStackOverlay');
 const alertsFab      = $('#alertsFab');
+const editDashboardBtn = $('#editDashboardBtn');
 const clockBar       = $('#topClockBar');
 const clockEl        = $('#topClock');
+const dateNavBtn     = $('#dateNavBtn');
+const dateLabel      = $('#dateLabel');
 const reorderBtn     = $('#reorderBtn');
 const rightColumn    = document.querySelector('.right-column');
+const modulesGrid    = $('#modulesGrid');
+const layoutSwitcher = $('#layoutSwitcher');
+
+function getDefaultLayoutForViewport(){
+  const w = window.innerWidth || document.documentElement.clientWidth || screen.width || 0;
+  if (w < 640) return '1';
+  if (w < 1200) return '2';
+  if (w >= 1600) return '4';
+  return '3';
+}
 
 function detectTablet(){
   const ua = navigator.userAgent || navigator.vendor || window.opera || '';
@@ -264,7 +375,17 @@ function detectTablet(){
 }
 let IS_TABLET = detectTablet();
 const MENU_PREF_KEY = 'testMenuPrefs';
+const NAV_PREF_ENDPOINT = 'php/nav_prefs.php';
 let menuPrefs = {};
+let navOpenSections = new Set();
+const MODULE_PREF_ENDPOINT = 'php/modules_prefs.php';
+let modulePrefs = {}; // { layout: { key: {visible, ord} } }
+let modulesReorder = false;
+let activeViewLayout = getDefaultLayoutForViewport();
+let editLayout = activeViewLayout;
+const moduleCanon = modulesGrid
+  ? [...modulesGrid.children].map((mod, idx) => ({ key: mod.dataset.moduleKey || `mod-${idx}`, ord: idx }))
+  : [];
 
 function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
@@ -287,6 +408,7 @@ window.addEventListener('resize', () => {
   const now = detectTablet();
   if (now !== IS_TABLET) { IS_TABLET = now; applyTabletMode(IS_TABLET); }
   else { updateTopStackMode(); updateClockPosition(); }
+  syncActiveLayoutForViewport();
 });
 
 function isWindowMaximized(){
@@ -294,6 +416,17 @@ function isWindowMaximized(){
   const minWidth  = 1280;
   const minHeight = 700;
   return (window.innerWidth >= minWidth && window.innerHeight >= minHeight);
+}
+
+function shouldHideEditButton(){
+  const nonFull = !isWindowMaximized();
+  const sheetOpen = topStack && topStack.classList.contains('open');
+  return nonFull && sheetOpen;
+}
+
+function updateEditButtonVisibility(){
+  if (!editDashboardBtn) return;
+  editDashboardBtn.style.display = shouldHideEditButton() ? 'none' : '';
 }
 
 function updateAlertsFabPosition(){
@@ -308,6 +441,8 @@ function updateAlertsFabPosition(){
 
   alertsFab.classList.remove('with-right-stack');
   alertsFab.style.right = '';
+
+  updateEditButtonVisibility();
 
   const fullDesktop = (!IS_TABLET && isWindowMaximized());
   const tabletGap   = IS_TABLET ? 12 : 16;
@@ -393,6 +528,7 @@ function updateTopStackMode(){
   }
 
   updateAlertsFabPosition();
+  updateEditButtonVisibility();
 }
 
 function toggleTopStack(open){
@@ -410,21 +546,168 @@ if (topStackFab) topStackFab.addEventListener('click', ()=>toggleTopStack(true))
 if (topStackOverlay) topStackOverlay.addEventListener('click', ()=>toggleTopStack(false));
 
 function liOf(key){ return menuTop ? menuTop.querySelector(`.menu-item[data-key="${key}"]`) : null; }
+function moduleOf(key){ return modulesGrid ? modulesGrid.querySelector(`[data-module-key="${key}"]`) : null; }
 
-function saveMenuPrefs(){
-  try{ localStorage.setItem(MENU_PREF_KEY, JSON.stringify(menuPrefs)); }catch(e){}
-}
-
-function loadMenuPrefs(){
-  try{
-    menuPrefs = JSON.parse(localStorage.getItem(MENU_PREF_KEY) || '{}') || {};
-  }catch(e){ menuPrefs = {}; }
-  if (!menuTop) return;
+function defaultMenuPrefs(){
+  const prefs = {};
+  if (!menuTop) return prefs;
   [...menuTop.children].forEach((li, idx)=>{
     const key = li.dataset.key;
-    if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: idx };
+    prefs[key] = { visible:true, ord: idx + 1 };
   });
-  saveMenuPrefs();
+  return prefs;
+}
+
+function normalizeMenuOrders(){
+  const entries = Object.entries(menuPrefs);
+  entries
+    .sort((a,b)=>((a[1].ord||0)-(b[1].ord||0)))
+    .forEach(([k,v], idx)=>{
+      if (!v) menuPrefs[k] = { visible:true, ord: idx + 1 };
+      else menuPrefs[k].ord = idx + 1;
+    });
+}
+
+async function loadMenuPrefs(){
+  menuPrefs = defaultMenuPrefs();
+  navOpenSections = new Set();
+
+  try{
+    const res = await fetch(`${NAV_PREF_ENDPOINT}?action=get&ts=${Date.now()}`, { credentials:'same-origin', cache:'no-store' });
+    if (res.ok){
+      const data = await res.json();
+      if (data && data.ok){
+        const items = data.items || {};
+        Object.entries(items).forEach(([k,v])=>{
+          if (!menuPrefs[k]) menuPrefs[k] = { visible:true, ord: 0 };
+          menuPrefs[k].visible = v && v.visible === 'No' ? false : true;
+          if (v && typeof v.ord !== 'undefined' && v.ord !== null) {
+            menuPrefs[k].ord = Number(v.ord) || 0;
+          }
+        });
+
+        const openSections = Array.isArray(data.open_sections) ? data.open_sections : [];
+        navOpenSections = new Set(openSections.filter(k => menuPrefs[k]));
+      }
+    }
+  } catch(e){
+    try{
+      const cached = JSON.parse(localStorage.getItem(MENU_PREF_KEY) || '{}');
+      if (cached && cached.prefs){
+        menuPrefs = cached.prefs;
+      }
+      if (cached && Array.isArray(cached.open)){
+        navOpenSections = new Set(cached.open);
+      }
+    }catch(err){ /* ignore */ }
+  }
+
+  normalizeMenuOrders();
+  persistMenuPrefs(false);
+}
+
+function persistMenuPrefs(saveRemote = true){
+  const open = [...navOpenSections];
+  try{ localStorage.setItem(MENU_PREF_KEY, JSON.stringify({ prefs: menuPrefs, open })); }catch(e){}
+
+  if (!saveRemote) return;
+  fetch(NAV_PREF_ENDPOINT, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    credentials:'same-origin',
+    body: JSON.stringify({ action:'open_sections', open_sections: open })
+  }).catch(()=>{});
+}
+
+async function persistNavOrder(){
+  if (!menuTop) return;
+  const order = [...menuTop.children]
+    .map(li => li.dataset.key || '')
+    .filter(k => k && menuPrefs[k]);
+  if (!order.length) return;
+  try{
+    await fetch(NAV_PREF_ENDPOINT, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      body: JSON.stringify({ action:'reorder', order })
+    });
+  }catch(err){ /* silencieux */ }
+}
+
+function defaultModulePrefs(){
+  const prefs = {};
+  moduleCanon.forEach(({key, ord}) => {
+    prefs[key] = { visible:true, ord };
+  });
+  return prefs;
+}
+
+function normalizePrefsMap(mods){
+  const normalized = {};
+  Object.entries(mods || {}).forEach(([k,v])=>{
+    const visibleVal = v && typeof v.visible !== 'undefined' ? v.visible : true;
+    const entry = {
+      visible: visibleVal === false || visibleVal === 'No' ? false : true,
+    };
+    if (v && typeof v.ord !== 'undefined' && v.ord !== null) {
+      entry.ord = Number(v.ord) || 0;
+    }
+    normalized[k] = entry;
+  });
+  return normalized;
+}
+
+function getLayoutPrefs(layout){
+  if (!modulePrefs[layout]) modulePrefs[layout] = defaultModulePrefs();
+  return modulePrefs[layout];
+}
+
+async function fetchModulePrefs(layout){
+  const query = layout === 'all' ? '?action=get&layout=all' : `?action=get&layout=${layout}`;
+  const res = await fetch(`${MODULE_PREF_ENDPOINT}${query}`, { credentials:'same-origin', cache:'no-store' });
+  if (!res.ok) throw new Error('network');
+  const data = await res.json();
+  if (!data || data.ok !== true) throw new Error('server');
+
+  if (data.layouts){
+    Object.entries(data.layouts).forEach(([layoutKey, mods]) => {
+      const base = defaultModulePrefs();
+      modulePrefs[layoutKey] = Object.assign(base, normalizePrefsMap(mods));
+    });
+  } else if (data.modules && data.layout){
+    const base = defaultModulePrefs();
+    modulePrefs[String(data.layout)] = Object.assign(base, normalizePrefsMap(data.modules));
+  }
+}
+
+async function ensureLayoutPrefs(layout){
+  if (modulePrefs[layout]) return;
+  try {
+    await fetchModulePrefs(layout);
+  } catch(e) {
+    modulePrefs[layout] = defaultModulePrefs();
+  }
+}
+
+function getActiveLayoutKey(){
+  return modulesReorder ? editLayout : activeViewLayout;
+}
+
+async function persistModuleOrder(layout){
+  const prefs = getLayoutPrefs(layout);
+  const order = [...modulesGrid.children]
+    .map(mod => mod.dataset.moduleKey || '')
+    .filter(key => key && prefs[key] && prefs[key].visible !== false);
+  if (!order.length) return;
+  try{
+    await fetch(MODULE_PREF_ENDPOINT, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      body: JSON.stringify({ action:'reorder', layout:Number(layout), order })
+    });
+  }catch(err){ /* silencieux */ }
 }
 
 function ensureToggleButtons(){
@@ -438,36 +721,130 @@ function ensureToggleButtons(){
       <circle cx="12" cy="12" r="3"></circle>
     </svg>`;
     li.appendChild(btn);
-    btn.addEventListener('click',(e)=>{
+    btn.addEventListener('click', async (e)=>{
       e.stopPropagation();
       const key = li.dataset.key;
-      if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: [...menuTop.children].indexOf(li) };
-      menuPrefs[key].visible = !menuPrefs[key].visible;
+      if (!menuPrefs[key]) menuPrefs[key] = { visible:true, ord: [...menuTop.children].indexOf(li) + 1 };
+      const currentVisible = menuPrefs[key].visible !== false;
+      const nextVisible = !currentVisible;
+      menuPrefs[key].visible = nextVisible;
       applyMenuPrefs();
+      persistMenuPrefs();
+      try {
+        await fetch(NAV_PREF_ENDPOINT, {
+          method:'POST', headers:{'Content-Type':'application/json'}, credentials:'same-origin',
+          body: JSON.stringify({ action:'toggle', key, visible: nextVisible ? 'Yes' : 'No' })
+        });
+        await loadMenuPrefs();
+        applyMenuPrefs();
+      } catch(err){ /* ignore */ }
     });
   });
 }
 
 function applyMenuPrefs(){
   if (!menuTop) return;
-  Object.entries(menuPrefs).forEach(([k,v])=>{
-    const li = liOf(k); if(!li) return;
-    li.classList.toggle('disabled', v.visible === false);
-    li.style.display = (v.visible === false && !sidebar.classList.contains('reorder')) ? 'none' : '';
-  });
-
   const entries = Object.entries(menuPrefs);
   entries
-    .filter(([,v])=>v.visible !== false)
     .sort((a,b)=>(a[1].ord||0)-(b[1].ord||0))
-    .forEach(([k])=>{ const li = liOf(k); if(li) menuTop.appendChild(li); });
-  entries
-    .filter(([,v])=>v.visible === false)
-    .sort((a,b)=>(a[1].ord||0)-(b[1].ord||0))
-    .forEach(([k])=>{ const li = liOf(k); if(li) menuTop.appendChild(li); });
+    .forEach(([k,v], idx)=>{
+      const li = liOf(k); if(!li) return;
+      if (!v) menuPrefs[k] = { visible:true, ord: idx + 1 };
+      li.classList.toggle('disabled', v && v.visible === false);
+      li.style.display = (v && v.visible === false && !sidebar.classList.contains('reorder')) ? 'none' : '';
+      if (v) menuPrefs[k].ord = idx + 1;
+      menuTop.appendChild(li);
+    });
 
   $$('.vis-toggle').forEach(b => b.style.display = sidebar.classList.contains('reorder') ? 'grid' : 'none');
-  saveMenuPrefs();
+
+  $$('#menuTop .menu-item.has-sub').forEach(li => {
+    const key = li.dataset.key;
+    li.classList.toggle('open', navOpenSections.has(key));
+  });
+}
+
+function ensureModuleToggles(){
+  if (!modulesGrid) return;
+  [...modulesGrid.children].forEach(mod => {
+    if (mod.querySelector('.module-toggle')) return;
+    const btn = document.createElement('button');
+    btn.type='button';
+    btn.className='module-toggle';
+    btn.title='Afficher / masquer ce module';
+    btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+      <circle cx="12" cy="12" r="3"></circle>
+    </svg>`;
+    mod.appendChild(btn);
+    btn.addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const layout = getActiveLayoutKey();
+      const prefs = getLayoutPrefs(layout);
+      const key = mod.dataset.moduleKey;
+      if (!prefs[key]) prefs[key] = { visible:true, ord: [...modulesGrid.children].indexOf(mod) };
+      const newVisible = prefs[key].visible === false;
+      prefs[key].visible = newVisible;
+      applyModulePrefs(layout);
+      try{
+        await fetch(MODULE_PREF_ENDPOINT, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          credentials:'same-origin',
+          body: JSON.stringify({ action:'toggle', layout:Number(layout), key, visible: prefs[key].visible ? 'Yes':'No' })
+        });
+      }catch(err){ /* silencieux */ }
+      // rafraîchit depuis le serveur pour rester cohérent
+      try { await fetchModulePrefs(layout); applyModulePrefs(layout); } catch(err){}
+    });
+  });
+}
+
+function applyModulePrefs(layout){
+  if (!modulesGrid) return;
+  const layoutKey = layout || getActiveLayoutKey();
+  const prefs = getLayoutPrefs(layoutKey);
+  const reorderActive = modulesGrid.classList.contains('modules-reorder');
+
+  Object.entries(prefs).forEach(([k,v])=>{
+    const mod = moduleOf(k); if(!mod) return;
+    mod.classList.toggle('hidden-slot', v.visible === false);
+    mod.style.display = (v.visible === false && !reorderActive) ? 'none' : '';
+  });
+
+  const entries = Object.entries(prefs).sort((a,b)=>(a[1].ord||0)-(b[1].ord||0));
+  entries.forEach(([k])=>{ const mod = moduleOf(k); if(mod) modulesGrid.appendChild(mod); });
+}
+
+function enableModuleDrag(on){
+  if (!modulesGrid) return;
+  modulesGrid.querySelectorAll('.test-module').forEach(mod=>{
+    mod.draggable = on;
+    mod.classList.toggle('draggable', on);
+  });
+}
+
+function setModuleReorderMode(on){
+  const enable = !!on;
+  modulesReorder = enable;
+  document.body.classList.toggle('modules-reorder-active', enable);
+  if (modulesGrid) modulesGrid.classList.toggle('modules-reorder', enable);
+  enableModuleDrag(enable);
+  if (editDashboardBtn){
+    editDashboardBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
+    editDashboardBtn.classList.toggle('active', enable);
+  }
+  if (layoutSwitcher){
+    layoutSwitcher.classList.toggle('visible', enable);
+  }
+  if (enable){
+    editLayout = getDefaultLayoutForViewport();
+    ensureLayoutPrefs(editLayout).then(()=> applyModulePrefs(editLayout));
+  } else {
+    activeViewLayout = getDefaultLayoutForViewport();
+    ensureLayoutPrefs(activeViewLayout).then(()=> applyModulePrefs(activeViewLayout));
+  }
+  applyModuleLayout();
 }
 
 function enableDrag(on){
@@ -497,6 +874,13 @@ if (reorderBtn){
   });
 }
 
+if (editDashboardBtn){
+  editDashboardBtn.addEventListener('click', ()=>{
+    const next = !modulesReorder;
+    setModuleReorderMode(next);
+  });
+}
+
 let dragSrc=null;
 if (menuTop){
   menuTop.addEventListener('dragstart', (e)=>{
@@ -512,10 +896,11 @@ if (menuTop){
     if (dragSrc){
       [...menuTop.children].forEach((li, idx)=>{
         const key = li.dataset.key;
-        if(menuPrefs[key]) menuPrefs[key].ord = idx;
+        if(menuPrefs[key]) menuPrefs[key].ord = idx + 1;
       });
-      saveMenuPrefs();
       applyMenuPrefs();
+      persistMenuPrefs();
+      persistNavOrder();
     }
     dragSrc=null;
   });
@@ -531,6 +916,87 @@ if (menuTop){
   });
 }
 
+let dragModule=null;
+if (modulesGrid){
+  modulesGrid.addEventListener('dragstart',(e)=>{
+    if(!modulesReorder) return;
+    const mod = e.target.closest('.test-module');
+    if(!mod) return;
+    dragModule = mod;
+    e.dataTransfer.effectAllowed='move';
+    mod.classList.add('dragging');
+  });
+  modulesGrid.addEventListener('dragend',()=>{
+    if (dragModule) dragModule.classList.remove('dragging');
+    if (dragModule){
+      const layoutKey = getActiveLayoutKey();
+      const prefs = getLayoutPrefs(layoutKey);
+      [...modulesGrid.children].forEach((mod, idx)=>{
+        const key = mod.dataset.moduleKey || `mod-${idx}`;
+        if (!prefs[key]) prefs[key] = { visible:true, ord: idx };
+        prefs[key].ord = idx;
+      });
+      persistModuleOrder(layoutKey);
+      applyModulePrefs(layoutKey);
+    }
+    dragModule=null;
+  });
+  modulesGrid.addEventListener('dragover',(e)=>{
+    if(!dragModule || !modulesReorder) return;
+    const over = e.target.closest('.test-module');
+    if(!over || over === dragModule) return;
+    e.preventDefault();
+    const r = over.getBoundingClientRect();
+    const before = e.clientY < r.top + r.height/2;
+    modulesGrid.insertBefore(dragModule, before ? over : over.nextSibling);
+  });
+}
+
+function applyModuleLayout(){
+  if (!modulesGrid) return;
+  modulesGrid.classList.remove('layout-4','layout-3','layout-2','layout-1');
+  if (modulesReorder){
+    const cls = editLayout ? `layout-${editLayout}` : '';
+    if (cls) modulesGrid.classList.add(cls);
+  }
+  if (layoutSwitcher){
+    layoutSwitcher.querySelectorAll('[data-layout]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.layout === String(editLayout));
+    });
+  }
+}
+
+async function syncActiveLayoutForViewport(){
+  if (modulesReorder) return;
+  const next = getDefaultLayoutForViewport();
+  if (next === activeViewLayout) return;
+  activeViewLayout = next;
+  await ensureLayoutPrefs(activeViewLayout);
+  applyModulePrefs(activeViewLayout);
+}
+
+async function setModuleLayout(layout){
+  editLayout = layout || '3';
+  applyModuleLayout();
+  await ensureLayoutPrefs(editLayout);
+  applyModulePrefs(editLayout);
+}
+
+async function bootstrapModulePrefs(){
+  try { await fetchModulePrefs('all'); }
+  catch(err) { /* fallback sur defaults */ }
+  await ensureLayoutPrefs(activeViewLayout);
+  applyModulePrefs(activeViewLayout);
+}
+
+if (layoutSwitcher){
+  layoutSwitcher.addEventListener('click',(e)=>{
+    const btn = e.target.closest('[data-layout]');
+    if(!btn) return;
+    setModuleLayout(btn.dataset.layout);
+  });
+}
+
 if (menuTop){
   menuTop.addEventListener('click', (evt)=>{
     const btn = evt.target.closest('.has-sub-btn');
@@ -538,6 +1004,10 @@ if (menuTop){
     const item = btn.closest('.menu-item');
     if(!item) return;
     item.classList.toggle('open');
+    const key = item.dataset.key;
+    if (item.classList.contains('open')) navOpenSections.add(key);
+    else navOpenSections.delete(key);
+    persistMenuPrefs();
   });
 }
 
@@ -580,16 +1050,27 @@ function startClock(){
   setInterval(update, 1000);
 }
 
-function init(){
-  loadMenuPrefs();
+function startDateNav(){
+  if (!dateLabel) return;
+  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  const today = new Date();
+  dateLabel.textContent = today.toLocaleDateString('fr-FR', options);
+}
+
+async function init(){
+  await loadMenuPrefs();
   ensureToggleButtons();
   applyMenuPrefs();
+  ensureModuleToggles();
+  bootstrapModulePrefs().catch(()=> applyModulePrefs(activeViewLayout));
+  applyModuleLayout();
   applyTabletMode(IS_TABLET);
   startClock();
+  startDateNav();
   updateAlertsFabPosition();
   updateTopStackMode();
 }
-window.addEventListener('load', init);
+window.addEventListener('load', ()=>{ init().catch(()=>{}); });
 </script>
 </body>
 </html>
