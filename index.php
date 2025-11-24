@@ -341,6 +341,14 @@ const rightColumn    = document.querySelector('.right-column');
 const modulesGrid    = $('#modulesGrid');
 const layoutSwitcher = $('#layoutSwitcher');
 
+function getDefaultLayoutForViewport(){
+  const w = window.innerWidth || document.documentElement.clientWidth || screen.width || 0;
+  if (w < 640) return '1';
+  if (w < 1200) return '2';
+  if (w >= 1600) return '4';
+  return '3';
+}
+
 function detectTablet(){
   const ua = navigator.userAgent || navigator.vendor || window.opera || '';
   const low = ua.toLowerCase();
@@ -357,7 +365,7 @@ const MODULE_PREF_KEY = 'dashboardModulePrefs';
 let modulePrefs = {};
 let modulesReorder = false;
 const MODULE_LAYOUT_KEY = 'dashboardModuleLayout';
-let moduleLayout = '3';
+let moduleLayout = getDefaultLayoutForViewport();
 
 function applyTabletMode(on){
   document.body.classList.toggle('is-tablet', on);
@@ -658,6 +666,9 @@ function setModuleReorderMode(on){
   }
   if (layoutSwitcher){
     layoutSwitcher.classList.toggle('visible', enable);
+  }
+  if (enable){
+    moduleLayout = getDefaultLayoutForViewport();
   }
   applyModuleLayout();
   applyModulePrefs();

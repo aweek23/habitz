@@ -95,7 +95,7 @@
 .edit-dashboard-btn:hover{ border-color:rgba(255,255,255,.14); color:#fff; }
 .edit-dashboard-btn:active{ transform:translateY(1px); }
 
-.layout-switcher{
+.layout-switcher{ 
   display:none;
   align-items:center;
   gap:6px;
@@ -108,6 +108,13 @@
   background:transparent;
   color:var(--text-lo);
   transition:all .16s ease;
+}
+.layout-btn svg rect,
+.layout-btn svg circle{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.5;
+  stroke-linejoin:round;
 }
 .layout-btn svg{ width:18px; height:18px; }
 .layout-btn:hover{ background:var(--item-hov); color:var(--text-hi); }
