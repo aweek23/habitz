@@ -33,3 +33,4 @@ define('TABLE_USERS', 'habitz');
 
 /* Table de préférences de navigation (créée automatiquement si absente) */
 define('TABLE_USER_NAV', 'user_nav');
+define('TABLE_USER_NAV_ITEMS', 'user_nav_items');
