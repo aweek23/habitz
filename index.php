@@ -407,12 +407,15 @@ function applyTabletMode(on){
   }
   updateTopStackMode();
   updateClockPosition();
+  updateDateNavVisibility();
 }
 window.addEventListener('resize', () => {
   const now = detectTablet();
   if (now !== IS_TABLET) { IS_TABLET = now; applyTabletMode(IS_TABLET); }
   else { updateTopStackMode(); updateClockPosition(); }
   syncActiveLayoutForViewport();
+  updateDateNav();
+  updateDateNavVisibility();
 });
 
 function isWindowMaximized(){
@@ -431,6 +434,18 @@ function shouldHideEditButton(){
 function updateEditButtonVisibility(){
   if (!editDashboardBtn) return;
   editDashboardBtn.style.display = shouldHideEditButton() ? 'none' : '';
+}
+
+function shouldHideDateNav(){
+  if (modulesReorder) return true;
+  const nonFull = !isWindowMaximized();
+  const sheetOpen = topStack && topStack.classList.contains('open');
+  return nonFull && sheetOpen;
+}
+
+function updateDateNavVisibility(){
+  if (!dateNavBtn) return;
+  dateNavBtn.classList.toggle('hidden', shouldHideDateNav());
 }
 
 function updateAlertsFabPosition(){
@@ -533,6 +548,7 @@ function updateTopStackMode(){
 
   updateAlertsFabPosition();
   updateEditButtonVisibility();
+  updateDateNavVisibility();
 }
 
 function toggleTopStack(open){
@@ -838,9 +854,6 @@ function setModuleReorderMode(on){
     editDashboardBtn.setAttribute('aria-pressed', enable ? 'true' : 'false');
     editDashboardBtn.classList.toggle('active', enable);
   }
-  if (dateNavBtn){
-    dateNavBtn.classList.toggle('hidden', enable);
-  }
   if (layoutSwitcher){
     layoutSwitcher.classList.toggle('visible', enable);
   }
@@ -852,6 +865,7 @@ function setModuleReorderMode(on){
     ensureLayoutPrefs(activeViewLayout).then(()=> applyModulePrefs(activeViewLayout));
   }
   applyModuleLayout();
+  updateDateNavVisibility();
 }
 
 function enableDrag(on){
@@ -1057,8 +1071,16 @@ function startClock(){
   setInterval(update, 1000);
 }
 
+function isCompactDateMode(){
+  const w = window.innerWidth || document.documentElement.clientWidth || 0;
+  return w < 1100;
+}
+
 function formatNavDate(d){
-  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  const compact = isCompactDateMode();
+  const options = compact
+    ? { day: '2-digit', month: '2-digit', year: '2-digit' }
+    : { day: 'numeric', month: 'long', year: 'numeric' };
   return d.toLocaleDateString('fr-FR', options);
 }
 
@@ -1078,6 +1100,7 @@ function startDateNav(){
   if (!dateLabel) return;
   currentNavDate = new Date();
   updateDateNav();
+  updateDateNavVisibility();
 
   const handleDir = (dir)=>{
     if (!dir) return;
