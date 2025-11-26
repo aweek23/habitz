@@ -248,7 +248,7 @@ $currentUsername = fetch_username($pdo, $userId);
               </div>
             </div>
               <div class="steps-chart" role="img" aria-label="Graphique de l'évolution des pas">
-                <img src="php/graphiques/steps_line.php" alt="Graphique de l'évolution des pas" class="steps-chart-img">
+                <img src="assets/graphiques/steps_line.php" alt="Graphique de l'évolution des pas" class="steps-chart-img">
               </div>
           </div>
         </div>
