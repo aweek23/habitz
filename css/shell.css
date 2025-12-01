@@ -822,8 +822,10 @@ body.is-tablet .alerts-fab {
 /* cacher les éléments flot. sur mobile */
 @media (max-width: 599px) {
   .alerts-fab,
+  .sidebar,
   .top-clock-bar,
-  .tablet-toggle {
+  .tablet-toggle,
+  .topstack-fab {
     display: none !important;
   }
 }
