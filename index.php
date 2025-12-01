@@ -333,6 +333,56 @@ $currentUsername = fetch_username($pdo, $userId);
   </div>
 </div>
 
+<nav class="mobile-bottom-nav" aria-label="Navigation mobile">
+  <button type="button" class="mobile-nav-btn is-active" aria-label="Tableau de bord">
+    <span class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path d="M3 10l9-7 9 7v9.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19.5V10z" stroke-width="1.6" stroke-linejoin="round" />
+        <path d="M9 21V12h6v9" stroke-width="1.6" stroke-linejoin="round" />
+      </svg>
+    </span>
+    <span class="mobile-nav-label">Dashboard</span>
+  </button>
+  <button type="button" class="mobile-nav-btn" aria-label="Social">
+    <span class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path d="M7.5 10.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM19 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke-width="1.6" />
+        <path d="M3 21v-1a4 4 0 0 1 4-4h1" stroke-width="1.6" stroke-linecap="round" />
+        <path d="M15 16h1a5 5 0 0 1 5 5" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+    </span>
+    <span class="mobile-nav-label">Social</span>
+  </button>
+  <button type="button" class="mobile-nav-btn mobile-nav-add" aria-label="Ajouter">
+    <span class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" stroke-width="1.8" stroke-linecap="round" />
+      </svg>
+    </span>
+    <span class="mobile-nav-label">Ajouter</span>
+  </button>
+  <button type="button" class="mobile-nav-btn" aria-label="Modules">
+    <span class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <rect x="4" y="4" width="6" height="6" rx="1.5" stroke-width="1.6" />
+        <rect x="14" y="4" width="6" height="6" rx="1.5" stroke-width="1.6" />
+        <rect x="4" y="14" width="6" height="6" rx="1.5" stroke-width="1.6" />
+        <rect x="14" y="14" width="6" height="6" rx="1.5" stroke-width="1.6" />
+      </svg>
+    </span>
+    <span class="mobile-nav-label">Modules</span>
+  </button>
+  <button type="button" class="mobile-nav-btn" aria-label="Profil">
+    <span class="mobile-nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <circle cx="12" cy="8" r="3.5" stroke-width="1.6" />
+        <path d="M5 20.5c0-3.5 3.134-6 7-6s7 2.5 7 6" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+    </span>
+    <span class="mobile-nav-label">Profile</span>
+  </button>
+</nav>
+
 <script>
 const $  = (s)=>document.querySelector(s);
 const $$ = (s)=>Array.from(document.querySelectorAll(s));
