@@ -108,7 +108,7 @@ $content = $content ?? '';
           </svg>
           <span class="sr-only">Dashboard</span>
         </button>
-        <button type="button" aria-label="Social">
+        <button type="button" aria-label="Social" onclick="window.location.href='social.php'">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M7 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
             <path d="M17 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
