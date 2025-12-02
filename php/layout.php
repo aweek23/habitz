@@ -153,15 +153,29 @@ $content = $content ?? '';
       let lastScrollY = window.scrollY;
       let ticking = false;
 
+      const setSearchOffset = (value) => {
+        document.documentElement.style.setProperty('--search-bar-height', value);
+      };
+
       const syncSearchHeight = () => {
         const searchBar = searchModule.querySelector('.search-bar');
         const height = mediaQuery.matches && searchBar ? searchBar.offsetHeight : 0;
-        document.documentElement.style.setProperty('--search-bar-height', `${height}px`);
+        searchModule.dataset.height = height;
+
+        if (!mediaQuery.matches) {
+          setSearchOffset('0px');
+          return;
+        }
+
+        if (!searchModule.classList.contains('search-hidden')) {
+          setSearchOffset(`${height}px`);
+        }
       };
 
       const updateSearchVisibility = () => {
         if (!mediaQuery.matches) {
           searchModule.classList.remove('search-hidden');
+          setSearchOffset('0px');
           lastScrollY = window.scrollY;
           ticking = false;
           return;
@@ -173,8 +187,11 @@ $content = $content ?? '';
 
         if (scrollingDown && currentY > 10) {
           searchModule.classList.add('search-hidden');
+          setSearchOffset('0px');
         } else if (scrollingUp) {
           searchModule.classList.remove('search-hidden');
+          const height = Number(searchModule.dataset.height || 0);
+          setSearchOffset(`${height}px`);
         }
 
         lastScrollY = Math.max(0, currentY);
