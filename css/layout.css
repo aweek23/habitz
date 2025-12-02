@@ -7,6 +7,7 @@
   --text-strong: #ffffff;
   --accent: #56b6ff;
   --sidebar-width: 240px;
+  --mobile-nav-height: 0px;
 }
 
 * {
@@ -290,11 +291,19 @@ a {
 
 .mobile-nav {
   position: fixed;
-  inset: auto 0 env(safe-area-inset-bottom) 0;
+  top: env(safe-area-inset-top);
+  left: 0;
+  right: 0;
   display: none;
   padding: 0;
   z-index: 20;
   pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.mobile-nav.nav-hidden {
+  transform: translateY(calc(-1 * (var(--mobile-nav-height) + env(safe-area-inset-top))));
+  opacity: 0;
 }
 
 .mobile-nav-surface {
@@ -566,7 +575,7 @@ a {
 
 @media (max-width: 920px) {
   :root {
-    --mobile-nav-offset: calc(98px + env(safe-area-inset-bottom));
+    --mobile-nav-height: 92px;
   }
 
   .app {
@@ -593,7 +602,7 @@ a {
   }
 
   .page {
-    padding: 12px 8px var(--mobile-nav-offset);
+    padding: calc(12px + var(--mobile-nav-height) + env(safe-area-inset-top)) 8px 12px;
   }
 
   .suggestion-module {

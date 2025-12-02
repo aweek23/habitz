@@ -144,5 +144,36 @@ $content = $content ?? '';
       </div>
     </nav>
   </div>
+  <script>
+    (() => {
+      const mobileNav = document.querySelector('.mobile-nav');
+      if (!mobileNav) return;
+
+      let lastScrollY = window.scrollY;
+      let ticking = false;
+
+      const updateNavVisibility = () => {
+        const currentY = window.scrollY;
+        const scrollingDown = currentY > lastScrollY + 2;
+        const scrollingUp = currentY < lastScrollY - 2;
+
+        if (scrollingDown && currentY > 20) {
+          mobileNav.classList.add('nav-hidden');
+        } else if (scrollingUp) {
+          mobileNav.classList.remove('nav-hidden');
+        }
+
+        lastScrollY = Math.max(0, currentY);
+        ticking = false;
+      };
+
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(updateNavVisibility);
+          ticking = true;
+        }
+      }, { passive: true });
+    })();
+  </script>
 </body>
 </html>
