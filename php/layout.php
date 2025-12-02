@@ -15,32 +15,6 @@ $content = $content ?? '';
 </head>
 <body>
   <div class="page">
-    <header class="topbar">
-      <div class="logo-area">
-        <div class="logo">LT</div>
-        <span class="brand">Life Tracker</span>
-      </div>
-      <div class="top-actions">
-        <button class="icon-btn" aria-label="Paramètres">
-          <span class="dot"></span>
-          <span class="dot"></span>
-          <span class="dot"></span>
-        </button>
-        <button class="pill">Cubes</button>
-        <button class="pill">Import</button>
-        <button class="pill">Export</button>
-        <div class="time-display">14:21:11</div>
-      </div>
-      <div class="profile-actions">
-        <button class="icon-btn" aria-label="Profil">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.7-3 4.1-4.5 8-4.5s6.3 1.5 8 4.5"/></svg>
-        </button>
-        <button class="icon-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0-6 6v3.5l-1.5 2.5h17L18 12.5V9a6 6 0 0 0-6-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
-        </button>
-      </div>
-    </header>
-
     <div class="app">
       <aside class="sidebar">
         <nav class="menu">
@@ -77,27 +51,52 @@ $content = $content ?? '';
       </main>
 
       <aside class="right-column">
-        <div class="pane">
-          <div class="pane-head">
-            <h3>For you</h3>
-            <div class="filters">
-              <button class="filter active">You</button>
-              <button class="filter">Following</button>
-              <button class="filter">Discover</button>
-            </div>
-          </div>
-          <div class="profile-card">
-            <div class="avatar"></div>
-            <div class="profile-infos">
-              <div class="profile-name">Hi, @ktui you awake?</div>
-              <div class="profile-meta">You • Habitz (Platform Team)</div>
-              <div class="profile-date">Oct 2024, Today 8:24 AM</div>
-            </div>
-            <button class="more-btn" aria-label="Plus">
-              <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <div class="right-header">
+          <div class="profile-actions">
+            <button class="icon-btn ghost" aria-label="Lien">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M10 14a3 3 0 0 1 0-4l3.5-3.5a3 3 0 0 1 4.2 4.2l-.7.7" />
+                <path d="M14 10a3 3 0 0 1 0 4l-3.5 3.5a3 3 0 0 1-4.2-4.2l.7-.7" />
+              </svg>
+            </button>
+            <button class="icon-btn ghost" aria-label="Réglages">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1 1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .69.4 1.3 1 1.58.19.09.4.14.61.14H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+              </svg>
             </button>
           </div>
-          <p class="hint">Ajustez vos actions importantes, notifications et réponses importantes.</p>
+
+          <div class="search-bar" role="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="6" />
+              <path d="m15.5 15.5 3.5 3.5" />
+            </svg>
+            <input type="search" placeholder="Rechercher…" aria-label="Rechercher" />
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Suggestions">
+          <button class="tab active" role="tab" aria-selected="true">For you</button>
+          <button class="tab" role="tab" aria-selected="false">Followings</button>
+          <button class="tab" role="tab" aria-selected="false">Discover</button>
+        </div>
+
+        <div class="quick-card">
+          <h4>Raccourcis rapides</h4>
+          <p>Ajoute ici tes actions fréquentes, notifications ou rappels importants.</p>
+        </div>
+
+        <button class="floating-action" aria-label="Ajouter un raccourci">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+        </button>
+
+        <div class="bottom-profile">
+          <div class="avatar"></div>
+          <div class="profile-name">admin</div>
         </div>
       </aside>
     </div>
