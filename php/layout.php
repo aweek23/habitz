@@ -44,104 +44,29 @@ $content = $content ?? '';
     <div class="app">
       <aside class="sidebar">
         <nav class="menu">
-          <div class="menu-title">Life Tracker</div>
-          <a class="menu-item active" href="#">
-            <span class="menu-icon" aria-hidden="true">🏠</span>
-            <span class="menu-label">Tableau de bord</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">✅</span>
-            <span class="menu-label">Tâches</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">💪</span>
-            <span class="menu-label">Habitudes</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">📅</span>
-            <span class="menu-label">Planner</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">📦</span>
-            <span class="menu-label">Projets</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">🔖</span>
-            <span class="menu-label">Notes</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">⏱️</span>
-            <span class="menu-label">Pomodoro</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">🍎</span>
-            <span class="menu-label">Alimentation</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">🏋️</span>
-            <span class="menu-label">Entraînement</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">📈</span>
-            <span class="menu-label">Habits</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">🌙</span>
-            <span class="menu-label">Sommeil</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">❤️</span>
-            <span class="menu-label">Cardiaque</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">⚖️</span>
-            <span class="menu-label">Corps</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">📍</span>
-            <span class="menu-label">États</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">🧘</span>
-            <span class="menu-label">Défense mentale</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">🤝</span>
-            <span class="menu-label">Relations</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">💵</span>
-            <span class="menu-label">Finances</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">💬</span>
-            <span class="menu-label">Journal</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">📖</span>
-            <span class="menu-label">Intelligence</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">🧭</span>
-            <span class="menu-label">Aventures</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">🏔️</span>
-            <span class="menu-label">Escalade</span>
-          </a>
-          <div class="menu-title">Work</div>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">📧</span>
-            <span class="menu-label">Emails</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">📅</span>
-            <span class="menu-label">Scheduler</span>
-          </a>
-          <a class="menu-item" href="#">
-            <span class="menu-icon" aria-hidden="true">⚙️</span>
-            <span class="menu-label">Automatisation</span>
-          </a>
+          <div class="sidebar-header">
+            <div class="menu-title">Life Tracker</div>
+            <button class="icon-btn ghost" aria-label="Ouvrir">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4" y="4" width="16" height="16" rx="4" ry="4" />
+                <path d="M9 15h6V9" />
+                <path d="M9 9h6v6" />
+              </svg>
+            </button>
+          </div>
+
+          <a class="menu-item" href="#">Tâches</a>
+          <a class="menu-item" href="#">Habitudes</a>
+          <a class="menu-item" href="#">Projets</a>
+          <a class="menu-item with-caret" href="#">Sport</a>
+          <a class="menu-item" href="#">Alimentation</a>
+          <a class="menu-item" href="#">Calendrier</a>
+          <a class="menu-item with-caret" href="#">Corps</a>
+          <a class="menu-item with-caret" href="#">Finances</a>
+          <a class="menu-item" href="#">Horloge</a>
+          <a class="menu-item" href="#">Évènements</a>
+          <a class="menu-item" href="#">Actualités, news, etc</a>
+          <a class="menu-item" href="#">Drive</a>
         </nav>
       </aside>
 

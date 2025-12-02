@@ -27,9 +27,9 @@ a {
 }
 
 .page {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 12px 12px 24px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 12px 24px 0;
 }
 
 .topbar {
@@ -46,6 +46,7 @@ a {
   z-index: 10;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(10px);
+  margin-left: 12px;
 }
 
 .logo-area {
@@ -169,8 +170,8 @@ a {
 .sidebar {
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 10px 14px 12px;
+  border-radius: 0 14px 14px 0;
+  padding: 14px 14px 14px 16px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   height: calc(100vh - 84px);
   position: sticky;
@@ -181,56 +182,64 @@ a {
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   height: 100%;
   overflow: auto;
-  padding-right: 4px;
+  padding-right: 8px;
+}
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 10px 2px;
 }
 
 .menu-title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  padding: 10px 12px 4px;
+  font-size: 16px;
+  letter-spacing: 0.01em;
+  color: var(--text-strong);
   font-weight: 700;
 }
 
 .menu-item {
-  display: grid;
-  grid-template-columns: 32px 1fr;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  transition: background 0.15s ease, color 0.15s ease;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: 10px;
   color: var(--muted);
+  transition: background 0.15s ease, color 0.15s ease;
+  position: relative;
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text);
-}
-
-.menu-item.active {
-  background: linear-gradient(135deg, rgba(86, 182, 255, 0.22), rgba(86, 182, 255, 0.06));
-  color: var(--text-strong);
-  border: 1px solid rgba(86, 182, 255, 0.25);
-}
-
-.menu-icon {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
   background: rgba(255, 255, 255, 0.04);
-  font-size: 14px;
+  color: var(--text-strong);
 }
 
-.menu-item.active .menu-icon {
-  background: rgba(86, 182, 255, 0.18);
-  color: #0b1017;
+.menu-item.with-caret::after {
+  content: "▾";
+  position: absolute;
+  right: 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.menu-item.with-caret:hover::after {
+  color: var(--text-strong);
+}
+
+.icon-btn.ghost {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
+  width: 34px;
+  height: 34px;
+}
+
+.icon-btn.ghost svg {
+  stroke: currentColor;
+  stroke-width: 1.4;
+  fill: none;
 }
 
 .mid-column .main {
