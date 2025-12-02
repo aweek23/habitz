@@ -101,45 +101,47 @@ $content = $content ?? '';
     </div>
 
     <nav class="mobile-nav" aria-label="Navigation principale">
-      <button class="active" type="button" aria-label="Dashboard">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="m4 11 8-7 8 7v8a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1v-8Z" />
-        </svg>
-        <span class="sr-only">Dashboard</span>
-      </button>
-      <button type="button" aria-label="Social">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-          <path d="M17 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-          <path d="M7 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-          <path d="m9.6 7.5 4.8 2.3" />
-          <path d="m9.6 13.1 4.7-2.2" />
-        </svg>
-        <span class="sr-only">Social</span>
-      </button>
-      <button class="primary" type="button" aria-label="Ajouter">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 5v14" />
-          <path d="M5 12h14" />
-        </svg>
-        <span class="sr-only">Ajouter</span>
-      </button>
-      <button type="button" aria-label="Modules">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <rect x="3" y="3" width="7" height="7" rx="2" />
-          <rect x="14" y="3" width="7" height="7" rx="2" />
-          <rect x="3" y="14" width="7" height="7" rx="2" />
-          <rect x="14" y="14" width="7" height="7" rx="2" />
-        </svg>
-        <span class="sr-only">Modules</span>
-      </button>
-      <button type="button" aria-label="Profil">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
-          <path d="M4 20a8 8 0 0 1 16 0" />
-        </svg>
-        <span class="sr-only">Profil</span>
-      </button>
+      <div class="mobile-nav-surface">
+        <button class="active" type="button" aria-label="Dashboard">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m4 11 8-7 8 7v8a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1v-8Z" />
+          </svg>
+          <span class="sr-only">Dashboard</span>
+        </button>
+        <button type="button" aria-label="Social">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M7 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+            <path d="M17 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+            <path d="M7 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+            <path d="m9.6 7.5 4.8 2.3" />
+            <path d="m9.6 13.1 4.7-2.2" />
+          </svg>
+          <span class="sr-only">Social</span>
+        </button>
+        <button class="primary" type="button" aria-label="Ajouter">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5v14" />
+            <path d="M5 12h14" />
+          </svg>
+          <span class="sr-only">Ajouter</span>
+        </button>
+        <button type="button" aria-label="Modules">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="2" />
+            <rect x="14" y="3" width="7" height="7" rx="2" />
+            <rect x="3" y="14" width="7" height="7" rx="2" />
+            <rect x="14" y="14" width="7" height="7" rx="2" />
+          </svg>
+          <span class="sr-only">Modules</span>
+        </button>
+        <button type="button" aria-label="Profil">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" />
+            <path d="M4 20a8 8 0 0 1 16 0" />
+          </svg>
+          <span class="sr-only">Profil</span>
+        </button>
+      </div>
     </nav>
   </div>
 </body>
