@@ -1,0 +1,41 @@
+.social-page {
+  background: var(--page-bg);
+  color: var(--text-hi);
+  min-height: 100vh;
+}
+
+.social-layout {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 18px 12px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100vh;
+}
+
+.social-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px 2px 2px;
+}
+
+.social-panel {
+  padding: 16px;
+}
+
+.social-panel .top-panel-tabs {
+  margin-bottom: 10px;
+}
+
+.social-panel .top-panel-compose {
+  right: 16px;
+  bottom: 16px;
+}
+
+@media (min-width: 800px) {
+  .social-layout {
+    padding-top: 28px;
+  }
+}
