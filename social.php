@@ -3,13 +3,6 @@ $pageTitle = 'Social';
 
 ob_start();
 ?>
-<div class="section-title">
-  <div>
-    <div class="pill">Réseau</div>
-    <h1>Social</h1>
-  </div>
-</div>
-
 <div class="module-stack">
   <div class="right-module search-bar-module">
     <div class="search-bar" role="search">
