@@ -334,7 +334,7 @@ $currentUsername = fetch_username($pdo, $userId);
 </div>
 
 <nav class="mobile-bottom-nav" aria-label="Navigation mobile">
-  <button type="button" class="mobile-nav-btn is-active" aria-label="Tableau de bord">
+  <button type="button" class="mobile-nav-btn is-active" aria-label="Tableau de bord" data-nav-link="index.php">
     <span class="mobile-nav-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
         <path d="M3 10l9-7 9 7v9.5a1.5 1.5 0 0 1-1.5 1.5H4.5A1.5 1.5 0 0 1 3 19.5V10z" stroke-width="1.6" stroke-linejoin="round" />
@@ -343,7 +343,7 @@ $currentUsername = fetch_username($pdo, $userId);
     </span>
     <span class="mobile-nav-label">Dashboard</span>
   </button>
-  <button type="button" class="mobile-nav-btn" aria-label="Social">
+  <button type="button" class="mobile-nav-btn" aria-label="Social" data-nav-link="social.php">
     <span class="mobile-nav-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
         <path d="M7.5 10.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM19 12.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke-width="1.6" />
@@ -1168,6 +1168,15 @@ function startDateNav(){
   }
 }
 
+function setupMobileNavLinks(){
+  const navButtons = $$('.mobile-bottom-nav .mobile-nav-btn[data-nav-link]');
+  navButtons.forEach(btn => {
+    const target = btn.dataset.navLink;
+    if (!target) return;
+    btn.addEventListener('click', ()=>{ window.location.href = target; });
+  });
+}
+
 async function init(){
   await loadMenuPrefs();
   ensureToggleButtons();
@@ -1181,7 +1190,10 @@ async function init(){
   updateAlertsFabPosition();
   updateTopStackMode();
 }
-window.addEventListener('load', ()=>{ init().catch(()=>{}); });
+window.addEventListener('load', ()=>{
+  init().catch(()=>{});
+  setupMobileNavLinks();
+});
 </script>
 </body>
 </html>
