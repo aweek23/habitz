@@ -535,6 +535,10 @@ a {
 }
 
 @media (max-width: 920px) {
+  :root {
+    --mobile-nav-offset: calc(76px + env(safe-area-inset-bottom));
+  }
+
   .app {
     grid-template-columns: 1fr;
   }
@@ -546,9 +550,12 @@ a {
 
   .mobile-nav {
     display: grid;
+    position: fixed;
+    inset: auto 0 env(safe-area-inset-bottom) 0;
+    width: 100%;
   }
 
   .page {
-    padding: 12px 8px 82px;
+    padding: 12px 8px var(--mobile-nav-offset);
   }
 }
