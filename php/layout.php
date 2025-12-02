@@ -11,7 +11,7 @@ $content = $content ?? '';
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/layout.css?v=<?= time() ?>">
+  <link rel="stylesheet" href="css/layout.css">
 </head>
 <body>
   <div class="page">
@@ -99,6 +99,14 @@ $content = $content ?? '';
         </div>
       </aside>
     </div>
+
+    <nav class="mobile-nav" aria-label="Navigation principale">
+      <button class="active" type="button">Dashboard</button>
+      <button type="button">Social</button>
+      <button class="primary" type="button" aria-label="Ajouter">+</button>
+      <button type="button">Modules</button>
+      <button type="button">Profil</button>
+    </nav>
   </div>
 </body>
 </html>
