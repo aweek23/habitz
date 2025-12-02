@@ -20,23 +20,16 @@ $content = $content ?? '';
         <nav class="menu">
           <div class="sidebar-header">
             <div class="menu-title">Life Tracker</div>
-            <button class="icon-btn ghost" aria-label="Ouvrir">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="4" y="4" width="16" height="16" rx="4" ry="4" />
-                <path d="M9 15h6V9" />
-                <path d="M9 9h6v6" />
-              </svg>
-            </button>
           </div>
 
           <a class="menu-item" href="#">Tâches</a>
           <a class="menu-item" href="#">Habitudes</a>
           <a class="menu-item" href="#">Projets</a>
-          <a class="menu-item with-caret" href="#">Sport</a>
+          <a class="menu-item" href="#">Sport</a>
           <a class="menu-item" href="#">Alimentation</a>
           <a class="menu-item" href="#">Calendrier</a>
-          <a class="menu-item with-caret" href="#">Corps</a>
-          <a class="menu-item with-caret" href="#">Finances</a>
+          <a class="menu-item" href="#">Corps</a>
+          <a class="menu-item" href="#">Finances</a>
           <a class="menu-item" href="#">Horloge</a>
           <a class="menu-item" href="#">Évènements</a>
           <a class="menu-item" href="#">Actualités, news, etc</a>
@@ -45,13 +38,7 @@ $content = $content ?? '';
       </aside>
 
       <main class="mid-column">
-        <div class="main">
-          <?= $content ?>
-        </div>
-      </main>
-
-      <aside class="right-column">
-        <div class="right-header">
+        <div class="mid-header">
           <div class="profile-actions">
             <button class="icon-btn ghost" aria-label="Lien">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -66,7 +53,21 @@ $content = $content ?? '';
               </svg>
             </button>
           </div>
+        </div>
 
+        <div class="main">
+          <?= $content ?>
+        </div>
+      </main>
+
+      <aside class="right-column">
+        <div class="tabs" role="tablist" aria-label="Suggestions">
+          <button class="tab active" role="tab" aria-selected="true">For you</button>
+          <button class="tab" role="tab" aria-selected="false">Followings</button>
+          <button class="tab" role="tab" aria-selected="false">Discover</button>
+        </div>
+
+        <div class="search-section">
           <div class="search-bar" role="search">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="11" cy="11" r="6" />
@@ -76,15 +77,14 @@ $content = $content ?? '';
           </div>
         </div>
 
-        <div class="tabs" role="tablist" aria-label="Suggestions">
-          <button class="tab active" role="tab" aria-selected="true">For you</button>
-          <button class="tab" role="tab" aria-selected="false">Followings</button>
-          <button class="tab" role="tab" aria-selected="false">Discover</button>
-        </div>
-
         <div class="quick-card">
           <h4>Raccourcis rapides</h4>
           <p>Ajoute ici tes actions fréquentes, notifications ou rappels importants.</p>
+        </div>
+
+        <div class="bottom-profile">
+          <div class="avatar"></div>
+          <div class="profile-name">admin</div>
         </div>
 
         <button class="floating-action" aria-label="Ajouter un raccourci">
@@ -93,11 +93,6 @@ $content = $content ?? '';
             <path d="M5 12h14" />
           </svg>
         </button>
-
-        <div class="bottom-profile">
-          <div class="avatar"></div>
-          <div class="profile-name">admin</div>
-        </div>
       </aside>
     </div>
   </div>
