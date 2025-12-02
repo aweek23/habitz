@@ -313,7 +313,12 @@ a {
 }
 
 .search-bar-module {
-  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  border-radius: 0;
   gap: 0;
 }
 
