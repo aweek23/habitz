@@ -30,10 +30,6 @@ $content = $content ?? '';
           <a class="menu-item" href="#">Calendrier</a>
           <a class="menu-item" href="#">Corps</a>
           <a class="menu-item" href="#">Finances</a>
-          <a class="menu-item" href="#">Horloge</a>
-          <a class="menu-item" href="#">Évènements</a>
-          <a class="menu-item" href="#">Actualités, news, etc</a>
-          <a class="menu-item" href="#">Drive</a>
         </nav>
       </aside>
 
