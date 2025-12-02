@@ -29,7 +29,7 @@ a {
 .page {
   width: 100%;
   margin: 0;
-  padding: 12px 12px 24px 12px;
+  padding: 12px;
 }
 .icon-btn {
   width: 36px;
@@ -87,7 +87,7 @@ a {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 14px;
-  padding: 14px 14px 14px 16px;
+  padding: 12px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.03);
   height: calc(100vh - 36px);
   position: sticky;
@@ -101,7 +101,7 @@ a {
   gap: 2px;
   height: 100%;
   overflow: auto;
-  padding-right: 8px;
+  padding: 0 6px;
   scrollbar-width: none;
 }
 
@@ -113,7 +113,7 @@ a {
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  padding: 4px 6px 10px 2px;
+  padding: 4px 6px 10px;
 }
 
 .menu-title {
@@ -127,7 +127,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 8px;
+  padding: 10px 6px;
   border-radius: 10px;
   color: var(--muted);
   transition: background 0.15s ease, color 0.15s ease;
