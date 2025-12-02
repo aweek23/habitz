@@ -292,7 +292,7 @@ a {
   position: fixed;
   inset: auto 0 env(safe-area-inset-bottom) 0;
   display: none;
-  padding: 12px 14px calc(16px + env(safe-area-inset-bottom));
+  padding: 0;
   z-index: 20;
   pointer-events: none;
 }
@@ -306,8 +306,8 @@ a {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   padding: 10px 12px;
-  width: min(520px, calc(100% - 12px));
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   position: relative;
   pointer-events: auto;
 }
