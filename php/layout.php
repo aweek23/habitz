@@ -61,15 +61,13 @@ $content = $content ?? '';
       </main>
 
       <aside class="right-column">
-        <div class="right-module search-module">
-          <div class="search-section">
-            <div class="search-bar" role="search">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="11" cy="11" r="6" />
-                <path d="m15.5 15.5 3.5 3.5" />
-              </svg>
-              <input type="search" placeholder="Rechercher…" aria-label="Rechercher" />
-            </div>
+        <div class="right-module search-bar-module">
+          <div class="search-bar" role="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="6" />
+              <path d="m15.5 15.5 3.5 3.5" />
+            </svg>
+            <input type="search" placeholder="Rechercher…" aria-label="Rechercher" />
           </div>
         </div>
 
