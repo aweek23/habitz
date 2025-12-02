@@ -146,33 +146,58 @@ $content = $content ?? '';
   </div>
   <script>
     (() => {
-      const mobileNav = document.querySelector('.mobile-nav');
-      if (!mobileNav) return;
+      const searchModule = document.querySelector('.search-bar-module');
+      if (!searchModule) return;
 
+      const mediaQuery = window.matchMedia('(max-width: 920px)');
       let lastScrollY = window.scrollY;
       let ticking = false;
 
-      const updateNavVisibility = () => {
+      const syncSearchHeight = () => {
+        const searchBar = searchModule.querySelector('.search-bar');
+        const height = mediaQuery.matches && searchBar ? searchBar.offsetHeight : 0;
+        document.documentElement.style.setProperty('--search-bar-height', `${height}px`);
+      };
+
+      const updateSearchVisibility = () => {
+        if (!mediaQuery.matches) {
+          searchModule.classList.remove('search-hidden');
+          lastScrollY = window.scrollY;
+          ticking = false;
+          return;
+        }
+
         const currentY = window.scrollY;
         const scrollingDown = currentY > lastScrollY + 2;
         const scrollingUp = currentY < lastScrollY - 2;
 
-        if (scrollingDown && currentY > 20) {
-          mobileNav.classList.add('nav-hidden');
+        if (scrollingDown && currentY > 10) {
+          searchModule.classList.add('search-hidden');
         } else if (scrollingUp) {
-          mobileNav.classList.remove('nav-hidden');
+          searchModule.classList.remove('search-hidden');
         }
 
         lastScrollY = Math.max(0, currentY);
         ticking = false;
       };
 
-      window.addEventListener('scroll', () => {
+      const handleScroll = () => {
         if (!ticking) {
-          window.requestAnimationFrame(updateNavVisibility);
+          window.requestAnimationFrame(updateSearchVisibility);
           ticking = true;
         }
-      }, { passive: true });
+      };
+
+      syncSearchHeight();
+      updateSearchVisibility();
+
+      mediaQuery.addEventListener('change', () => {
+        syncSearchHeight();
+        updateSearchVisibility();
+      });
+
+      window.addEventListener('resize', syncSearchHeight);
+      window.addEventListener('scroll', handleScroll, { passive: true });
     })();
   </script>
 </body>
