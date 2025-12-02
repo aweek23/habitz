@@ -548,11 +548,11 @@ a {
   color: var(--muted);
 }
 
-.module-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+  .module-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
 
 @media (max-width: 1280px) {
   .app {
@@ -594,5 +594,17 @@ a {
 
   .page {
     padding: 12px 8px var(--mobile-nav-offset);
+  }
+
+  .suggestion-module {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .search-bar-module {
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
 }
