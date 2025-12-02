@@ -30,6 +30,10 @@ $content = $content ?? '';
           <a class="menu-item" href="#">Calendrier</a>
           <a class="menu-item" href="#">Corps</a>
           <a class="menu-item" href="#">Finances</a>
+          <a class="menu-item" href="#">Horloge</a>
+          <a class="menu-item" href="#">Évènements</a>
+          <a class="menu-item" href="#">Actualités, news, etc</a>
+          <a class="menu-item" href="#">Drive</a>
         </nav>
       </aside>
 
@@ -57,38 +61,44 @@ $content = $content ?? '';
       </main>
 
       <aside class="right-column">
-        <div class="tabs" role="tablist" aria-label="Suggestions">
-          <button class="tab active" role="tab" aria-selected="true">For you</button>
-          <button class="tab" role="tab" aria-selected="false">Followings</button>
-          <button class="tab" role="tab" aria-selected="false">Discover</button>
-        </div>
-
-        <div class="search-section">
-          <div class="search-bar" role="search">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="11" cy="11" r="6" />
-              <path d="m15.5 15.5 3.5 3.5" />
-            </svg>
-            <input type="search" placeholder="Rechercher…" aria-label="Rechercher" />
+        <div class="right-module search-module">
+          <div class="search-section">
+            <div class="search-bar" role="search">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="11" cy="11" r="6" />
+                <path d="m15.5 15.5 3.5 3.5" />
+              </svg>
+              <input type="search" placeholder="Rechercher…" aria-label="Rechercher" />
+            </div>
           </div>
         </div>
 
-        <div class="quick-card">
-          <h4>Raccourcis rapides</h4>
-          <p>Ajoute ici tes actions fréquentes, notifications ou rappels importants.</p>
+        <div class="right-module suggestion-module">
+          <div class="tabs" role="tablist" aria-label="Suggestions">
+            <button class="tab active" role="tab" aria-selected="true">For you</button>
+            <button class="tab" role="tab" aria-selected="false">Followings</button>
+            <button class="tab" role="tab" aria-selected="false">Discover</button>
+          </div>
+
+          <div class="quick-card">
+            <h4>Raccourcis rapides</h4>
+            <p>Ajoute ici tes actions fréquentes, notifications ou rappels importants.</p>
+          </div>
+
+          <button class="floating-action" aria-label="Ajouter un raccourci">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5v14" />
+              <path d="M5 12h14" />
+            </svg>
+          </button>
         </div>
 
-        <div class="bottom-profile">
-          <div class="avatar"></div>
-          <div class="profile-name">admin</div>
+        <div class="right-module profile-module">
+          <div class="bottom-profile">
+            <div class="avatar"></div>
+            <div class="profile-name">admin</div>
+          </div>
         </div>
-
-        <button class="floating-action" aria-label="Ajouter un raccourci">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 5v14" />
-            <path d="M5 12h14" />
-          </svg>
-        </button>
       </aside>
     </div>
   </div>
