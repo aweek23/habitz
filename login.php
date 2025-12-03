@@ -34,6 +34,12 @@ $identifier = trim($_POST['identifier'] ?? '');
 $password = $_POST['password'] ?? '';
 $ipAddress = getClientIp();
 
+function normalizePhone(string $input): string
+{
+    // Retire espaces, tirets et plus pour comparer les numéros indépendamment du format saisi.
+    return preg_replace('/[^0-9]/', '', $input) ?? '';
+}
+
 function logUserIp(PDO $pdo, int $userId, ?string $ip, string $context): void
 {
     if ($ip === null) {
@@ -53,11 +59,23 @@ if ($identifier === '' || $password === '') {
 }
 
 try {
-    $stmt = $pdo->prepare('SELECT id, username, email, phone_number, password, rank FROM users WHERE username = :identifier_username OR email = :identifier_email OR phone_number = :identifier_phone LIMIT 1');
+    $normalizedPhone = normalizePhone($identifier);
+
+    $stmt = $pdo->prepare(
+        'SELECT id, username, email, phone_number, password, rank
+         FROM users
+         WHERE username = :identifier_username
+            OR email = :identifier_email
+            OR phone_number = :identifier_phone
+            OR REPLACE(REPLACE(REPLACE(phone_number, " ", ""), "+", ""), "-", "") = :normalized_phone
+         LIMIT 1'
+    );
+
     $stmt->execute([
         ':identifier_username' => $identifier,
         ':identifier_email' => $identifier,
         ':identifier_phone' => $identifier,
+        ':normalized_phone' => $normalizedPhone,
     ]);
     $user = $stmt->fetch();
 

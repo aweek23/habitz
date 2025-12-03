@@ -16,6 +16,19 @@ $defaultMenuItems = [
     ['label' => 'Drive', 'href' => '#'],
 ];
 $menuItems = $menuItems ?? $defaultMenuItems;
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$homeUrl = defined('APP_HOME') ? APP_HOME : '/index.php';
+$isAdminUser = ($_SESSION['rank'] ?? '') === 'admin';
+$currentScript = basename($_SERVER['PHP_SELF'] ?? '');
+$isAdminPage = $currentScript === 'admin_dashboard.php';
+$adminLinkLabel = $isAdminPage ? 'User dashboard' : 'Admin dashboard';
+$adminLinkHref = $isAdminPage ? $homeUrl : '/admin_dashboard.php';
+$displayUsername = $_SESSION['username'] ?? 'Invité';
+$isAuthenticated = !empty($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -50,6 +63,11 @@ $menuItems = $menuItems ?? $defaultMenuItems;
       <main class="mid-column">
         <div class="mid-header">
           <div class="profile-actions">
+            <?php if ($isAdminUser): ?>
+              <a class="pill" href="<?= htmlspecialchars($adminLinkHref, ENT_QUOTES, 'UTF-8') ?>">
+                <?= htmlspecialchars($adminLinkLabel, ENT_QUOTES, 'UTF-8') ?>
+              </a>
+            <?php endif; ?>
             <button class="icon-btn ghost" aria-label="Lien">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M10 14a3 3 0 0 1 0-4l3.5-3.5a3 3 0 0 1 4.2 4.2l-.7.7" />
@@ -104,7 +122,18 @@ $menuItems = $menuItems ?? $defaultMenuItems;
         <div class="right-module profile-module">
           <div class="bottom-profile">
             <div class="avatar"></div>
-            <div class="profile-name">admin</div>
+            <div class="profile-name"><?= htmlspecialchars($displayUsername, ENT_QUOTES, 'UTF-8') ?></div>
+            <?php if ($isAuthenticated): ?>
+              <form class="logout-form" action="/logout.php" method="post">
+                <button type="submit" class="icon-btn ghost" aria-label="Se déconnecter">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M16 17l5-5-5-5" />
+                    <path d="M21 12H9" />
+                    <path d="M12 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2" />
+                  </svg>
+                </button>
+              </form>
+            <?php endif; ?>
           </div>
         </div>
       </aside>

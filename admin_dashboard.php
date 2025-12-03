@@ -1,5 +1,17 @@
 <?php
-$pdo = require __DIR__ . '/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$dbStatusMessage = '';
+$pdo = null;
+
+try {
+    $pdo = require __DIR__ . '/config.php';
+    $dbStatusMessage = 'Connexion à la base de données réussie.';
+} catch (Throwable $e) {
+    $dbStatusMessage = 'Erreur de connexion à la base de données : ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+}
 
 if (empty($_SESSION['user_id'])) {
     header('Location: auth.php');
@@ -22,7 +34,7 @@ $error = '';
 $ipLogsByUser = [];
 $primaryIpByUser = [];
 
-if ($searchTerm !== '') {
+if ($pdo instanceof PDO && $searchTerm !== '') {
     try {
         $like = '%' . $searchTerm . '%';
         $conditions = [
@@ -75,6 +87,8 @@ if ($searchTerm !== '') {
     } catch (PDOException $e) {
         $error = 'Erreur lors de la recherche : ' . $e->getMessage();
     }
+} elseif (!$pdo instanceof PDO && $searchTerm !== '') {
+    $error = 'Recherche indisponible sans connexion à la base de données.';
 }
 
 $pageTitle = 'Admin Dashboard';
@@ -87,6 +101,10 @@ $menuItems = [
 
 ob_start();
 ?>
+<div class="db-status-banner" role="status" aria-live="polite">
+  <span class="db-dot <?php echo (strpos($dbStatusMessage, 'Erreur') !== false) ? 'error' : 'ok'; ?>" aria-hidden="true"></span>
+  <span class="db-message"><?php echo $dbStatusMessage; ?></span>
+</div>
 <div class="section-title">
   <div>
     <div class="pill">Admin</div>
