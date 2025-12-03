@@ -66,49 +66,38 @@ if (!function_exists('logActiveUserCount')) {
 }
 
 if (!function_exists('fetchActiveAverageSeries')) {
-    function fetchActiveAverageSeries(PDO $pdo, string $range): array
-    {
-        ensureActiveTrackingTables($pdo);
+function fetchActiveAverageSeries(PDO $pdo, string $range): array
+{
+    ensureActiveTrackingTables($pdo);
 
-        $range = strtolower($range);
-        $start = new DateTime('now');
+    $range = strtolower($range);
 
-        switch ($range) {
-            case 'year':
-                $start->modify('-1 year');
-                break;
-            case 'ytd':
-                $start = new DateTime(date('Y-01-01'));
-                break;
-            case 'month':
-                $start->modify('-1 month');
-                break;
-            case 'week':
-            default:
-                $start->modify('-7 days');
-                $range = 'week';
-                break;
-        }
-
-        $stmt = $pdo->prepare(
-            'SELECT DATE(checked_at) AS day, AVG(active_count) AS avg_count
-             FROM active_user_logs
-             WHERE checked_at >= :start
-             GROUP BY day
-             ORDER BY day'
-        );
-        $stmt->execute([':start' => $start->format('Y-m-d 00:00:00')]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-
-        $series = [];
-        foreach ($rows as $row) {
-            $series[] = [
-                'label' => date('d/m', strtotime($row['day'])),
-                'value' => round((float) $row['avg_count'], 2),
-                'date' => $row['day'],
-            ];
-        }
-
-        return ['range' => $range, 'points' => $series];
+    if ($range !== 'day') {
+        $range = 'day';
     }
+
+    $start = new DateTime('now');
+    $start->modify('-1 day');
+
+    $stmt = $pdo->prepare(
+        'SELECT DATE_FORMAT(checked_at, "%Y-%m-%d %H:00:00") AS bucket, AVG(active_count) AS avg_count
+         FROM active_user_logs
+         WHERE checked_at >= :start
+         GROUP BY bucket
+         ORDER BY bucket'
+    );
+    $stmt->execute([':start' => $start->format('Y-m-d H:00:00')]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+    $series = [];
+    foreach ($rows as $row) {
+        $series[] = [
+            'label' => date('H\h', strtotime($row['bucket'])),
+            'value' => round((float) $row['avg_count'], 2),
+            'date' => $row['bucket'],
+        ];
+    }
+
+    return ['range' => $range, 'points' => $series];
+}
 }

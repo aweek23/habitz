@@ -145,37 +145,25 @@ function getTotalUserCount(PDO $pdo): int
 function fetchUserGrowthSeries(PDO $pdo, string $range): array
 {
     $range = strtolower($range);
-    $start = new DateTime('now');
 
-    switch ($range) {
-        case 'year':
-            $start->modify('-1 year');
-            break;
-        case 'ytd':
-            $start = new DateTime(date('Y-01-01'));
-            break;
-        case 'month':
-            $start->modify('-1 month');
-            break;
-        case 'week':
-        default:
-            $start->modify('-7 days');
-            $range = 'week';
-            break;
+    if ($range !== 'day') {
+        $range = 'day';
     }
 
-    $startDate = $start->format('Y-m-d 00:00:00');
+    $start = new DateTime('now');
+    $start->modify('-1 day');
+    $startDate = $start->format('Y-m-d H:00:00');
 
     $baseStmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE creation_date < :start');
     $baseStmt->execute([':start' => $startDate]);
     $runningTotal = (int) $baseStmt->fetchColumn();
 
     $stmt = $pdo->prepare(
-        'SELECT DATE(creation_date) AS day, COUNT(*) AS count
+        'SELECT DATE_FORMAT(creation_date, "%Y-%m-%d %H:00:00") AS bucket, COUNT(*) AS count
          FROM users
          WHERE creation_date >= :start
-         GROUP BY day
-         ORDER BY day'
+         GROUP BY bucket
+         ORDER BY bucket'
     );
     $stmt->execute([':start' => $startDate]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -185,9 +173,9 @@ function fetchUserGrowthSeries(PDO $pdo, string $range): array
     foreach ($rows as $row) {
         $runningTotal += (int) $row['count'];
         $series[] = [
-            'label' => date('d/m', strtotime($row['day'])),
+            'label' => date('H\h', strtotime($row['bucket'])),
             'value' => $runningTotal,
-            'date' => $row['day'],
+            'date' => $row['bucket'],
         ];
     }
 
@@ -258,11 +246,11 @@ if (isset($_GET['user_metrics'])) {
     header('Content-Type: application/json');
 
     if (!($pdo instanceof PDO)) {
-        echo json_encode(['total' => 0, 'series' => ['range' => 'week', 'points' => []]]);
+        echo json_encode(['total' => 0, 'series' => ['range' => 'day', 'points' => []]]);
         exit;
     }
 
-    $range = $_GET['range'] ?? 'week';
+    $range = $_GET['range'] ?? 'day';
     echo json_encode([
         'total' => getTotalUserCount($pdo),
         'series' => fetchUserGrowthSeries($pdo, $range),
@@ -274,11 +262,11 @@ if (isset($_GET['active_metrics'])) {
     header('Content-Type: application/json');
 
     if (!($pdo instanceof PDO)) {
-        echo json_encode(['active' => 0, 'series' => ['range' => 'week', 'points' => []]]);
+        echo json_encode(['active' => 0, 'series' => ['range' => 'day', 'points' => []]]);
         exit;
     }
 
-    $range = $_GET['range'] ?? 'week';
+    $range = $_GET['range'] ?? 'day';
     $activeUsers = countActiveUsers($pdo, 5);
     logActiveUserCount($pdo, $activeUsers);
 
@@ -313,24 +301,22 @@ ob_start();
 <div class="admin-grid">
   <div class="admin-col">
     <section class="metric-card" aria-labelledby="user-total-title">
-      <header class="metric-header">
-        <div>
+      <div class="metric-chart" data-chart="users" aria-label="Évolution des utilisateurs">
+        <div class="metric-overlay">
           <p class="metric-label">Utilisateurs</p>
           <h3 class="metric-value" id="user-total-title">0</h3>
         </div>
-      </header>
-      <div class="metric-chart" data-chart="users" aria-label="Évolution des utilisateurs"></div>
+      </div>
     </section>
   </div>
   <div class="admin-col">
     <section class="metric-card" aria-labelledby="active-total-title">
-      <header class="metric-header">
-        <div>
+      <div class="metric-chart" data-chart="active" aria-label="Moyenne des utilisateurs actifs">
+        <div class="metric-overlay">
           <p class="metric-label">Utilisateurs actifs</p>
           <h3 class="metric-value" id="active-total-title">0</h3>
         </div>
-      </header>
-      <div class="metric-chart" data-chart="active" aria-label="Moyenne des utilisateurs actifs"></div>
+      </div>
     </section>
   </div>
   <div class="admin-col"></div>
@@ -378,12 +364,21 @@ ob_start();
   (function() {
     const userValueEl = document.getElementById('user-total-title');
     const activeValueEl = document.getElementById('active-total-title');
-    const defaultRange = 'week';
+    const defaultRange = 'day';
 
     function renderLineChart(container, points) {
+      const overlay = container.querySelector('.metric-overlay');
+      if (overlay) {
+        overlay.remove();
+      }
+
       container.innerHTML = '';
       container.classList.remove('bars');
       container.classList.add('line');
+
+      if (overlay) {
+        container.appendChild(overlay);
+      }
 
       if (!points || points.length === 0) {
         const empty = document.createElement('p');
@@ -393,8 +388,9 @@ ob_start();
         return;
       }
 
-      const width = container.clientWidth || 320;
-      const height = 140;
+      const bounds = container.getBoundingClientRect();
+      const width = bounds.width || 320;
+      const height = bounds.height || 220;
       const padding = 10;
 
       const maxValue = Math.max(...points.map(p => p.value), 1);
