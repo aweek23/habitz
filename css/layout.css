@@ -608,6 +608,18 @@ a {
   align-items: center;
   gap: 10px;
   margin-left: auto;
+  min-height: 44px;
+}
+
+.profile-actions .pill {
+  height: 44px;
+  padding: 0 14px;
+  align-items: center;
+}
+
+.profile-actions .icon-btn {
+  width: 44px;
+  height: 44px;
 }
 
 .placeholder {

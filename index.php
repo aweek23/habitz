@@ -12,7 +12,6 @@ ob_start();
 ?>
 <div class="section-title">
   <div>
-    <div class="pill">Today</div>
     <h1>Dashboard</h1>
   </div>
 </div>
