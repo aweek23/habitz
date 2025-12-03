@@ -445,6 +445,11 @@ ob_start();
       if (actions) container.appendChild(actions);
       if (overlay) container.appendChild(overlay);
 
+      const tooltip = document.createElement('div');
+      tooltip.className = 'chart-tooltip';
+      tooltip.textContent = '';
+      container.appendChild(tooltip);
+
       if (!points || points.length === 0) {
         const empty = document.createElement('p');
         empty.className = 'chart-empty';
@@ -519,7 +524,51 @@ ob_start();
       path.setAttribute('class', 'line-path');
       svg.appendChild(path);
 
+      const hoverLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      hoverLine.setAttribute('class', 'hover-line');
+      hoverLine.setAttribute('x1', '0');
+      hoverLine.setAttribute('x2', '0');
+      hoverLine.setAttribute('y1', padding.toString());
+      hoverLine.setAttribute('y2', (height - padding).toString());
+      hoverLine.style.opacity = '0';
+      svg.appendChild(hoverLine);
+
       container.appendChild(svg);
+
+      function showTooltip(point) {
+        tooltip.textContent = `${point.value} utilisateurs`;
+        tooltip.style.opacity = '1';
+        tooltip.style.left = `${point.x + 8}px`;
+        tooltip.style.top = `${point.y + 8}px`;
+        hoverLine.setAttribute('x1', point.x.toString());
+        hoverLine.setAttribute('x2', point.x.toString());
+        hoverLine.style.opacity = '1';
+      }
+
+      function hideTooltip() {
+        tooltip.style.opacity = '0';
+        hoverLine.style.opacity = '0';
+      }
+
+      function handleMove(event) {
+        const rect = container.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        let closest = pathPoints[0];
+        let smallest = Math.abs(pathPoints[0].x - x);
+
+        for (let i = 1; i < pathPoints.length; i++) {
+          const diff = Math.abs(pathPoints[i].x - x);
+          if (diff < smallest) {
+            smallest = diff;
+            closest = pathPoints[i];
+          }
+        }
+
+        showTooltip(closest);
+      }
+
+      container.onmousemove = handleMove;
+      container.onmouseleave = hideTooltip;
     }
 
     function setRangeButtons(chart, range) {
