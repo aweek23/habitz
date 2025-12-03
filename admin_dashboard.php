@@ -80,7 +80,7 @@ function checkExternalService(string $url, string $name = 'Service distant'): ar
             'id' => 'service-57131251210000',
             'key' => 'website',
             'name' => $name,
-            'category' => 'Sites web',
+            'category' => 'Panel',
             'state' => $state,
             'online' => true,
             'latency_ms' => round($latency, 1),
@@ -93,7 +93,7 @@ function checkExternalService(string $url, string $name = 'Service distant'): ar
         'id' => 'service-57131251210000',
         'key' => 'website',
         'name' => $name,
-        'category' => 'Sites web',
+        'category' => 'Panel',
         'state' => 'offline',
         'online' => false,
         'latency_ms' => $success ? round($latency, 1) : null,
@@ -181,7 +181,7 @@ if (isset($_GET['uptime_check'])) {
     header('Content-Type: application/json');
     $services = [
         checkDatabaseConnection($pdo),
-        checkExternalService('http://57.131.25.12:10000', '57.131.25.12:10000'),
+        checkExternalService('http://57.131.25.12:10000', 'Virtualmin/Webmin'),
     ];
 
     if ($pdo instanceof PDO) {
@@ -218,6 +218,7 @@ ob_start();
 <div class="admin-grid">
   <div class="admin-col"></div>
   <div class="admin-col"></div>
+  <div class="admin-col"></div>
   <div class="admin-col">
     <div class="uptime-stack">
       <article class="uptime-card" data-service="database" data-service-id="service-database">
@@ -247,10 +248,10 @@ ob_start();
           </svg>
         </div>
         <div class="uptime-card-body">
-          <p class="uptime-category">Sites web</p>
+          <p class="uptime-category">Panel</p>
           <div class="uptime-title-row">
-            <h4>57.131.25.12:10000</h4>
-            <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut du site 57.131.25.12:10000"></span>
+            <h4>Virtualmin/Webmin</h4>
+            <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut du site Virtualmin/Webmin"></span>
           </div>
         </div>
       </article>
