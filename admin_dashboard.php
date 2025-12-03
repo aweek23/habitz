@@ -66,16 +66,7 @@ $menuItems = [
     ['label' => 'Signalements', 'href' => '#'],
     ['label' => 'Paramètres', 'href' => '#'],
 ];
-$rightExtras = <<<HTML
-  <div class="right-module db-monitor-module" id="db-monitor">
-    <div class="db-monitor-head">
-      <div class="db-monitor-subtitle">Système</div>
-      <div class="db-monitor-indicator" aria-hidden="true"></div>
-    </div>
-    <div class="db-monitor-title" id="db-monitor-title">Base de données</div>
-    <p class="db-monitor-meta" id="db-monitor-meta">Vérification en cours…</p>
-  </div>
-HTML;
+$rightExtras = '';
 
 ob_start();
 ?>
@@ -85,7 +76,7 @@ ob_start();
 </div>
 
 <div class="cards-grid">
-  <div class="hero-card">
+  <div class="hero-card" style="grid-column: 1 / -1;">
     <span class="badge">Administration</span>
     <h2>Tableau de bord admin</h2>
     <p>Consultez les utilisateurs via l'onglet "Utilisateurs" ou accédez aux prochains modules du panneau d'administration.</p>
@@ -102,6 +93,15 @@ ob_start();
       <li>Dernière vérification de rôle : immédiate (à chaque chargement)</li>
       <li>Accès admin : <?= $isAdmin ? 'Autorisé' : 'Refusé' ?></li>
     </ul>
+  </div>
+
+  <div class="widget-card db-monitor-module" id="db-monitor">
+    <div class="db-monitor-head">
+      <div class="db-monitor-subtitle">Système</div>
+      <div class="db-monitor-indicator" aria-hidden="true"></div>
+    </div>
+    <div class="db-monitor-title" id="db-monitor-title">Base de données</div>
+    <p class="db-monitor-meta" id="db-monitor-meta">Vérification en cours…</p>
   </div>
 </div>
 <script>
