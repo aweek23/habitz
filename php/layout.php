@@ -1,6 +1,21 @@
 <?php
 $pageTitle = $pageTitle ?? 'Life Tracker';
 $content = $content ?? '';
+$defaultMenuItems = [
+    ['label' => 'Tâches', 'href' => '#'],
+    ['label' => 'Habitudes', 'href' => '#'],
+    ['label' => 'Projets', 'href' => '#'],
+    ['label' => 'Sport', 'href' => '#'],
+    ['label' => 'Alimentation', 'href' => '#'],
+    ['label' => 'Calendrier', 'href' => '#'],
+    ['label' => 'Corps', 'href' => '#'],
+    ['label' => 'Finances', 'href' => '#'],
+    ['label' => 'Horloge', 'href' => '#'],
+    ['label' => 'Évènements', 'href' => '#'],
+    ['label' => 'Actualités, news, etc', 'href' => '#'],
+    ['label' => 'Drive', 'href' => '#'],
+];
+$menuItems = $menuItems ?? $defaultMenuItems;
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -22,18 +37,13 @@ $content = $content ?? '';
             <div class="menu-title">Life Tracker</div>
           </div>
 
-          <a class="menu-item" href="#">Tâches</a>
-          <a class="menu-item" href="#">Habitudes</a>
-          <a class="menu-item" href="#">Projets</a>
-          <a class="menu-item" href="#">Sport</a>
-          <a class="menu-item" href="#">Alimentation</a>
-          <a class="menu-item" href="#">Calendrier</a>
-          <a class="menu-item" href="#">Corps</a>
-          <a class="menu-item" href="#">Finances</a>
-          <a class="menu-item" href="#">Horloge</a>
-          <a class="menu-item" href="#">Évènements</a>
-          <a class="menu-item" href="#">Actualités, news, etc</a>
-          <a class="menu-item" href="#">Drive</a>
+          <?php foreach ($menuItems as $menuItem): ?>
+            <?php
+              $label = htmlspecialchars($menuItem['label'] ?? '', ENT_QUOTES, 'UTF-8');
+              $href = htmlspecialchars($menuItem['href'] ?? '#', ENT_QUOTES, 'UTF-8');
+            ?>
+            <a class="menu-item" href="<?= $href ?>"><?= $label ?></a>
+          <?php endforeach; ?>
         </nav>
       </aside>
 
