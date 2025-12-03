@@ -26,6 +26,20 @@ function redirectWithError(string $message, ?string $debug = null): void
     exit;
 }
 
+function detectUserCountry(): ?string
+{
+    $country = $_SERVER['HTTP_CF_IPCOUNTRY'] ?? $_SERVER['GEOIP_COUNTRY_CODE'] ?? null;
+
+    if (!$country && !empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        $locales = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        if (!empty($locales[0])) {
+            $country = substr(trim($locales[0]), 0, 2);
+        }
+    }
+
+    return $country ? strtoupper($country) : null;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirectWithError('Méthode non autorisée.');
 }
@@ -39,6 +53,7 @@ $gender = trim($_POST['gender'] ?? '');
 $password = $_POST['password'] ?? '';
 $passwordConfirm = $_POST['password_confirm'] ?? '';
 $ipAddress = getClientIp();
+$country = detectUserCountry();
 
 function logUserIp(PDO $pdo, int $userId, ?string $ip, string $context): void
 {
@@ -52,6 +67,20 @@ function logUserIp(PDO $pdo, int $userId, ?string $ip, string $context): void
         ':ip_address' => $ip,
         ':context' => $context,
     ]);
+}
+
+function ensureUserCountryColumn(PDO $pdo): void
+{
+    try {
+        $exists = $pdo->query("SHOW COLUMNS FROM users LIKE 'country'");
+        if ($exists && $exists->fetch(PDO::FETCH_ASSOC)) {
+            return;
+        }
+
+        $pdo->exec("ALTER TABLE users ADD COLUMN country VARCHAR(100) DEFAULT NULL AFTER ip");
+    } catch (Throwable $e) {
+        // Ignore schema adjustments if permissions are lacking
+    }
 }
 
 if ($birthdateRaw === '' && isset($_POST['birthdate_display'])) {
@@ -87,6 +116,7 @@ if ($dialCode !== '' && $phoneLocal !== '') {
 }
 
 try {
+    ensureUserCountryColumn($pdo);
     $existingStmt = $pdo->prepare('SELECT id FROM users WHERE username = :username OR email = :email' . ($phoneNumber ? ' OR phone_number = :phone' : ''));
     $existingStmt->bindValue(':username', $username);
     $existingStmt->bindValue(':email', $email);
@@ -98,7 +128,7 @@ try {
         redirectWithError('Un compte existe déjà avec ces informations.');
     }
 
-$insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, birthdate, gender, password, rank, creation_date, ip) VALUES (:username, :email, :phone_number, :birthdate, :gender, :password, :rank, :creation_date, :ip)');
+    $insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, birthdate, gender, password, rank, creation_date, ip, country) VALUES (:username, :email, :phone_number, :birthdate, :gender, :password, :rank, :creation_date, :ip, :country)');
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $creationDate = (new DateTimeImmutable('now'))->format('Y-m-d H:i:s');
@@ -125,6 +155,7 @@ $insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, b
         ':rank' => 'user',
         ':creation_date' => $creationDate,
         ':ip' => $ipAddress,
+        ':country' => $country,
     ]);
 
     $newUserId = (int) $pdo->lastInsertId();
@@ -150,7 +181,7 @@ $insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, b
     }
 
     if ($e instanceof PDOException && $e->getCode() === '42S22') {
-        $setupMessage = 'Schéma utilisateur obsolète : ajoutez la colonne "ip" via sql/users_table.sql.';
+        $setupMessage = 'Schéma utilisateur obsolète : ajoutez les colonnes "ip" et "country" via sql/users_table.sql.';
         error_log($setupMessage);
         redirectWithError($setupMessage);
     }
