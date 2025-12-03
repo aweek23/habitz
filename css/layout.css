@@ -533,10 +533,10 @@ a {
   background: linear-gradient(135deg, #192537, #1d2d44);
   color: #e2e8f0;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 7px;
-  width: 32px;
-  height: 32px;
+  border-radius: 5px;
+  padding: 0;
+  width: 16px;
+  height: 16px;
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -545,8 +545,8 @@ a {
 }
 
 .db-monitor-refresh svg {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
 }
 
 .db-monitor-refresh:hover:not(:disabled) {
