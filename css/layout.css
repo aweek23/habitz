@@ -603,6 +603,11 @@ a {
   margin: 0 0 0 auto;
 }
 
+.bottom-profile .logout-form {
+  margin: 0;
+  justify-self: end;
+}
+
 .profile-actions {
   display: flex;
   align-items: center;
