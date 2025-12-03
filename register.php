@@ -22,6 +22,16 @@ $gender = trim($_POST['gender'] ?? '');
 $password = $_POST['password'] ?? '';
 $passwordConfirm = $_POST['password_confirm'] ?? '';
 
+if ($birthdateRaw === '' && isset($_POST['birthdate_display'])) {
+    $birthdateDisplay = trim($_POST['birthdate_display']);
+    if ($birthdateDisplay !== '') {
+        $birthParsed = DateTimeImmutable::createFromFormat('d/m/Y', $birthdateDisplay);
+        if ($birthParsed) {
+            $birthdateRaw = $birthParsed->format('Y-m-d');
+        }
+    }
+}
+
 if ($username === '' || $email === '' || $birthdateRaw === '' || $password === '' || $passwordConfirm === '') {
     redirectWithError('Tous les champs obligatoires doivent être renseignés.');
 }
