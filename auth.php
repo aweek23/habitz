@@ -24,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $birthdate = clean($_POST['birthdate'] ?? '');
         $gender = clean($_POST['gender'] ?? '');
         $password = $_POST['password'] ?? '';
+        $passwordConfirm = $_POST['password_confirm'] ?? '';
 
         if ($username === '') {
             $registerErrors[] = "Le nom d'utilisateur est requis.";
@@ -35,6 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($password === '' || strlen($password) < 8) {
             $registerErrors[] = 'Le mot de passe doit comporter au moins 8 caractères.';
+        }
+
+        if ($password !== $passwordConfirm) {
+            $registerErrors[] = 'Les mots de passe doivent être identiques.';
         }
 
         if ($birthdate !== '') {
@@ -117,13 +122,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="auth-page">
     <main class="auth-shell" data-active-form="<?= htmlspecialchars($activeForm, ENT_QUOTES, 'UTF-8') ?>">
-        <div class="auth-forms">
-            <section class="auth-card register-card" id="register-panel">
-                <div class="auth-card-header">
-                    <h1>Créer un compte</h1>
-                    <p>Renseigne tes informations pour créer un compte.</p>
-                </div>
+        <div class="auth-intro">
+            <p class="auth-chip">Habitz</p>
+            <h1>Créer un compte</h1>
+            <p class="auth-subtitle">Créez un compte pour retrouver vos habitudes et vos missions.</p>
+        </div>
 
+        <div class="auth-forms">
+            <section class="auth-card register-card <?= $activeForm === 'register' ? 'is-active' : '' ?>" id="register-panel">
                 <?php if ($registerSuccess): ?>
                     <div class="auth-alert success"><?= $registerSuccess ?></div>
                 <?php endif; ?>
@@ -140,47 +146,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <form method="post" class="auth-form">
                     <input type="hidden" name="action" value="register">
-                    <label>
+
+                    <label class="input-group">
                         <span>Nom d'utilisateur</span>
-                        <input type="text" name="username" required value="<?= htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="username" required placeholder="Ton nom d'utilisateur" value="<?= htmlspecialchars($_POST['username'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                     </label>
-                    <label>
+
+                    <label class="input-group">
                         <span>Email</span>
-                        <input type="email" name="email" required value="<?= htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="email" name="email" required placeholder="email@email.com" value="<?= htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                     </label>
-                    <label>
+
+                    <label class="input-group">
                         <span>Numéro de téléphone</span>
-                        <input type="tel" name="phone_number" value="<?= htmlspecialchars($_POST['phone_number'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="tel" name="phone_number" placeholder="+33 (FR) 06 12 34 56 78" value="<?= htmlspecialchars($_POST['phone_number'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                     </label>
-                    <label>
+
+                    <label class="input-group">
                         <span>Date de naissance</span>
                         <input type="date" name="birthdate" value="<?= htmlspecialchars($_POST['birthdate'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                     </label>
-                    <label>
-                        <span>Genre</span>
-                        <select name="gender">
-                            <option value="" <?= (($_POST['gender'] ?? '') === '') ? 'selected' : '' ?>>Sélectionner</option>
-                            <option value="male" <?= (($_POST['gender'] ?? '') === 'male') ? 'selected' : '' ?>>Homme</option>
-                            <option value="female" <?= (($_POST['gender'] ?? '') === 'female') ? 'selected' : '' ?>>Femme</option>
-                            <option value="other" <?= (($_POST['gender'] ?? '') === 'other') ? 'selected' : '' ?>>Autre</option>
-                        </select>
-                    </label>
-                    <label>
-                        <span>Mot de passe</span>
-                        <input type="password" name="password" required minlength="8">
-                    </label>
-                    <button type="submit" class="auth-submit">Créer un compte</button>
-                </form>
 
-                <p class="auth-toggle">Déjà inscrit ? <button type="button" data-open-login>Se connecter</button></p>
+                    <label class="input-group">
+                        <span>Genre</span>
+                        <div class="select-wrap">
+                            <select name="gender">
+                                <option value="" <?= (($_POST['gender'] ?? '') === '') ? 'selected' : '' ?>>– Sélectionner –</option>
+                                <option value="male" <?= (($_POST['gender'] ?? '') === 'male') ? 'selected' : '' ?>>Homme</option>
+                                <option value="female" <?= (($_POST['gender'] ?? '') === 'female') ? 'selected' : '' ?>>Femme</option>
+                                <option value="other" <?= (($_POST['gender'] ?? '') === 'other') ? 'selected' : '' ?>>Autre</option>
+                            </select>
+                        </div>
+                    </label>
+
+                    <label class="input-group password-group">
+                        <span>Mot de passe</span>
+                        <div class="input-with-action">
+                            <input type="password" name="password" required minlength="8" placeholder="••••••••" data-toggle-target>
+                            <button class="ghost-btn" type="button" data-toggle-password aria-label="Afficher ou masquer le mot de passe">👁</button>
+                        </div>
+                    </label>
+
+                    <label class="input-group password-group">
+                        <span>Confirmer le mot de passe</span>
+                        <div class="input-with-action">
+                            <input type="password" name="password_confirm" required minlength="8" placeholder="••••••••" data-toggle-target>
+                            <button class="ghost-btn" type="button" data-toggle-password aria-label="Afficher ou masquer le mot de passe">👁</button>
+                        </div>
+                    </label>
+
+                    <p class="form-note">* obligatoire</p>
+
+                    <p class="auth-legal">En vous inscrivant, vous acceptez nos <a href="#">Conditions générales</a>. Pour en savoir plus sur la manière dont nous collectons, utilisons et prot&eacute;geons vos données, consultez notre <a href="#">Politique de confidentialité</a>.</p>
+
+                    <button type="submit" class="auth-submit">Créer un compte</button>
+
+                    <p class="auth-toggle">Déjà un compte ? <button type="button" data-open-login>Se connecter</button></p>
+                </form>
             </section>
 
-            <section class="auth-card login-card" id="login-panel">
-                <div class="auth-card-header">
-                    <h1>Connexion</h1>
-                    <p>Retrouve tes habitudes et tâches.</p>
-                </div>
-
+            <section class="auth-card login-card <?= $activeForm === 'login' ? 'is-active' : '' ?>" id="login-panel">
                 <?php if ($loginSuccess): ?>
                     <div class="auth-alert success"><?= $loginSuccess ?></div>
                 <?php endif; ?>
@@ -195,20 +220,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 <?php endif; ?>
 
+                <div class="auth-card-header">
+                    <h2>Connexion</h2>
+                    <p>Retrouve tes habitudes et tâches.</p>
+                </div>
+
                 <form method="post" class="auth-form">
                     <input type="hidden" name="action" value="login">
-                    <label>
-                        <span>Email</span>
-                        <input type="email" name="login_email" required value="<?= htmlspecialchars($_POST['login_email'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                    </label>
-                    <label>
-                        <span>Mot de passe</span>
-                        <input type="password" name="login_password" required>
-                    </label>
-                    <button type="submit" class="auth-submit">Se connecter</button>
-                </form>
 
-                <p class="auth-toggle">Nouveau sur Habitz ? <button type="button" data-open-register>Créer un compte</button></p>
+                    <label class="input-group">
+                        <span>Email</span>
+                        <input type="email" name="login_email" required value="<?= htmlspecialchars($_POST['login_email'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="email@email.com">
+                    </label>
+
+                    <label class="input-group password-group">
+                        <span>Mot de passe</span>
+                        <div class="input-with-action">
+                            <input type="password" name="login_password" required placeholder="••••••••" data-toggle-target>
+                            <button class="ghost-btn" type="button" data-toggle-password aria-label="Afficher ou masquer le mot de passe">👁</button>
+                        </div>
+                    </label>
+
+                    <button type="submit" class="auth-submit">Se connecter</button>
+
+                    <p class="auth-toggle">Nouveau sur Habitz ? <button type="button" data-open-register>Créer un compte</button></p>
+                </form>
             </section>
         </div>
     </main>
@@ -231,6 +267,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             document.querySelectorAll('[data-open-register]').forEach((btn) => {
                 btn.addEventListener('click', () => showForm('register'));
+            });
+
+            document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const target = btn.previousElementSibling;
+                    if (!target) return;
+                    const isPassword = target.getAttribute('type') === 'password';
+                    target.setAttribute('type', isPassword ? 'text' : 'password');
+                    btn.classList.toggle('is-active', !isPassword);
+                });
             });
 
             // initial state from server
