@@ -19,6 +19,8 @@ if (!$isAdmin) {
 $searchTerm = trim($_GET['q'] ?? '');
 $users = [];
 $error = '';
+$ipLogsByUser = [];
+$primaryIpByUser = [];
 
 if ($searchTerm !== '') {
     try {
@@ -49,84 +51,137 @@ if ($searchTerm !== '') {
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         $users = $stmt->fetchAll();
+
+        if (!empty($users)) {
+            $userIds = array_column($users, 'id');
+            $placeholders = implode(', ', array_fill(0, count($userIds), '?'));
+
+            $logStmt = $pdo->prepare("SELECT user_id, ip_address, context, created_at FROM user_ips WHERE user_id IN ($placeholders) ORDER BY created_at DESC");
+            $logStmt->execute($userIds);
+            while ($row = $logStmt->fetch()) {
+                $ipLogsByUser[$row['user_id']][] = $row;
+            }
+
+            $countStmt = $pdo->prepare("SELECT user_id, ip_address, COUNT(*) AS cnt FROM user_ips WHERE user_id IN ($placeholders) GROUP BY user_id, ip_address");
+            $countStmt->execute($userIds);
+            while ($row = $countStmt->fetch()) {
+                $userId = $row['user_id'];
+                $primaryIpByUser[$userId] = $primaryIpByUser[$userId] ?? ['ip_address' => $row['ip_address'], 'cnt' => (int) $row['cnt']];
+                if ((int) $row['cnt'] > $primaryIpByUser[$userId]['cnt']) {
+                    $primaryIpByUser[$userId] = ['ip_address' => $row['ip_address'], 'cnt' => (int) $row['cnt']];
+                }
+            }
+        }
     } catch (PDOException $e) {
         $error = 'Erreur lors de la recherche : ' . $e->getMessage();
     }
 }
-?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Administration — Utilisateurs</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; background: #f5f6fa; }
-        h1 { margin-bottom: 1rem; }
-        form { margin-bottom: 1.5rem; }
-        input[type="text"] { padding: 0.5rem; width: 320px; max-width: 100%; }
-        button { padding: 0.5rem 1rem; }
-        table { width: 100%; border-collapse: collapse; background: #fff; }
-        th, td { padding: 0.75rem; border: 1px solid #e0e0e0; text-align: left; font-size: 0.95rem; }
-        th { background: #f0f0f0; }
-        .notice { color: #777; font-size: 0.9rem; }
-        .error { color: #b00020; margin-top: 0.5rem; }
-    </style>
-</head>
-<body>
-    <h1>Tableau de bord administrateur</h1>
-    <p class="notice">Recherchez par identifiant, pseudo, email, téléphone ou adresse IP. Jusqu'à 100 résultats récents s'affichent.</p>
 
-    <form method="get" action="admin_dashboard.php">
-        <label for="q">Recherche utilisateur :</label>
-        <input type="text" id="q" name="q" value="<?= htmlspecialchars($searchTerm, ENT_QUOTES) ?>" placeholder="Pseudo, email, téléphone, IP ou ID" />
-        <button type="submit">Rechercher</button>
+$pageTitle = 'Admin Dashboard';
+$menuItems = [
+    ['label' => 'Dashboard', 'href' => '#'],
+    ['label' => 'Utilisateurs', 'href' => '#'],
+    ['label' => 'Signalements', 'href' => '#'],
+    ['label' => 'Paramètres', 'href' => '#'],
+];
+
+ob_start();
+?>
+<div class="section-title">
+  <div>
+    <div class="pill">Admin</div>
+    <h1>Dashboard</h1>
+  </div>
+</div>
+
+<div class="cards-grid">
+  <div class="widget-card">
+    <h3>Recherche utilisateurs</h3>
+    <form method="get" action="admin_dashboard.php" class="auth-form" style="gap: 10px;">
+      <label for="q">Pseudo, email, téléphone, IP ou ID</label>
+      <input type="text" id="q" name="q" value="<?= htmlspecialchars($searchTerm, ENT_QUOTES) ?>" placeholder="Rechercher un utilisateur" />
+      <button type="submit" class="pill">Rechercher</button>
     </form>
 
     <?php if ($error): ?>
-        <p class="error"><?= htmlspecialchars($error) ?></p>
+      <p class="error" style="margin-top: 8px; color: #ff9f0f; font-weight: 600;"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
 
-    <?php if ($searchTerm !== ''): ?>
-        <?php if (empty($users)): ?>
-            <p>Aucun utilisateur trouvé pour "<?= htmlspecialchars($searchTerm) ?>".</p>
-        <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Birthdate</th>
-                        <th>Gender</th>
-                        <th>Password</th>
-                        <th>Rank</th>
-                        <th>Creation date</th>
-                        <th>IP</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($users as $user): ?>
-                        <tr>
-                            <td><?= (int) $user['id'] ?></td>
-                            <td><?= htmlspecialchars($user['username']) ?></td>
-                            <td><?= htmlspecialchars($user['email']) ?></td>
-                            <td><?= htmlspecialchars($user['phone_number'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($user['birthdate']) ?></td>
-                            <td><?= htmlspecialchars($user['gender'] ?? '') ?></td>
-                            <td style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">
-                                <?= htmlspecialchars($user['password']) ?>
-                            </td>
-                            <td><?= htmlspecialchars($user['rank']) ?></td>
-                            <td><?= htmlspecialchars($user['creation_date']) ?></td>
-                            <td><?= htmlspecialchars($user['ip'] ?? '') ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    <?php else: ?>
-        <p class="notice">Saisissez un terme de recherche pour voir les utilisateurs correspondants.</p>
+    <?php if ($searchTerm === ''): ?>
+      <p class="notice">Saisissez un terme de recherche pour voir les utilisateurs correspondants.</p>
     <?php endif; ?>
-</body>
-</html>
+  </div>
+
+  <?php if ($searchTerm !== ''): ?>
+    <div class="widget-card" style="overflow-x: auto;">
+      <?php if (empty($users)): ?>
+        <p>Aucun utilisateur trouvé pour "<?= htmlspecialchars($searchTerm) ?>".</p>
+      <?php else: ?>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align:left; padding:8px;">ID</th>
+              <th style="text-align:left; padding:8px;">Username</th>
+              <th style="text-align:left; padding:8px;">Email</th>
+              <th style="text-align:left; padding:8px;">Phone</th>
+              <th style="text-align:left; padding:8px;">Birthdate</th>
+              <th style="text-align:left; padding:8px;">Gender</th>
+              <th style="text-align:left; padding:8px;">Password</th>
+              <th style="text-align:left; padding:8px;">Rank</th>
+              <th style="text-align:left; padding:8px;">Creation date</th>
+              <th style="text-align:left; padding:8px;">IP</th>
+              <th style="text-align:left; padding:8px;">Historique des IP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($users as $user): ?>
+              <tr style="border-top: 1px solid rgba(255,255,255,0.08);">
+                <td style="padding:8px;"><?= (int) $user['id'] ?></td>
+                <td style="padding:8px;"><?= htmlspecialchars($user['username']) ?></td>
+                <td style="padding:8px;"><?= htmlspecialchars($user['email']) ?></td>
+                <td style="padding:8px;"><?= htmlspecialchars($user['phone_number'] ?? '') ?></td>
+                <td style="padding:8px;"><?= htmlspecialchars($user['birthdate']) ?></td>
+                <td style="padding:8px;"><?= htmlspecialchars($user['gender'] ?? '') ?></td>
+                <td style="padding:8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">
+                  <?= htmlspecialchars($user['password']) ?>
+                </td>
+                <td style="padding:8px;"><?= htmlspecialchars($user['rank']) ?></td>
+                <td style="padding:8px;"><?= htmlspecialchars($user['creation_date']) ?></td>
+                <td style="padding:8px;"><?= htmlspecialchars($user['ip'] ?? '') ?></td>
+                <td style="padding:8px;">
+                  <?php
+                    $logs = $ipLogsByUser[$user['id']] ?? [];
+                    $primaryIp = $primaryIpByUser[$user['id']]['ip_address'] ?? null;
+                  ?>
+                  <?php if (empty($logs)): ?>
+                    <span class="notice">Aucun historique</span>
+                  <?php else: ?>
+                    <ul style="margin:0; padding-left:1.25rem;">
+                      <?php foreach ($logs as $log): ?>
+                        <?php
+                          $label = $log['context'];
+                          if ($primaryIp !== null && $log['ip_address'] === $primaryIp) {
+                              $label .= ' / Principale';
+                          }
+                        ?>
+                        <li>
+                          <strong><?= htmlspecialchars($log['ip_address']) ?></strong>
+                          (<?= htmlspecialchars($label) ?>)
+                          — <?= htmlspecialchars($log['created_at']) ?>
+                        </li>
+                      <?php endforeach; ?>
+                    </ul>
+                  <?php endif; ?>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      <?php endif; ?>
+    </div>
+  <?php endif; ?>
+</div>
+<?php
+$content = ob_get_clean();
+
+include __DIR__ . '/php/layout.php';

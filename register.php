@@ -40,6 +40,20 @@ $password = $_POST['password'] ?? '';
 $passwordConfirm = $_POST['password_confirm'] ?? '';
 $ipAddress = getClientIp();
 
+function logUserIp(PDO $pdo, int $userId, ?string $ip, string $context): void
+{
+    if ($ip === null) {
+        return;
+    }
+
+    $stmt = $pdo->prepare('INSERT INTO user_ips (user_id, ip_address, context, created_at) VALUES (:user_id, :ip_address, :context, NOW())');
+    $stmt->execute([
+        ':user_id' => $userId,
+        ':ip_address' => $ip,
+        ':context' => $context,
+    ]);
+}
+
 if ($birthdateRaw === '' && isset($_POST['birthdate_display'])) {
     $birthdateDisplay = trim($_POST['birthdate_display']);
     if ($birthdateDisplay !== '') {
@@ -113,7 +127,15 @@ $insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, b
         ':ip' => $ipAddress,
     ]);
 
-    $_SESSION['user_id'] = (int) $pdo->lastInsertId();
+    $newUserId = (int) $pdo->lastInsertId();
+
+    try {
+        logUserIp($pdo, $newUserId, $ipAddress, 'Création');
+    } catch (Throwable $ipError) {
+        error_log('IP log failure during registration: ' . $ipError->getMessage());
+    }
+
+    $_SESSION['user_id'] = $newUserId;
     $_SESSION['username'] = $username;
     $_SESSION['rank'] = 'user';
 

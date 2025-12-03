@@ -34,6 +34,20 @@ $identifier = trim($_POST['identifier'] ?? '');
 $password = $_POST['password'] ?? '';
 $ipAddress = getClientIp();
 
+function logUserIp(PDO $pdo, int $userId, ?string $ip, string $context): void
+{
+    if ($ip === null) {
+        return;
+    }
+
+    $stmt = $pdo->prepare('INSERT INTO user_ips (user_id, ip_address, context, created_at) VALUES (:user_id, :ip_address, :context, NOW())');
+    $stmt->execute([
+        ':user_id' => $userId,
+        ':ip_address' => $ip,
+        ':context' => $context,
+    ]);
+}
+
 if ($identifier === '' || $password === '') {
     redirectWithLoginError('Identifiants manquants.');
 }
@@ -56,6 +70,12 @@ try {
         ':ip' => $ipAddress,
         ':id' => $user['id'],
     ]);
+
+    try {
+        logUserIp($pdo, (int) $user['id'], $ipAddress, 'Connexion');
+    } catch (Throwable $ipError) {
+        error_log('IP log failure during login: ' . $ipError->getMessage());
+    }
 
     $_SESSION['user_id'] = (int) $user['id'];
     $_SESSION['username'] = $user['username'];
