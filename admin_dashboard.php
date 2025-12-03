@@ -6,6 +6,8 @@ if (session_status() === PHP_SESSION_NONE) {
 $dbStatusMessage = '';
 $pdo = null;
 
+require_once __DIR__ . '/php/active_tracking.php';
+
 function checkDatabaseConnection(?PDO $pdo): array
 {
     $start = microtime(true);
@@ -134,6 +136,64 @@ function logServiceCheck(PDO $pdo, array $service): void
     }
 }
 
+function getTotalUserCount(PDO $pdo): int
+{
+    $stmt = $pdo->query('SELECT COUNT(*) FROM users');
+    return (int) $stmt->fetchColumn();
+}
+
+function fetchUserGrowthSeries(PDO $pdo, string $range): array
+{
+    $range = strtolower($range);
+    $start = new DateTime('now');
+
+    switch ($range) {
+        case 'year':
+            $start->modify('-1 year');
+            break;
+        case 'ytd':
+            $start = new DateTime(date('Y-01-01'));
+            break;
+        case 'month':
+            $start->modify('-1 month');
+            break;
+        case 'week':
+        default:
+            $start->modify('-7 days');
+            $range = 'week';
+            break;
+    }
+
+    $startDate = $start->format('Y-m-d 00:00:00');
+
+    $baseStmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE creation_date < :start');
+    $baseStmt->execute([':start' => $startDate]);
+    $runningTotal = (int) $baseStmt->fetchColumn();
+
+    $stmt = $pdo->prepare(
+        'SELECT DATE(creation_date) AS day, COUNT(*) AS count
+         FROM users
+         WHERE creation_date >= :start
+         GROUP BY day
+         ORDER BY day'
+    );
+    $stmt->execute([':start' => $startDate]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+    $series = [];
+
+    foreach ($rows as $row) {
+        $runningTotal += (int) $row['count'];
+        $series[] = [
+            'label' => date('d/m', strtotime($row['day'])),
+            'value' => $runningTotal,
+            'date' => $row['day'],
+        ];
+    }
+
+    return ['range' => $range, 'points' => $series];
+}
+
 try {
     $pdo = require __DIR__ . '/config.php';
     $dbStatusMessage = 'Connexion à la base de données réussie.';
@@ -194,6 +254,41 @@ if (isset($_GET['uptime_check'])) {
     exit;
 }
 
+if (isset($_GET['user_metrics'])) {
+    header('Content-Type: application/json');
+
+    if (!($pdo instanceof PDO)) {
+        echo json_encode(['total' => 0, 'series' => ['range' => 'week', 'points' => []]]);
+        exit;
+    }
+
+    $range = $_GET['range'] ?? 'week';
+    echo json_encode([
+        'total' => getTotalUserCount($pdo),
+        'series' => fetchUserGrowthSeries($pdo, $range),
+    ]);
+    exit;
+}
+
+if (isset($_GET['active_metrics'])) {
+    header('Content-Type: application/json');
+
+    if (!($pdo instanceof PDO)) {
+        echo json_encode(['active' => 0, 'series' => ['range' => 'week', 'points' => []]]);
+        exit;
+    }
+
+    $range = $_GET['range'] ?? 'week';
+    $activeUsers = countActiveUsers($pdo, 5);
+    logActiveUserCount($pdo, $activeUsers);
+
+    echo json_encode([
+        'active' => $activeUsers,
+        'series' => fetchActiveAverageSeries($pdo, $range),
+    ]);
+    exit;
+}
+
 $isAdmin = ($_SESSION['rank'] ?? 'user') === 'admin';
 
 if (!$isAdmin) {
@@ -216,8 +311,40 @@ $rightExtras = '';
 ob_start();
 ?>
 <div class="admin-grid">
-  <div class="admin-col"></div>
-  <div class="admin-col"></div>
+  <div class="admin-col">
+    <section class="metric-card" aria-labelledby="user-total-title">
+      <header class="metric-header">
+        <div>
+          <p class="metric-label">Utilisateurs</p>
+          <h3 class="metric-value" id="user-total-title">0</h3>
+        </div>
+        <div class="range-switch" data-target="users">
+          <button type="button" class="range-btn active" data-range="week">1 semaine</button>
+          <button type="button" class="range-btn" data-range="month">1 mois</button>
+          <button type="button" class="range-btn" data-range="year">1 an</button>
+          <button type="button" class="range-btn" data-range="ytd">YTD</button>
+        </div>
+      </header>
+      <div class="metric-chart" data-chart="users" aria-label="Évolution des utilisateurs"></div>
+    </section>
+  </div>
+  <div class="admin-col">
+    <section class="metric-card" aria-labelledby="active-total-title">
+      <header class="metric-header">
+        <div>
+          <p class="metric-label">Utilisateurs actifs</p>
+          <h3 class="metric-value" id="active-total-title">0</h3>
+        </div>
+        <div class="range-switch" data-target="active">
+          <button type="button" class="range-btn active" data-range="week">1 semaine</button>
+          <button type="button" class="range-btn" data-range="month">1 mois</button>
+          <button type="button" class="range-btn" data-range="year">1 an</button>
+          <button type="button" class="range-btn" data-range="ytd">YTD</button>
+        </div>
+      </header>
+      <div class="metric-chart" data-chart="active" aria-label="Moyenne des utilisateurs actifs"></div>
+    </section>
+  </div>
   <div class="admin-col"></div>
   <div class="admin-col">
     <div class="uptime-stack">
@@ -261,6 +388,80 @@ ob_start();
 
 <script>
   (function() {
+    const userValueEl = document.getElementById('user-total-title');
+    const activeValueEl = document.getElementById('active-total-title');
+    let userRange = 'week';
+    let activeRange = 'week';
+
+    function renderChart(container, points) {
+      container.innerHTML = '';
+      container.classList.add('bars');
+
+      if (!points || points.length === 0) {
+        const empty = document.createElement('p');
+        empty.className = 'chart-empty';
+        empty.textContent = 'Aucune donnée';
+        container.appendChild(empty);
+        return;
+      }
+
+      const maxValue = Math.max(...points.map(p => p.value), 1);
+
+      points.forEach(point => {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = `${(point.value / maxValue) * 100}%`;
+        bar.setAttribute('title', `${point.label} : ${point.value}`);
+        container.appendChild(bar);
+      });
+    }
+
+    async function fetchUserMetrics(range = 'week') {
+      try {
+        const res = await fetch(`/admin_dashboard.php?user_metrics=1&range=${encodeURIComponent(range)}`, { credentials: 'same-origin' });
+        const data = await res.json();
+        userValueEl.textContent = data.total ?? 0;
+        renderChart(document.querySelector('[data-chart="users"]'), data.series?.points || []);
+      } catch (error) {
+        console.error('Erreur utilisateurs', error);
+      }
+    }
+
+    async function fetchActiveMetrics(range = 'week') {
+      try {
+        const res = await fetch(`/admin_dashboard.php?active_metrics=1&range=${encodeURIComponent(range)}`, { credentials: 'same-origin' });
+        const data = await res.json();
+        activeValueEl.textContent = data.active ?? 0;
+        renderChart(document.querySelector('[data-chart="active"]'), data.series?.points || []);
+      } catch (error) {
+        console.error('Erreur utilisateurs actifs', error);
+      }
+    }
+
+    document.querySelectorAll('.range-switch').forEach(group => {
+      group.addEventListener('click', event => {
+        const button = event.target.closest('.range-btn');
+        if (!button) return;
+        const range = button.dataset.range;
+        const target = group.dataset.target;
+
+        group.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        if (target === 'users') {
+          userRange = range;
+          fetchUserMetrics(range);
+        } else {
+          activeRange = range;
+          fetchActiveMetrics(range);
+        }
+      });
+    });
+
+    fetchUserMetrics(userRange);
+    fetchActiveMetrics(activeRange);
+    setInterval(() => fetchActiveMetrics(activeRange), 5 * 60 * 1000);
+
     const STATUS_LABELS = {
       online: 'Connecté',
       slow: 'Lent',
