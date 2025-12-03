@@ -8,7 +8,8 @@ if (!empty($_SESSION['user_id'])) {
 
 $auth_error = $_SESSION['auth_error'] ?? '';
 $auth_error_tab = $_SESSION['auth_error_tab'] ?? 'signup';
-unset($_SESSION['auth_error'], $_SESSION['auth_error_tab']);
+$auth_debug = $_SESSION['auth_debug'] ?? '';
+unset($_SESSION['auth_error'], $_SESSION['auth_error_tab'], $_SESSION['auth_debug']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -59,7 +60,7 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab']);
       <label>
         <span>Date de naissance <b>*</b></span>
         <div class="date-field" id="dobField">
-          <input type="text" class="date-input" id="birthdate_display" placeholder="JJ/MM/AAAA" />
+          <input type="text" class="date-input" id="birthdate_display" name="birthdate_display" placeholder="JJ/MM/AAAA" />
           <svg class="calendar-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="1.5"></rect>
             <line x1="16" y1="2" x2="16" y2="6" stroke-width="1.5"></line>
@@ -140,6 +141,9 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab']);
 
       <?php if ($auth_error && $auth_error_tab==='signup'): ?>
         <p class="auth-error"><?= htmlspecialchars($auth_error) ?></p>
+        <?php if ($auth_debug): ?>
+          <p class="auth-error" style="font-size: 0.85em; opacity: 0.85;">Détails : <?= htmlspecialchars($auth_debug) ?></p>
+        <?php endif; ?>
       <?php else: ?>
         <p class="auth-error"></p>
       <?php endif; ?>
@@ -161,5 +165,30 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab']);
     </form>
   </div>
 </section>
+<script>
+  (function () {
+    const signupForm = document.getElementById('signupForm');
+    const loginForm = document.getElementById('loginForm');
+    const tabSignup = document.getElementById('tab-signup');
+    const tabLogin = document.getElementById('tab-login');
+
+    function showSignup() {
+      signupForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+      tabSignup.classList.add('active');
+      tabLogin.classList.remove('active');
+    }
+
+    function showLogin() {
+      signupForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      tabSignup.classList.remove('active');
+      tabLogin.classList.add('active');
+    }
+
+    tabSignup.addEventListener('click', showSignup);
+    tabLogin.addEventListener('click', showLogin);
+  })();
+</script>
 </body>
 </html>
