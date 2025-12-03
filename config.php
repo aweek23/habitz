@@ -3,6 +3,14 @@
  * Configuration PDO pour la base de données Habitz.
  */
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!defined('APP_HOME')) {
+    define('APP_HOME', '/index.php');
+}
+
 $databaseHost = 'localhost';
 $databaseName = 'habitz';
 $databaseUser = 'habitz';
