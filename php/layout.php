@@ -24,6 +24,8 @@ if (session_status() === PHP_SESSION_NONE) {
 $homeUrl = defined('APP_HOME') ? APP_HOME : '/index.php';
 $isAuthenticated = !empty($_SESSION['user_id']);
 
+require_once __DIR__ . '/active_tracking.php';
+
 $pdoForRole = null;
 try {
     $pdoForRole = require __DIR__ . '/../config.php';
@@ -38,6 +40,8 @@ if ($pdoForRole instanceof PDO && $isAuthenticated) {
         $rankStmt->execute([':id' => $_SESSION['user_id']]);
         $dbRank = $rankStmt->fetchColumn();
         $_SESSION['rank'] = $dbRank !== false ? $dbRank : 'user';
+
+        markUserActive($pdoForRole, (int) $_SESSION['user_id']);
     } catch (Throwable $e) {
         $_SESSION['rank'] = 'user';
     }
@@ -112,6 +116,7 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
         <?php if (!empty($rightExtras)): ?>
           <?= $rightExtras ?>
         <?php endif; ?>
+
         <div class="right-module search-bar-module">
           <div class="search-bar" role="search">
             <svg viewBox="0 0 24 24" aria-hidden="true">
