@@ -11,6 +11,7 @@ function checkDatabaseConnection(?PDO $pdo): array
     $start = microtime(true);
     if (!($pdo instanceof PDO)) {
         return [
+            'id' => 'service-database',
             'key' => 'database',
             'name' => 'Base de données',
             'category' => 'Infrastructure',
@@ -28,6 +29,7 @@ function checkDatabaseConnection(?PDO $pdo): array
         $state = $latency > 2000 ? 'slow' : 'online';
 
         return [
+            'id' => 'service-database',
             'key' => 'database',
             'name' => 'Base de données',
             'category' => 'Infrastructure',
@@ -39,6 +41,7 @@ function checkDatabaseConnection(?PDO $pdo): array
         ];
     } catch (Throwable $e) {
         return [
+            'id' => 'service-database',
             'key' => 'database',
             'name' => 'Base de données',
             'category' => 'Infrastructure',
@@ -74,6 +77,7 @@ function checkExternalService(string $url, string $name = 'Service distant'): ar
     if ($success && $httpCode >= 200 && $httpCode < 400) {
         $state = $latency > 2500 ? 'slow' : 'online';
         return [
+            'id' => 'service-57131251210000',
             'key' => 'website',
             'name' => $name,
             'category' => 'Sites web',
@@ -86,6 +90,7 @@ function checkExternalService(string $url, string $name = 'Service distant'): ar
     }
 
     return [
+        'id' => 'service-57131251210000',
         'key' => 'website',
         'name' => $name,
         'category' => 'Sites web',
@@ -95,6 +100,38 @@ function checkExternalService(string $url, string $name = 'Service distant'): ar
         'message' => 'Aucune réponse',
         'checked_at' => date('c'),
     ];
+}
+
+function ensureUptimeTable(PDO $pdo): void
+{
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS uptime_checks (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            service_id VARCHAR(100) NOT NULL,
+            service_name VARCHAR(255) NOT NULL,
+            checked_at DATETIME NOT NULL,
+            online TINYINT(1) NOT NULL DEFAULT 0
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+    );
+}
+
+function logServiceCheck(PDO $pdo, array $service): void
+{
+    try {
+        ensureUptimeTable($pdo);
+        $stmt = $pdo->prepare(
+            'INSERT INTO uptime_checks (service_id, service_name, checked_at, online)
+             VALUES (:service_id, :service_name, :checked_at, :online)'
+        );
+        $stmt->execute([
+            ':service_id' => $service['id'] ?? ($service['key'] ?? 'unknown'),
+            ':service_name' => $service['name'] ?? 'Service',
+            ':checked_at' => date('Y-m-d H:i:s', strtotime($service['checked_at'] ?? 'now')),
+            ':online' => !empty($service['online']) ? 1 : 0,
+        ]);
+    } catch (Throwable $e) {
+        // Les erreurs de journalisation ne doivent pas interrompre la réponse JSON.
+    }
 }
 
 try {
@@ -146,6 +183,13 @@ if (isset($_GET['uptime_check'])) {
         checkDatabaseConnection($pdo),
         checkExternalService('http://57.131.25.12:10000', '57.131.25.12:10000'),
     ];
+
+    if ($pdo instanceof PDO) {
+        foreach ($services as $service) {
+            logServiceCheck($pdo, $service);
+        }
+    }
+
     echo json_encode(['services' => $services]);
     exit;
 }
@@ -176,7 +220,7 @@ ob_start();
   <div class="admin-col"></div>
   <div class="admin-col">
     <div class="uptime-stack">
-      <article class="uptime-card" data-service="database">
+      <article class="uptime-card" data-service="database" data-service-id="service-database">
         <div class="uptime-card-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
             <ellipse cx="12" cy="5" rx="7" ry="3.5"></ellipse>
@@ -193,7 +237,7 @@ ob_start();
         </div>
       </article>
 
-      <article class="uptime-card" data-service="website">
+      <article class="uptime-card" data-service="website" data-service-id="service-57131251210000">
         <div class="uptime-card-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
             <circle cx="12" cy="12" r="10"></circle>
@@ -224,7 +268,9 @@ ob_start();
     };
 
     function updateCard(service) {
-      const card = document.querySelector(`.uptime-card[data-service="${service.key}"]`);
+      const lookupId = service.id || service.key;
+      const card = document.querySelector(`.uptime-card[data-service-id="${lookupId}"]`) ||
+                   document.querySelector(`.uptime-card[data-service="${service.key}"]`);
       if (!card) return;
 
       const statusDot = card.querySelector('.uptime-status-dot');
@@ -238,6 +284,7 @@ ob_start();
       document.querySelectorAll('.uptime-card').forEach(card => {
         updateCard({
           key: card.dataset.service,
+          id: card.dataset.serviceId,
           state: 'offline',
           checked_at: new Date().toISOString(),
           latency_ms: null
