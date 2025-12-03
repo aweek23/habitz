@@ -277,6 +277,11 @@ a {
   filter: drop-shadow(0 6px 12px rgba(92, 125, 255, 0.16));
 }
 
+.metric-chart .line-area {
+  opacity: 0.4;
+  mix-blend-mode: screen;
+}
+
 .metric-chart .line-dot {
   fill: #0f141c;
   stroke: #cfe1ff;

@@ -409,11 +409,51 @@ ob_start();
       svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
       svg.setAttribute('preserveAspectRatio', 'none');
 
+      const gradientId = `line-grad-${Math.random().toString(36).slice(2)}`;
+
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+      gradient.setAttribute('id', gradientId);
+      gradient.setAttribute('x1', '0%');
+      gradient.setAttribute('y1', '0%');
+      gradient.setAttribute('x2', '0%');
+      gradient.setAttribute('y2', '100%');
+
+      const stopTop = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stopTop.setAttribute('offset', '0%');
+      stopTop.setAttribute('stop-color', '#5c7dff');
+      stopTop.setAttribute('stop-opacity', '0.38');
+
+      const stopBottom = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+      stopBottom.setAttribute('offset', '100%');
+      stopBottom.setAttribute('stop-color', '#5c7dff');
+      stopBottom.setAttribute('stop-opacity', '0');
+
+      gradient.appendChild(stopTop);
+      gradient.appendChild(stopBottom);
+      defs.appendChild(gradient);
+      svg.appendChild(defs);
+
       const pathPoints = points.map((point, index) => {
         const x = padding + step * index;
         const y = height - padding - (point.value / maxValue) * (height - padding * 2);
         return { x, y, label: point.label, value: point.value };
       });
+
+      const baselineY = height - padding;
+
+      const area = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const areaPath = [
+        `M${pathPoints[0].x},${baselineY}`,
+        `L${pathPoints[0].x},${pathPoints[0].y}`,
+        ...pathPoints.slice(1).map(p => `L${p.x},${p.y}`),
+        `L${pathPoints[pathPoints.length - 1].x},${baselineY}`,
+        'Z'
+      ].join(' ');
+      area.setAttribute('d', areaPath);
+      area.setAttribute('class', 'line-area');
+      area.setAttribute('fill', `url(#${gradientId})`);
+      svg.appendChild(area);
 
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       const d = pathPoints
@@ -422,17 +462,6 @@ ob_start();
       path.setAttribute('d', d);
       path.setAttribute('class', 'line-path');
       svg.appendChild(path);
-
-      pathPoints.forEach(p => {
-        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        dot.setAttribute('cx', p.x);
-        dot.setAttribute('cy', p.y);
-        dot.setAttribute('r', 3.5);
-        dot.setAttribute('class', 'line-dot');
-        dot.setAttribute('data-label', `${p.label} : ${p.value}`);
-        dot.setAttribute('tabindex', '-1');
-        svg.appendChild(dot);
-      });
 
       container.appendChild(svg);
     }
