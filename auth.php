@@ -161,5 +161,30 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab']);
     </form>
   </div>
 </section>
+<script>
+  (function () {
+    const signupForm = document.getElementById('signupForm');
+    const loginForm = document.getElementById('loginForm');
+    const tabSignup = document.getElementById('tab-signup');
+    const tabLogin = document.getElementById('tab-login');
+
+    function showSignup() {
+      signupForm.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+      tabSignup.classList.add('active');
+      tabLogin.classList.remove('active');
+    }
+
+    function showLogin() {
+      signupForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+      tabSignup.classList.remove('active');
+      tabLogin.classList.add('active');
+    }
+
+    tabSignup.addEventListener('click', showSignup);
+    tabLogin.addEventListener('click', showLogin);
+  })();
+</script>
 </body>
 </html>
