@@ -145,27 +145,68 @@ function getTotalUserCount(PDO $pdo): int
 function fetchUserGrowthSeries(PDO $pdo, string $range): array
 {
     $range = strtolower($range);
-
-    if ($range !== 'week') {
+    if (!in_array($range, ['day', 'week', 'month', 'ytd'], true)) {
         $range = 'week';
     }
 
-    $start = new DateTime('today');
-    $start->modify('-6 days');
-    $startDate = $start->format('Y-m-d 00:00:00');
+    $now = new DateTime('now');
+    $start = new DateTime('now');
+    $intervalSpec = 'P1D';
+    $labelFormat = 'd/m';
+    $groupFormat = '%Y-%m-%d';
+
+    switch ($range) {
+        case 'day':
+            $start->modify('-23 hours');
+            $start->setTime((int) $start->format('H'), 0, 0);
+            $now->setTime((int) $now->format('H'), 0, 0);
+            $intervalSpec = 'PT1H';
+            $labelFormat = 'H\h';
+            $groupFormat = '%Y-%m-%d %H:00:00';
+            break;
+        case 'week':
+            $start = new DateTime('today');
+            $start->modify('-6 days');
+            $now = new DateTime('today');
+            $intervalSpec = 'P1D';
+            $labelFormat = 'd/m';
+            $groupFormat = '%Y-%m-%d';
+            break;
+        case 'month':
+            $start = new DateTime('today');
+            $start->modify('-29 days');
+            $now = new DateTime('today');
+            $intervalSpec = 'P1D';
+            $labelFormat = 'd/m';
+            $groupFormat = '%Y-%m-%d';
+            break;
+        case 'ytd':
+            $start = new DateTime('first day of January ' . $now->format('Y'));
+            $start->setTime(0, 0, 0);
+            $now = new DateTime('today');
+            $intervalSpec = 'P1D';
+            $labelFormat = 'd/m';
+            $groupFormat = '%Y-%m-%d';
+            break;
+    }
+
+    $startDate = $start->format('Y-m-d H:i:s');
 
     $baseStmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE creation_date < :start');
     $baseStmt->execute([':start' => $startDate]);
     $runningTotal = (int) $baseStmt->fetchColumn();
 
     $stmt = $pdo->prepare(
-        'SELECT DATE(creation_date) AS bucket, COUNT(*) AS count
+        'SELECT DATE_FORMAT(creation_date, :group_format) AS bucket, COUNT(*) AS count
          FROM users
          WHERE creation_date >= :start
          GROUP BY bucket
          ORDER BY bucket'
     );
-    $stmt->execute([':start' => $startDate]);
+    $stmt->execute([
+        ':start' => $startDate,
+        ':group_format' => $groupFormat,
+    ]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
     $increments = [];
@@ -175,17 +216,20 @@ function fetchUserGrowthSeries(PDO $pdo, string $range): array
 
     $series = [];
     $cursor = new DateTime($startDate);
-    $end = new DateTime('today');
+    $interval = new DateInterval($intervalSpec);
 
-    while ($cursor <= $end) {
-        $bucket = $cursor->format('Y-m-d');
+    while ($cursor <= $now) {
+        $bucket = $range === 'day'
+            ? $cursor->format('Y-m-d H:00:00')
+            : $cursor->format('Y-m-d');
+
         $runningTotal += $increments[$bucket] ?? 0;
         $series[] = [
-            'label' => $cursor->format('d/m'),
+            'label' => $cursor->format($labelFormat),
             'value' => $runningTotal,
             'date' => $bucket,
         ];
-        $cursor->modify('+1 day');
+        $cursor->add($interval);
     }
 
     return ['range' => $range, 'points' => $series];
@@ -311,6 +355,12 @@ ob_start();
   <div class="admin-col">
     <section class="metric-card" aria-labelledby="user-total-title">
       <div class="metric-chart" data-chart="users" aria-label="Évolution des utilisateurs">
+        <div class="metric-actions" data-actions="users">
+          <button class="range-btn" data-chart="users" data-range="day" type="button">1d</button>
+          <button class="range-btn active" data-chart="users" data-range="week" type="button">1w</button>
+          <button class="range-btn" data-chart="users" data-range="month" type="button">1m</button>
+          <button class="range-btn" data-chart="users" data-range="ytd" type="button">YTD</button>
+        </div>
         <div class="metric-overlay">
           <p class="metric-label">Utilisateurs</p>
           <h3 class="metric-value" id="user-total-title">0</h3>
@@ -321,6 +371,12 @@ ob_start();
   <div class="admin-col">
     <section class="metric-card" aria-labelledby="active-total-title">
       <div class="metric-chart" data-chart="active" aria-label="Moyenne des utilisateurs actifs">
+        <div class="metric-actions" data-actions="active">
+          <button class="range-btn active" data-chart="active" data-range="day" type="button">1d</button>
+          <button class="range-btn" data-chart="active" data-range="week" type="button">1w</button>
+          <button class="range-btn" data-chart="active" data-range="month" type="button">1m</button>
+          <button class="range-btn" data-chart="active" data-range="ytd" type="button">YTD</button>
+        </div>
         <div class="metric-overlay">
           <p class="metric-label">Utilisateurs actifs</p>
           <h3 class="metric-value" id="active-total-title">0</h3>
@@ -373,22 +429,21 @@ ob_start();
   (function() {
     const userValueEl = document.getElementById('user-total-title');
     const activeValueEl = document.getElementById('active-total-title');
-    const userRange = 'week';
-    const activeRange = 'day';
+    let userRange = 'week';
+    let activeRange = 'day';
 
     function renderLineChart(container, points) {
       const overlay = container.querySelector('.metric-overlay');
-      if (overlay) {
-        overlay.remove();
-      }
+      const actions = container.querySelector('.metric-actions');
+      if (overlay) overlay.remove();
+      if (actions) actions.remove();
 
       container.innerHTML = '';
       container.classList.remove('bars');
       container.classList.add('line');
 
-      if (overlay) {
-        container.appendChild(overlay);
-      }
+      if (actions) container.appendChild(actions);
+      if (overlay) container.appendChild(overlay);
 
       if (!points || points.length === 0) {
         const empty = document.createElement('p');
@@ -467,12 +522,19 @@ ob_start();
       container.appendChild(svg);
     }
 
+    function setRangeButtons(chart, range) {
+      document.querySelectorAll(`.range-btn[data-chart="${chart}"]`).forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.range === range);
+      });
+    }
+
     async function fetchUserMetrics(range = userRange) {
       try {
         const res = await fetch(`/admin_dashboard.php?user_metrics=1&range=${encodeURIComponent(range)}`, { credentials: 'same-origin' });
         const data = await res.json();
         userValueEl.textContent = data.total ?? 0;
         renderLineChart(document.querySelector('[data-chart="users"]'), data.series?.points || []);
+        setRangeButtons('users', range);
       } catch (error) {
         console.error('Erreur utilisateurs', error);
       }
@@ -484,10 +546,25 @@ ob_start();
         const data = await res.json();
         activeValueEl.textContent = data.active ?? 0;
         renderLineChart(document.querySelector('[data-chart="active"]'), data.series?.points || []);
+        setRangeButtons('active', range);
       } catch (error) {
         console.error('Erreur utilisateurs actifs', error);
       }
     }
+
+    document.querySelectorAll('.range-btn[data-chart="users"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        userRange = btn.dataset.range || 'week';
+        fetchUserMetrics(userRange);
+      });
+    });
+
+    document.querySelectorAll('.range-btn[data-chart="active"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeRange = btn.dataset.range || 'day';
+        fetchActiveMetrics(activeRange);
+      });
+    });
 
     fetchUserMetrics(userRange);
     fetchActiveMetrics(activeRange);

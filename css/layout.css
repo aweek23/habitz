@@ -249,6 +249,35 @@ a {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   border: 1px dashed rgba(255, 255, 255, 0.06);
 }
+.metric-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  gap: 6px;
+  z-index: 3;
+}
+.metric-actions .range-btn {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e9efff;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.metric-actions .range-btn.active {
+  background: #5c7dff;
+  border-color: #7490ff;
+  color: #0b1220;
+  box-shadow: 0 4px 12px rgba(92, 125, 255, 0.24);
+}
+.metric-actions .range-btn:focus-visible {
+  outline: 2px solid #5c7dff;
+  outline-offset: 2px;
+}
 .metric-overlay {
   position: absolute;
   top: 12px;
@@ -262,6 +291,7 @@ a {
   color: var(--muted);
   text-align: center;
   font-size: 13px;
+  letter-spacing: 0.02em;
 }
 .metric-chart.line svg {
   width: 100%;

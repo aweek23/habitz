@@ -71,13 +71,41 @@ function fetchActiveLogSeries(PDO $pdo, string $range): array
     ensureActiveTrackingTables($pdo);
 
     $range = strtolower($range);
-    if ($range !== 'day') {
+    if (!in_array($range, ['day', 'week', 'month', 'ytd'], true)) {
         $range = 'day';
     }
 
+    $now = new DateTime('now');
     $start = new DateTime('now');
-    $start->modify('-1 day');
-    $start->setTime((int) $start->format('H'), (int) (floor((int) $start->format('i') / 5) * 5), 0);
+    $intervalSpec = 'PT5M';
+    $labelFormat = 'H:i';
+
+    switch ($range) {
+        case 'day':
+            $start->modify('-1 day');
+            $start->setTime((int) $start->format('H'), (int) (floor((int) $start->format('i') / 5) * 5), 0);
+            $intervalSpec = 'PT5M';
+            $labelFormat = 'H:i';
+            break;
+        case 'week':
+            $start = new DateTime('today');
+            $start->modify('-6 days');
+            $intervalSpec = 'PT1H';
+            $labelFormat = 'd/m H\h';
+            break;
+        case 'month':
+            $start = new DateTime('today');
+            $start->modify('-29 days');
+            $intervalSpec = 'P1D';
+            $labelFormat = 'd/m';
+            break;
+        case 'ytd':
+            $start = new DateTime('first day of January ' . $now->format('Y'));
+            $start->setTime(0, 0, 0);
+            $intervalSpec = 'P1D';
+            $labelFormat = 'd/m';
+            break;
+    }
 
     $baselineStmt = $pdo->prepare(
         'SELECT active_count FROM active_user_logs WHERE checked_at < :start ORDER BY checked_at DESC LIMIT 1'
@@ -98,6 +126,7 @@ function fetchActiveLogSeries(PDO $pdo, string $range): array
     $cursor = clone $start;
     $end = new DateTime('now');
     $index = 0;
+    $interval = new DateInterval($intervalSpec);
 
     while ($cursor <= $end) {
         while ($index < count($rows) && strtotime($rows[$index]['checked_at']) <= $cursor->getTimestamp()) {
@@ -106,12 +135,12 @@ function fetchActiveLogSeries(PDO $pdo, string $range): array
         }
 
         $series[] = [
-            'label' => $cursor->format('H:i'),
+            'label' => $cursor->format($labelFormat),
             'value' => $lastValue,
             'date' => $cursor->format('Y-m-d H:i:s'),
         ];
 
-        $cursor->modify('+5 minutes');
+        $cursor->add($interval);
     }
 
     return ['range' => $range, 'points' => $series];
