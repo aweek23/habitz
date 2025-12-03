@@ -168,15 +168,24 @@ function fetchUserGrowthSeries(PDO $pdo, string $range): array
     $stmt->execute([':start' => $startDate]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-    $series = [];
-
+    $increments = [];
     foreach ($rows as $row) {
-        $runningTotal += (int) $row['count'];
+        $increments[$row['bucket']] = (int) $row['count'];
+    }
+
+    $series = [];
+    $cursor = new DateTime($startDate);
+    $end = new DateTime('now');
+
+    while ($cursor <= $end) {
+        $bucket = $cursor->format('Y-m-d H:00:00');
+        $runningTotal += $increments[$bucket] ?? 0;
         $series[] = [
-            'label' => date('H\h', strtotime($row['bucket'])),
+            'label' => $cursor->format('H\h'),
             'value' => $runningTotal,
-            'date' => $row['bucket'],
+            'date' => $bucket,
         ];
+        $cursor->modify('+1 hour');
     }
 
     return ['range' => $range, 'points' => $series];

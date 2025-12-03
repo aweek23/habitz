@@ -89,13 +89,29 @@ function fetchActiveAverageSeries(PDO $pdo, string $range): array
     $stmt->execute([':start' => $start->format('Y-m-d H:00:00')]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-    $series = [];
+    $averages = [];
     foreach ($rows as $row) {
+        $averages[$row['bucket']] = round((float) $row['avg_count'], 2);
+    }
+
+    $series = [];
+    $cursor = new DateTime($start->format('Y-m-d H:00:00'));
+    $end = new DateTime('now');
+    $lastValue = 0.0;
+
+    while ($cursor <= $end) {
+        $bucket = $cursor->format('Y-m-d H:00:00');
+        if (array_key_exists($bucket, $averages)) {
+            $lastValue = $averages[$bucket];
+        }
+
         $series[] = [
-            'label' => date('H\h', strtotime($row['bucket'])),
-            'value' => round((float) $row['avg_count'], 2),
-            'date' => $row['bucket'],
+            'label' => $cursor->format('H\h'),
+            'value' => $lastValue,
+            'date' => $bucket,
         ];
+
+        $cursor->modify('+1 hour');
     }
 
     return ['range' => $range, 'points' => $series];
