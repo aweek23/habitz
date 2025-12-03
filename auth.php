@@ -8,7 +8,8 @@ if (!empty($_SESSION['user_id'])) {
 
 $auth_error = $_SESSION['auth_error'] ?? '';
 $auth_error_tab = $_SESSION['auth_error_tab'] ?? 'signup';
-unset($_SESSION['auth_error'], $_SESSION['auth_error_tab']);
+$auth_debug = $_SESSION['auth_debug'] ?? '';
+unset($_SESSION['auth_error'], $_SESSION['auth_error_tab'], $_SESSION['auth_debug']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -140,6 +141,9 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab']);
 
       <?php if ($auth_error && $auth_error_tab==='signup'): ?>
         <p class="auth-error"><?= htmlspecialchars($auth_error) ?></p>
+        <?php if ($auth_debug): ?>
+          <p class="auth-error" style="font-size: 0.85em; opacity: 0.85;">Détails : <?= htmlspecialchars($auth_debug) ?></p>
+        <?php endif; ?>
       <?php else: ?>
         <p class="auth-error"></p>
       <?php endif; ?>

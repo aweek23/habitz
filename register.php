@@ -1,10 +1,13 @@
 <?php
 $pdo = require __DIR__ . '/config.php';
 
-function redirectWithError(string $message): void
+function redirectWithError(string $message, ?string $debug = null): void
 {
     $_SESSION['auth_error'] = $message;
     $_SESSION['auth_error_tab'] = 'signup';
+    if ($debug !== null) {
+        $_SESSION['auth_debug'] = $debug;
+    }
     header('Location: auth.php');
     exit;
 }
@@ -89,5 +92,7 @@ try {
     header('Location: ' . APP_HOME);
     exit;
 } catch (Throwable $e) {
-    redirectWithError('Erreur lors de la création du compte. Veuillez réessayer.');
+    $debugMessage = sprintf('Register failure: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine());
+    error_log($debugMessage);
+    redirectWithError('Erreur lors de la création du compte. Veuillez réessayer.', $debugMessage);
 }
