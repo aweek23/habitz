@@ -56,7 +56,12 @@ function checkDatabaseConnection(?PDO $pdo): array
     }
 }
 
-function checkExternalService(string $url, string $name = 'Service distant'): array
+function checkExternalService(
+    string $url,
+    string $name = 'Service distant',
+    string $id = 'service-external',
+    string $category = 'Panel'
+): array
 {
     $start = microtime(true);
 
@@ -79,10 +84,10 @@ function checkExternalService(string $url, string $name = 'Service distant'): ar
     if ($success && $httpCode >= 200 && $httpCode < 400) {
         $state = $latency > 2500 ? 'slow' : 'online';
         return [
-            'id' => 'service-57131251210000',
+            'id' => $id,
             'key' => 'website',
             'name' => $name,
-            'category' => 'Panel',
+            'category' => $category,
             'state' => $state,
             'online' => true,
             'latency_ms' => round($latency, 1),
@@ -92,10 +97,10 @@ function checkExternalService(string $url, string $name = 'Service distant'): ar
     }
 
     return [
-        'id' => 'service-57131251210000',
+        'id' => $id,
         'key' => 'website',
         'name' => $name,
-        'category' => 'Panel',
+        'category' => $category,
         'state' => 'offline',
         'online' => false,
         'latency_ms' => $success ? round($latency, 1) : null,
@@ -282,7 +287,8 @@ if (isset($_GET['uptime_check'])) {
     header('Content-Type: application/json');
     $services = [
         checkDatabaseConnection($pdo),
-        checkExternalService('http://57.131.25.12:10000', 'Virtualmin/Webmin'),
+        checkExternalService('http://57.131.25.12:10000', 'Virtualmin/Webmin', 'service-57131251210000', 'Panel'),
+        checkExternalService('http://57.131.25.12', 'Habitz', 'service-habitz', 'Site Web'),
     ];
 
     if ($pdo instanceof PDO) {
@@ -418,6 +424,25 @@ ob_start();
           <div class="uptime-title-row">
             <h4>Virtualmin/Webmin</h4>
             <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut du site Virtualmin/Webmin"></span>
+          </div>
+        </div>
+      </article>
+
+      <article class="uptime-card" data-service="habitz" data-service-id="service-habitz">
+        <div class="uptime-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M3 7a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7Z"></path>
+            <path d="M3 9h18"></path>
+            <path d="M7 6h.01"></path>
+            <path d="M11 6h.01"></path>
+            <path d="M15 6h.01"></path>
+          </svg>
+        </div>
+        <div class="uptime-card-body">
+          <p class="uptime-category">Site Web</p>
+          <div class="uptime-title-row">
+            <h4>Habitz</h4>
+            <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut du site Habitz"></span>
           </div>
         </div>
       </article>
