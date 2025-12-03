@@ -65,53 +65,53 @@ if (!function_exists('logActiveUserCount')) {
     }
 }
 
-if (!function_exists('fetchActiveAverageSeries')) {
-function fetchActiveAverageSeries(PDO $pdo, string $range): array
+if (!function_exists('fetchActiveLogSeries')) {
+function fetchActiveLogSeries(PDO $pdo, string $range): array
 {
     ensureActiveTrackingTables($pdo);
 
     $range = strtolower($range);
-
     if ($range !== 'day') {
         $range = 'day';
     }
 
     $start = new DateTime('now');
     $start->modify('-1 day');
+    $start->setTime((int) $start->format('H'), (int) (floor((int) $start->format('i') / 5) * 5), 0);
+
+    $baselineStmt = $pdo->prepare(
+        'SELECT active_count FROM active_user_logs WHERE checked_at < :start ORDER BY checked_at DESC LIMIT 1'
+    );
+    $baselineStmt->execute([':start' => $start->format('Y-m-d H:i:s')]);
+    $lastValue = (int) ($baselineStmt->fetchColumn() ?: 0);
 
     $stmt = $pdo->prepare(
-        'SELECT DATE_FORMAT(checked_at, "%Y-%m-%d %H:00:00") AS bucket, AVG(active_count) AS avg_count
+        'SELECT checked_at, active_count
          FROM active_user_logs
          WHERE checked_at >= :start
-         GROUP BY bucket
-         ORDER BY bucket'
+         ORDER BY checked_at'
     );
-    $stmt->execute([':start' => $start->format('Y-m-d H:00:00')]);
+    $stmt->execute([':start' => $start->format('Y-m-d H:i:s')]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-    $averages = [];
-    foreach ($rows as $row) {
-        $averages[$row['bucket']] = round((float) $row['avg_count'], 2);
-    }
-
     $series = [];
-    $cursor = new DateTime($start->format('Y-m-d H:00:00'));
+    $cursor = clone $start;
     $end = new DateTime('now');
-    $lastValue = 0.0;
+    $index = 0;
 
     while ($cursor <= $end) {
-        $bucket = $cursor->format('Y-m-d H:00:00');
-        if (array_key_exists($bucket, $averages)) {
-            $lastValue = $averages[$bucket];
+        while ($index < count($rows) && strtotime($rows[$index]['checked_at']) <= $cursor->getTimestamp()) {
+            $lastValue = (int) $rows[$index]['active_count'];
+            $index++;
         }
 
         $series[] = [
-            'label' => $cursor->format('H\h'),
+            'label' => $cursor->format('H:i'),
             'value' => $lastValue,
-            'date' => $bucket,
+            'date' => $cursor->format('Y-m-d H:i:s'),
         ];
 
-        $cursor->modify('+1 hour');
+        $cursor->modify('+5 minutes');
     }
 
     return ['range' => $range, 'points' => $series];

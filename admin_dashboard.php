@@ -281,7 +281,7 @@ if (isset($_GET['active_metrics'])) {
 
     echo json_encode([
         'active' => $activeUsers,
-        'series' => fetchActiveAverageSeries($pdo, $range),
+        'series' => fetchActiveLogSeries($pdo, $range),
     ]);
     exit;
 }
