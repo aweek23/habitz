@@ -146,20 +146,20 @@ function fetchUserGrowthSeries(PDO $pdo, string $range): array
 {
     $range = strtolower($range);
 
-    if ($range !== 'day') {
-        $range = 'day';
+    if ($range !== 'week') {
+        $range = 'week';
     }
 
-    $start = new DateTime('now');
-    $start->modify('-1 day');
-    $startDate = $start->format('Y-m-d H:00:00');
+    $start = new DateTime('today');
+    $start->modify('-6 days');
+    $startDate = $start->format('Y-m-d 00:00:00');
 
     $baseStmt = $pdo->prepare('SELECT COUNT(*) FROM users WHERE creation_date < :start');
     $baseStmt->execute([':start' => $startDate]);
     $runningTotal = (int) $baseStmt->fetchColumn();
 
     $stmt = $pdo->prepare(
-        'SELECT DATE_FORMAT(creation_date, "%Y-%m-%d %H:00:00") AS bucket, COUNT(*) AS count
+        'SELECT DATE(creation_date) AS bucket, COUNT(*) AS count
          FROM users
          WHERE creation_date >= :start
          GROUP BY bucket
@@ -175,17 +175,17 @@ function fetchUserGrowthSeries(PDO $pdo, string $range): array
 
     $series = [];
     $cursor = new DateTime($startDate);
-    $end = new DateTime('now');
+    $end = new DateTime('today');
 
     while ($cursor <= $end) {
-        $bucket = $cursor->format('Y-m-d H:00:00');
+        $bucket = $cursor->format('Y-m-d');
         $runningTotal += $increments[$bucket] ?? 0;
         $series[] = [
-            'label' => $cursor->format('H\h'),
+            'label' => $cursor->format('d/m'),
             'value' => $runningTotal,
             'date' => $bucket,
         ];
-        $cursor->modify('+1 hour');
+        $cursor->modify('+1 day');
     }
 
     return ['range' => $range, 'points' => $series];
@@ -255,11 +255,11 @@ if (isset($_GET['user_metrics'])) {
     header('Content-Type: application/json');
 
     if (!($pdo instanceof PDO)) {
-        echo json_encode(['total' => 0, 'series' => ['range' => 'day', 'points' => []]]);
+        echo json_encode(['total' => 0, 'series' => ['range' => 'week', 'points' => []]]);
         exit;
     }
 
-    $range = $_GET['range'] ?? 'day';
+    $range = $_GET['range'] ?? 'week';
     echo json_encode([
         'total' => getTotalUserCount($pdo),
         'series' => fetchUserGrowthSeries($pdo, $range),
@@ -373,7 +373,8 @@ ob_start();
   (function() {
     const userValueEl = document.getElementById('user-total-title');
     const activeValueEl = document.getElementById('active-total-title');
-    const defaultRange = 'day';
+    const userRange = 'week';
+    const activeRange = 'day';
 
     function renderLineChart(container, points) {
       const overlay = container.querySelector('.metric-overlay');
@@ -466,7 +467,7 @@ ob_start();
       container.appendChild(svg);
     }
 
-    async function fetchUserMetrics(range = defaultRange) {
+    async function fetchUserMetrics(range = userRange) {
       try {
         const res = await fetch(`/admin_dashboard.php?user_metrics=1&range=${encodeURIComponent(range)}`, { credentials: 'same-origin' });
         const data = await res.json();
@@ -477,7 +478,7 @@ ob_start();
       }
     }
 
-    async function fetchActiveMetrics(range = defaultRange) {
+    async function fetchActiveMetrics(range = activeRange) {
       try {
         const res = await fetch(`/admin_dashboard.php?active_metrics=1&range=${encodeURIComponent(range)}`, { credentials: 'same-origin' });
         const data = await res.json();
@@ -488,9 +489,9 @@ ob_start();
       }
     }
 
-    fetchUserMetrics(defaultRange);
-    fetchActiveMetrics(defaultRange);
-    setInterval(() => fetchActiveMetrics(defaultRange), 5 * 60 * 1000);
+    fetchUserMetrics(userRange);
+    fetchActiveMetrics(activeRange);
+    setInterval(() => fetchActiveMetrics(activeRange), 5 * 60 * 1000);
 
     const STATUS_LABELS = {
       online: 'Connecté',
