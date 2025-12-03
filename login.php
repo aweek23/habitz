@@ -15,10 +15,13 @@ function getClientIp(): ?string
     return null;
 }
 
-function redirectWithLoginError(string $message): void
+function redirectWithLoginError(string $message, ?string $debug = null): void
 {
     $_SESSION['auth_error'] = $message;
     $_SESSION['auth_error_tab'] = 'login';
+    if ($debug !== null) {
+        $_SESSION['auth_debug'] = $debug;
+    }
     header('Location: auth.php');
     exit;
 }
@@ -58,8 +61,12 @@ try {
     exit;
 } catch (Throwable $e) {
     if ($e instanceof PDOException && $e->getCode() === '42S22') {
-        redirectWithLoginError('Schéma utilisateur obsolète : mettez à jour la table via sql/users_table.sql.');
+        $schemaMessage = 'Schéma utilisateur obsolète : mettez à jour la table via sql/users_table.sql.';
+        error_log($schemaMessage);
+        redirectWithLoginError($schemaMessage, $schemaMessage);
     }
 
-    redirectWithLoginError('Une erreur est survenue lors de la connexion.');
+    $debugMessage = sprintf('Login failure: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine());
+    error_log($debugMessage);
+    redirectWithLoginError('Une erreur est survenue lors de la connexion.', $debugMessage);
 }

@@ -159,6 +159,9 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab'], $_SESSION['auth_debu
       <div class="auth-inline-row">
         <span class="auth-error">
           <?php if ($auth_error && $auth_error_tab==='login') echo htmlspecialchars($auth_error); ?>
+          <?php if ($auth_error && $auth_error_tab==='login' && $auth_debug): ?>
+            <br><small style="font-size:0.85em;opacity:0.85;">Détails : <?= htmlspecialchars($auth_debug) ?></small>
+          <?php endif; ?>
         </span>
         <a class="soft-note" href="reset_request.php">Mot de passe oublié ?</a>
       </div>

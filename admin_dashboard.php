@@ -1,8 +1,18 @@
 <?php
 $pdo = require __DIR__ . '/config.php';
 
-if (empty($_SESSION['user_id']) || ($_SESSION['rank'] ?? 'user') !== 'admin') {
+if (empty($_SESSION['user_id'])) {
     header('Location: auth.php');
+    exit;
+}
+
+$isAdmin = ($_SESSION['rank'] ?? 'user') === 'admin';
+
+if (!$isAdmin) {
+    http_response_code(403);
+    echo '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><title>Accès refusé</title></head><body>';
+    echo '<p style="font-family:Arial,sans-serif; margin:2rem;">Accès réservé aux administrateurs. Connectez-vous avec un compte "admin" pour ouvrir le tableau de bord.</p>';
+    echo '</body></html>';
     exit;
 }
 
