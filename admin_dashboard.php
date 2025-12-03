@@ -95,7 +95,10 @@ ob_start();
     </ul>
   </div>
 
-  <div class="widget-card db-monitor-module" id="db-monitor">
+  <div class="db-monitor-shell" id="db-monitor">
+    <div class="widget-card db-monitor-module">
+      <p class="db-monitor-meta" id="db-monitor-meta">Vérification en cours…</p>
+    </div>
     <div class="db-monitor-pill">
       <div class="db-monitor-left">
         <span class="db-monitor-icon" aria-hidden="true"></span>
@@ -118,7 +121,6 @@ ob_start();
         </div>
       </div>
     </div>
-    <p class="db-monitor-meta" id="db-monitor-meta">Vérification en cours…</p>
   </div>
 </div>
 <script>

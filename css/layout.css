@@ -436,6 +436,13 @@ a {
   gap: 12px;
 }
 
+.db-monitor-shell {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: flex-start;
+}
+
 .db-monitor-module {
   display: flex;
   flex-direction: column;
@@ -453,7 +460,6 @@ a {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 20px rgba(0, 0, 0, 0.4);
   border-radius: 14px;
   padding: 12px 14px;
-  align-self: flex-end;
   width: max-content;
 }
 
@@ -569,43 +575,43 @@ a {
   font-size: 13px;
 }
 
-.db-monitor-module.state-loading .db-monitor-icon {
+.db-monitor-shell.state-loading .db-monitor-icon {
   background: rgba(86, 182, 255, 0.12);
   color: #56b6ff;
 }
 
-.db-monitor-module.state-loading .db-monitor-status {
+.db-monitor-shell.state-loading .db-monitor-status {
   color: #56b6ff;
 }
 
-.db-monitor-module.state-loading .db-monitor-bars span {
+.db-monitor-shell.state-loading .db-monitor-bars span {
   background: linear-gradient(135deg, #6fd1ff, #4c84ff);
   opacity: 0.6;
 }
 
-.db-monitor-module.state-ok .db-monitor-icon {
+.db-monitor-shell.state-ok .db-monitor-icon {
   background: rgba(34, 197, 94, 0.14);
   color: #22c55e;
 }
 
-.db-monitor-module.state-ok .db-monitor-status {
+.db-monitor-shell.state-ok .db-monitor-status {
   color: #22c55e;
 }
 
-.db-monitor-module.state-ok .db-monitor-bars span {
+.db-monitor-shell.state-ok .db-monitor-bars span {
   background: #22c55e;
 }
 
-.db-monitor-module.state-error .db-monitor-icon {
+.db-monitor-shell.state-error .db-monitor-icon {
   background: rgba(239, 68, 68, 0.12);
   color: #ef4444;
 }
 
-.db-monitor-module.state-error .db-monitor-status {
+.db-monitor-shell.state-error .db-monitor-status {
   color: #ef4444;
 }
 
-.db-monitor-module.state-error .db-monitor-bars span {
+.db-monitor-shell.state-error .db-monitor-bars span {
   background: #f97316;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
