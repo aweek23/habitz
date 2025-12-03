@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `password` VARCHAR(255) NOT NULL,
   `rank` VARCHAR(20) NOT NULL DEFAULT 'user',
   `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ip` VARCHAR(45) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_username` (`username`),
   UNIQUE KEY `uniq_email` (`email`),

@@ -1,6 +1,20 @@
 <?php
 $pdo = require __DIR__ . '/config.php';
 
+function getClientIp(): ?string
+{
+    foreach (['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR'] as $key) {
+        if (!empty($_SERVER[$key])) {
+            $candidate = trim(explode(',', $_SERVER[$key])[0]);
+            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                return $candidate;
+            }
+        }
+    }
+
+    return null;
+}
+
 function redirectWithError(string $message, ?string $debug = null): void
 {
     $_SESSION['auth_error'] = $message;
@@ -24,6 +38,7 @@ $birthdateRaw = trim($_POST['birthdate'] ?? '');
 $gender = trim($_POST['gender'] ?? '');
 $password = $_POST['password'] ?? '';
 $passwordConfirm = $_POST['password_confirm'] ?? '';
+$ipAddress = getClientIp();
 
 if ($birthdateRaw === '' && isset($_POST['birthdate_display'])) {
     $birthdateDisplay = trim($_POST['birthdate_display']);
@@ -69,7 +84,7 @@ try {
         redirectWithError('Un compte existe déjà avec ces informations.');
     }
 
-    $insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, birthdate, gender, password, rank, creation_date) VALUES (:username, :email, :phone_number, :birthdate, :gender, :password, :rank, :creation_date)');
+    $insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, birthdate, gender, password, rank, creation_date, ip) VALUES (:username, :email, :phone_number, :birthdate, :gender, :password, :rank, :creation_date, :ip)');
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $creationDate = (new DateTimeImmutable('now'))->format('Y-m-d H:i:s');
@@ -83,6 +98,7 @@ try {
         ':password' => $hashedPassword,
         ':rank' => 'user',
         ':creation_date' => $creationDate,
+        ':ip' => $ipAddress,
     ]);
 
     $_SESSION['user_id'] = (int) $pdo->lastInsertId();
@@ -95,6 +111,12 @@ try {
     if ($e instanceof PDOException && $e->getCode() === '42S02') {
         $setupMessage = 'Base de données non initialisée : la table "users" est absente. '
             . 'Importez le fichier sql/users_table.sql dans votre base de données.';
+        error_log($setupMessage);
+        redirectWithError($setupMessage);
+    }
+
+    if ($e instanceof PDOException && $e->getCode() === '42S22') {
+        $setupMessage = 'Schéma utilisateur obsolète : ajoutez la colonne "ip" via sql/users_table.sql.';
         error_log($setupMessage);
         redirectWithError($setupMessage);
     }
