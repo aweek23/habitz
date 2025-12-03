@@ -318,12 +318,6 @@ ob_start();
           <p class="metric-label">Utilisateurs</p>
           <h3 class="metric-value" id="user-total-title">0</h3>
         </div>
-        <div class="range-switch" data-target="users">
-          <button type="button" class="range-btn active" data-range="week">1 semaine</button>
-          <button type="button" class="range-btn" data-range="month">1 mois</button>
-          <button type="button" class="range-btn" data-range="year">1 an</button>
-          <button type="button" class="range-btn" data-range="ytd">YTD</button>
-        </div>
       </header>
       <div class="metric-chart" data-chart="users" aria-label="Évolution des utilisateurs"></div>
     </section>
@@ -334,12 +328,6 @@ ob_start();
         <div>
           <p class="metric-label">Utilisateurs actifs</p>
           <h3 class="metric-value" id="active-total-title">0</h3>
-        </div>
-        <div class="range-switch" data-target="active">
-          <button type="button" class="range-btn active" data-range="week">1 semaine</button>
-          <button type="button" class="range-btn" data-range="month">1 mois</button>
-          <button type="button" class="range-btn" data-range="year">1 an</button>
-          <button type="button" class="range-btn" data-range="ytd">YTD</button>
         </div>
       </header>
       <div class="metric-chart" data-chart="active" aria-label="Moyenne des utilisateurs actifs"></div>
@@ -390,12 +378,12 @@ ob_start();
   (function() {
     const userValueEl = document.getElementById('user-total-title');
     const activeValueEl = document.getElementById('active-total-title');
-    let userRange = 'week';
-    let activeRange = 'week';
+    const defaultRange = 'week';
 
-    function renderChart(container, points) {
+    function renderLineChart(container, points) {
       container.innerHTML = '';
-      container.classList.add('bars');
+      container.classList.remove('bars');
+      container.classList.add('line');
 
       if (!points || points.length === 0) {
         const empty = document.createElement('p');
@@ -405,62 +393,70 @@ ob_start();
         return;
       }
 
-      const maxValue = Math.max(...points.map(p => p.value), 1);
+      const width = container.clientWidth || 320;
+      const height = 140;
+      const padding = 10;
 
-      points.forEach(point => {
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        bar.style.height = `${(point.value / maxValue) * 100}%`;
-        bar.setAttribute('title', `${point.label} : ${point.value}`);
-        container.appendChild(bar);
+      const maxValue = Math.max(...points.map(p => p.value), 1);
+      const step = points.length > 1 ? (width - padding * 2) / (points.length - 1) : 0;
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      svg.setAttribute('preserveAspectRatio', 'none');
+
+      const pathPoints = points.map((point, index) => {
+        const x = padding + step * index;
+        const y = height - padding - (point.value / maxValue) * (height - padding * 2);
+        return { x, y, label: point.label, value: point.value };
       });
+
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = pathPoints
+        .map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`)
+        .join(' ');
+      path.setAttribute('d', d);
+      path.setAttribute('class', 'line-path');
+      svg.appendChild(path);
+
+      pathPoints.forEach(p => {
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', p.x);
+        dot.setAttribute('cy', p.y);
+        dot.setAttribute('r', 3.5);
+        dot.setAttribute('class', 'line-dot');
+        dot.setAttribute('data-label', `${p.label} : ${p.value}`);
+        dot.setAttribute('tabindex', '-1');
+        svg.appendChild(dot);
+      });
+
+      container.appendChild(svg);
     }
 
-    async function fetchUserMetrics(range = 'week') {
+    async function fetchUserMetrics(range = defaultRange) {
       try {
         const res = await fetch(`/admin_dashboard.php?user_metrics=1&range=${encodeURIComponent(range)}`, { credentials: 'same-origin' });
         const data = await res.json();
         userValueEl.textContent = data.total ?? 0;
-        renderChart(document.querySelector('[data-chart="users"]'), data.series?.points || []);
+        renderLineChart(document.querySelector('[data-chart="users"]'), data.series?.points || []);
       } catch (error) {
         console.error('Erreur utilisateurs', error);
       }
     }
 
-    async function fetchActiveMetrics(range = 'week') {
+    async function fetchActiveMetrics(range = defaultRange) {
       try {
         const res = await fetch(`/admin_dashboard.php?active_metrics=1&range=${encodeURIComponent(range)}`, { credentials: 'same-origin' });
         const data = await res.json();
         activeValueEl.textContent = data.active ?? 0;
-        renderChart(document.querySelector('[data-chart="active"]'), data.series?.points || []);
+        renderLineChart(document.querySelector('[data-chart="active"]'), data.series?.points || []);
       } catch (error) {
         console.error('Erreur utilisateurs actifs', error);
       }
     }
 
-    document.querySelectorAll('.range-switch').forEach(group => {
-      group.addEventListener('click', event => {
-        const button = event.target.closest('.range-btn');
-        if (!button) return;
-        const range = button.dataset.range;
-        const target = group.dataset.target;
-
-        group.querySelectorAll('.range-btn').forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-
-        if (target === 'users') {
-          userRange = range;
-          fetchUserMetrics(range);
-        } else {
-          activeRange = range;
-          fetchActiveMetrics(range);
-        }
-      });
-    });
-
-    fetchUserMetrics(userRange);
-    fetchActiveMetrics(activeRange);
-    setInterval(() => fetchActiveMetrics(activeRange), 5 * 60 * 1000);
+    fetchUserMetrics(defaultRange);
+    fetchActiveMetrics(defaultRange);
+    setInterval(() => fetchActiveMetrics(defaultRange), 5 * 60 * 1000);
 
     const STATUS_LABELS = {
       online: 'Connecté',
