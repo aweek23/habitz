@@ -100,16 +100,22 @@ ob_start();
       <div class="db-monitor-left">
         <span class="db-monitor-icon" aria-hidden="true"></span>
         <div class="db-monitor-texts">
-          <div class="db-monitor-subtitle">Système</div>
+          <div class="db-monitor-topline">
+            <div class="db-monitor-subtitle">Système</div>
+            <div class="db-monitor-actions">
+              <span class="db-monitor-status" id="db-monitor-status">…</span>
+              <button class="db-monitor-refresh" type="button" id="db-monitor-refresh" aria-label="Rafraîchir" title="Rafraîchir">
+                <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path d="M3 10a7 7 0 0 1 7-7c1.7 0 3.3.63 4.5 1.76L13 6h4V2l-1.62 1.62A8.97 8.97 0 0 0 10 1a9 9 0 1 0 8.2 5.42l-1.82.77A7 7 0 1 1 3 10Z" fill="currentColor" />
+                </svg>
+              </button>
+            </div>
+          </div>
           <div class="db-monitor-title" id="db-monitor-title">Base de données</div>
           <div class="db-monitor-bars" aria-hidden="true">
             <span></span><span></span><span></span><span></span><span></span><span></span>
           </div>
         </div>
-      </div>
-      <div class="db-monitor-right">
-        <span class="db-monitor-status" id="db-monitor-status">…</span>
-        <button class="db-monitor-refresh" type="button" id="db-monitor-refresh">Rafraîchir</button>
       </div>
     </div>
     <p class="db-monitor-meta" id="db-monitor-meta">Vérification en cours…</p>
