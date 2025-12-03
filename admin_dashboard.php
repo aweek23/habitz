@@ -456,6 +456,32 @@ ob_start();
     const activeValueEl = document.getElementById('active-total-title');
     let userRange = 'week';
     let activeRange = 'day';
+    const root = document.documentElement;
+
+    function syncMetricHeights() {
+      const stack = document.querySelector('.uptime-stack');
+      if (!stack) return;
+
+      const stackHeight = stack.getBoundingClientRect().height;
+      if (stackHeight > 0) {
+        root.style.setProperty('--uptime-stack-height', `${stackHeight}px`);
+        document.querySelectorAll('.metric-card').forEach(card => {
+          card.style.maxHeight = `${stackHeight}px`;
+        });
+      }
+    }
+
+    const uptimeStack = document.querySelector('.uptime-stack');
+    if (uptimeStack && typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(() => syncMetricHeights());
+      observer.observe(uptimeStack);
+    }
+
+    window.addEventListener('resize', () => {
+      requestAnimationFrame(syncMetricHeights);
+    });
+
+    syncMetricHeights();
 
     function renderLineChart(container, points) {
       const overlay = container.querySelector('.metric-overlay');
