@@ -1,8 +1,21 @@
 <?php
 $pageTitle = 'Life Tracker';
 
+$dbStatusMessage = '';
+
+try {
+    $pdo = require __DIR__ . '/config.php';
+    $dbStatusMessage = 'Connexion à la base de données réussie.';
+} catch (Throwable $e) {
+    $dbStatusMessage = 'Erreur de connexion à la base de données : ' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
+}
+
 ob_start();
 ?>
+<div class="db-status-banner" role="status" aria-live="polite">
+  <span class="db-dot <?php echo (strpos($dbStatusMessage, 'Erreur') !== false) ? 'error' : 'ok'; ?>" aria-hidden="true"></span>
+  <span class="db-message"><?php echo $dbStatusMessage; ?></span>
+</div>
 <div class="section-title">
   <div>
     <div class="pill">Today</div>

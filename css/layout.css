@@ -163,6 +163,34 @@ a {
   box-shadow: none;
 }
 
+.db-status-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  color: var(--text-strong);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.db-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.db-dot.ok {
+  background: #34d399;
+}
+
+.db-dot.error {
+  background: #ef4444;
+}
+
 .mid-header {
   display: flex;
   align-items: center;
