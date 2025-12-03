@@ -236,7 +236,7 @@ a {
 
 .cards-grid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
@@ -250,6 +250,7 @@ a {
   gap: 12px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
   min-height: 200px;
+  flex: 1;
 }
 
 .hero-card .badge {
@@ -319,37 +320,17 @@ a {
   font-size: 12px;
 }
 
-.uptime-wrapper {
+.hero-uptime-row {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 14px;
+  align-items: start;
+  margin-bottom: 14px;
+}
+
+.uptime-stack {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  grid-column: 1 / -1;
-}
-
-.uptime-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.uptime-eyebrow {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.uptime-frequency {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.uptime-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
 }
 
@@ -432,44 +413,6 @@ a {
   background: #9ca3af;
 }
 
-.uptime-subtitle {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.uptime-meta-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.uptime-log {
-  list-style: none;
-  margin: 4px 0 0;
-  padding: 0;
-  display: grid;
-  gap: 4px;
-  font-size: 13px;
-}
-
-.uptime-log li {
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  color: var(--text);
-}
-
-.uptime-log li[data-status="slow"] {
-  color: #fbbf24;
-}
-
-.uptime-log li[data-status="offline"] {
-  color: #f87171;
-}
 
 .right-column {
   position: sticky;

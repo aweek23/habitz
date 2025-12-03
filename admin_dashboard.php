@@ -176,8 +176,8 @@ ob_start();
   <span class="db-message"><?php echo $dbStatusMessage; ?></span>
 </div>
 
-<div class="cards-grid">
-  <div class="hero-card" style="grid-column: 1 / -1;">
+<div class="hero-uptime-row">
+  <div class="hero-card">
     <span class="badge">Administration</span>
     <h2>Tableau de bord admin</h2>
     <p>Consultez les utilisateurs via l'onglet "Utilisateurs" ou accédez aux prochains modules du panneau d'administration.</p>
@@ -187,26 +187,7 @@ ob_start();
     </div>
   </div>
 
-  <div class="widget-card">
-    <h3>État du système</h3>
-    <ul style="margin:0; padding-left:1.1rem; display:grid; gap:8px;">
-      <li>Statut base de données : <?= strpos($dbStatusMessage, 'Erreur') !== false ? 'Hors ligne' : 'En ligne' ?></li>
-      <li>Dernière vérification de rôle : immédiate (à chaque chargement)</li>
-      <li>Accès admin : <?= $isAdmin ? 'Autorisé' : 'Refusé' ?></li>
-    </ul>
-  </div>
-</div>
-
-<div class="widget-card uptime-wrapper">
-  <div class="uptime-header">
-    <div>
-      <p class="uptime-eyebrow">Surveillance</p>
-      <h3>Uptime des services critiques</h3>
-    </div>
-    <p class="uptime-frequency">Vérification automatique toutes les 5 minutes.</p>
-  </div>
-
-  <div class="uptime-grid">
+  <div class="uptime-stack">
     <article class="uptime-card" data-service="database">
       <div class="uptime-card-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -221,12 +202,6 @@ ob_start();
           <h4>Base de données</h4>
           <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut de la base de données"></span>
         </div>
-        <p class="uptime-subtitle">Surveillance de la connexion PDO primaire.</p>
-        <div class="uptime-meta-row">
-          <span class="uptime-last-check" data-field="checked_at">Dernière vérification : --</span>
-          <span class="uptime-last-state" data-field="state">État : --</span>
-        </div>
-        <ul class="uptime-log" data-log></ul>
       </div>
     </article>
 
@@ -245,14 +220,19 @@ ob_start();
           <h4>57.131.25.12:10000</h4>
           <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut du site 57.131.25.12:10000"></span>
         </div>
-        <p class="uptime-subtitle">Suivi HTTP de l'instance distante.</p>
-        <div class="uptime-meta-row">
-          <span class="uptime-last-check" data-field="checked_at">Dernière vérification : --</span>
-          <span class="uptime-last-state" data-field="state">État : --</span>
-        </div>
-        <ul class="uptime-log" data-log></ul>
       </div>
     </article>
+  </div>
+</div>
+
+<div class="cards-grid">
+  <div class="widget-card">
+    <h3>État du système</h3>
+    <ul style="margin:0; padding-left:1.1rem; display:grid; gap:8px;">
+      <li>Statut base de données : <?= strpos($dbStatusMessage, 'Erreur') !== false ? 'Hors ligne' : 'En ligne' ?></li>
+      <li>Dernière vérification de rôle : immédiate (à chaque chargement)</li>
+      <li>Accès admin : <?= $isAdmin ? 'Autorisé' : 'Refusé' ?></li>
+    </ul>
   </div>
 </div>
 
@@ -265,38 +245,15 @@ ob_start();
       unknown: 'Inconnu'
     };
 
-    function formatTime(dateString) {
-      const date = new Date(dateString);
-      if (Number.isNaN(date.getTime())) return '--';
-      return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    }
-
     function updateCard(service) {
       const card = document.querySelector(`.uptime-card[data-service="${service.key}"]`);
       if (!card) return;
 
       const statusDot = card.querySelector('.uptime-status-dot');
-      const lastCheck = card.querySelector('[data-field="checked_at"]');
-      const lastState = card.querySelector('[data-field="state"]');
-      const log = card.querySelector('[data-log]');
 
       const state = service.state || 'unknown';
       statusDot.setAttribute('data-status', state);
       statusDot.setAttribute('aria-label', `Statut : ${STATUS_LABELS[state] || state}`);
-
-      lastCheck.textContent = `Dernière vérification : ${formatTime(service.checked_at)}`;
-      const stateLabel = STATUS_LABELS[state] || state;
-      lastState.textContent = `État : ${stateLabel}` + (service.latency_ms ? ` (${service.latency_ms} ms)` : '');
-
-      if (log) {
-        const entry = document.createElement('li');
-        entry.textContent = `${formatTime(service.checked_at)} · ${stateLabel}`;
-        entry.dataset.status = state;
-        log.prepend(entry);
-        while (log.children.length > 6) {
-          log.removeChild(log.lastElementChild);
-        }
-      }
     }
 
     function markAllOffline() {
