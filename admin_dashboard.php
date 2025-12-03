@@ -102,13 +102,14 @@ ob_start();
         <div class="db-monitor-texts">
           <div class="db-monitor-subtitle">Système</div>
           <div class="db-monitor-title" id="db-monitor-title">Base de données</div>
+          <div class="db-monitor-bars" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
         </div>
       </div>
       <div class="db-monitor-right">
         <span class="db-monitor-status" id="db-monitor-status">…</span>
-        <div class="db-monitor-bars" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span><span></span>
-        </div>
+        <button class="db-monitor-refresh" type="button" id="db-monitor-refresh">Rafraîchir</button>
       </div>
     </div>
     <p class="db-monitor-meta" id="db-monitor-meta">Vérification en cours…</p>
@@ -120,6 +121,7 @@ ob_start();
     const titleEl = document.getElementById('db-monitor-title');
     const metaEl = document.getElementById('db-monitor-meta');
     const statusEl = document.getElementById('db-monitor-status');
+    const refreshBtn = document.getElementById('db-monitor-refresh');
 
     function setState(state, { title, meta }) {
       if (!monitor) return;
@@ -134,6 +136,7 @@ ob_start();
 
     async function refreshStatus() {
       if (!monitor || !titleEl || !metaEl) return;
+      if (refreshBtn) refreshBtn.disabled = true;
       setState('loading', { title: 'Base de données', meta: 'Vérification en cours…' });
 
       try {
@@ -149,11 +152,16 @@ ob_start();
           title: 'Base de données hors ligne',
           meta: 'Impossible de vérifier le statut. ' + (error?.message || ''),
         });
+      } finally {
+        if (refreshBtn) refreshBtn.disabled = false;
       }
     }
 
     refreshStatus();
     setInterval(refreshStatus, 5 * 60 * 1000);
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', refreshStatus);
+    }
   })();
 </script>
 <?php

@@ -495,6 +495,21 @@ a {
   color: #e2e8f0;
 }
 
+.db-monitor-bars {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.db-monitor-texts .db-monitor-bars span {
+  width: 12px;
+  height: 8px;
+  border-radius: 5px;
+  background: #1f2937;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
 .db-monitor-right {
   display: flex;
   align-items: center;
@@ -507,18 +522,26 @@ a {
   text-transform: lowercase;
 }
 
-.db-monitor-bars {
-  display: flex;
-  gap: 5px;
+.db-monitor-refresh {
+  background: linear-gradient(135deg, #192537, #1d2d44);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px rgba(0, 0, 0, 0.35);
 }
 
-.db-monitor-bars span {
-  width: 12px;
-  height: 8px;
-  border-radius: 5px;
-  background: #1f2937;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transition: background 0.2s ease, opacity 0.2s ease;
+.db-monitor-refresh:hover:not(:disabled) {
+  background: linear-gradient(135deg, #22354d, #25405d);
+}
+
+.db-monitor-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .db-monitor-meta {
