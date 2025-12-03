@@ -1,16 +1,13 @@
 <?php
 /**
- * Basic PDO configuration for database access.
- *
- * Override credentials via environment variables:
- * DB_HOST, DB_NAME, DB_USER, DB_PASS, DB_CHARSET.
+ * Configuration PDO pour la base de données Habitz.
  */
 
-$databaseHost = getenv('DB_HOST') ?: 'localhost';
-$databaseName = getenv('DB_NAME') ?: 'habitz';
-$databaseUser = getenv('DB_USER') ?: 'root';
-$databasePass = getenv('DB_PASS') ?: '';
-$databaseCharset = getenv('DB_CHARSET') ?: 'utf8mb4';
+$databaseHost = 'localhost';
+$databaseName = 'habitz';
+$databaseUser = 'habitz';
+$databasePass = 'Ytreza#321';
+$databaseCharset = 'utf8mb4';
 
 $dsn = sprintf('mysql:host=%s;dbname=%s;charset=%s', $databaseHost, $databaseName, $databaseCharset);
 
