@@ -7,6 +7,7 @@
   --text-strong: #ffffff;
   --accent: #56b6ff;
   --sidebar-width: 240px;
+  --search-col-width: 320px;
   --mobile-nav-height: 0px;
 }
 
@@ -73,7 +74,7 @@ a {
 
 .app {
   display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr 340px;
+  grid-template-columns: var(--sidebar-width) var(--search-col-width) 1fr 340px;
   gap: 12px;
   margin-top: 0;
   align-items: start;
@@ -168,7 +169,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 4px 0 14px;
+  margin: 0px 0 14px;
 }
 
 .pill {
@@ -400,6 +401,15 @@ a {
   flex-direction: column;
   gap: 12px;
   padding-right: 2px;
+}
+
+.search-column {
+  position: sticky;
+  top: 12px;
+  height: calc(100vh - 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .sr-only {
@@ -732,7 +742,8 @@ a {
   }
 
   .sidebar,
-  .right-column {
+  .right-column,
+  .search-column {
     display: none;
   }
 
@@ -928,7 +939,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 4px 0 14px;
+  margin: 0px 0 14px;
 }
 
 .section-title {
@@ -1448,7 +1459,7 @@ a {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 4px 0 14px;
+  margin: 0px 0 14px;
 }
 
 .section-title {
