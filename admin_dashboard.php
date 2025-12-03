@@ -171,68 +171,46 @@ $rightExtras = '';
 
 ob_start();
 ?>
-<div class="db-status-banner" role="status" aria-live="polite">
-  <span class="db-dot <?php echo (strpos($dbStatusMessage, 'Erreur') !== false) ? 'error' : 'ok'; ?>" aria-hidden="true"></span>
-  <span class="db-message"><?php echo $dbStatusMessage; ?></span>
-</div>
+<div class="admin-grid">
+  <div class="admin-col"></div>
+  <div class="admin-col"></div>
+  <div class="admin-col">
+    <div class="uptime-stack">
+      <article class="uptime-card" data-service="database">
+        <div class="uptime-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <ellipse cx="12" cy="5" rx="7" ry="3.5"></ellipse>
+            <path d="M5 5v6c0 1.93 3.13 3.5 7 3.5s7-1.57 7-3.5V5"></path>
+            <path d="M5 11v6c0 1.93 3.13 3.5 7 3.5s7-1.57 7-3.5v-6"></path>
+          </svg>
+        </div>
+        <div class="uptime-card-body">
+          <p class="uptime-category">Infrastructure</p>
+          <div class="uptime-title-row">
+            <h4>Base de données</h4>
+            <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut de la base de données"></span>
+          </div>
+        </div>
+      </article>
 
-<div class="hero-uptime-row">
-  <div class="hero-card">
-    <span class="badge">Administration</span>
-    <h2>Tableau de bord admin</h2>
-    <p>Consultez les utilisateurs via l'onglet "Utilisateurs" ou accédez aux prochains modules du panneau d'administration.</p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <a class="pill" href="/user.php">Accéder aux utilisateurs</a>
-      <a class="pill" href="#">Voir les signalements</a>
+      <article class="uptime-card" data-service="website">
+        <div class="uptime-card-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M2 12h20"></path>
+            <path d="M12 2c2.5 2.9 4 6.4 4 10s-1.5 7.1-4 10"></path>
+            <path d="M12 2C9.5 4.9 8 8.4 8 12s1.5 7.1 4 10"></path>
+          </svg>
+        </div>
+        <div class="uptime-card-body">
+          <p class="uptime-category">Sites web</p>
+          <div class="uptime-title-row">
+            <h4>57.131.25.12:10000</h4>
+            <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut du site 57.131.25.12:10000"></span>
+          </div>
+        </div>
+      </article>
     </div>
-  </div>
-
-  <div class="uptime-stack">
-    <article class="uptime-card" data-service="database">
-      <div class="uptime-card-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-          <ellipse cx="12" cy="5" rx="7" ry="3.5"></ellipse>
-          <path d="M5 5v6c0 1.93 3.13 3.5 7 3.5s7-1.57 7-3.5V5"></path>
-          <path d="M5 11v6c0 1.93 3.13 3.5 7 3.5s7-1.57 7-3.5v-6"></path>
-        </svg>
-      </div>
-      <div class="uptime-card-body">
-        <p class="uptime-category">Infrastructure</p>
-        <div class="uptime-title-row">
-          <h4>Base de données</h4>
-          <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut de la base de données"></span>
-        </div>
-      </div>
-    </article>
-
-    <article class="uptime-card" data-service="website">
-      <div class="uptime-card-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M2 12h20"></path>
-          <path d="M12 2c2.5 2.9 4 6.4 4 10s-1.5 7.1-4 10"></path>
-          <path d="M12 2C9.5 4.9 8 8.4 8 12s1.5 7.1 4 10"></path>
-        </svg>
-      </div>
-      <div class="uptime-card-body">
-        <p class="uptime-category">Sites web</p>
-        <div class="uptime-title-row">
-          <h4>57.131.25.12:10000</h4>
-          <span class="uptime-status-dot" data-status="unknown" role="img" aria-label="Statut du site 57.131.25.12:10000"></span>
-        </div>
-      </div>
-    </article>
-  </div>
-</div>
-
-<div class="cards-grid">
-  <div class="widget-card">
-    <h3>État du système</h3>
-    <ul style="margin:0; padding-left:1.1rem; display:grid; gap:8px;">
-      <li>Statut base de données : <?= strpos($dbStatusMessage, 'Erreur') !== false ? 'Hors ligne' : 'En ligne' ?></li>
-      <li>Dernière vérification de rôle : immédiate (à chaque chargement)</li>
-      <li>Accès admin : <?= $isAdmin ? 'Autorisé' : 'Refusé' ?></li>
-    </ul>
   </div>
 </div>
 
