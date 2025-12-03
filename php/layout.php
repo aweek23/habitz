@@ -80,18 +80,6 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
         </nav>
       </aside>
 
-      <aside class="search-column">
-        <div class="search-bar-module">
-          <div class="search-bar" role="search">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="11" cy="11" r="6" />
-              <path d="m15.5 15.5 3.5 3.5" />
-            </svg>
-            <input type="search" placeholder="Rechercher…" aria-label="Rechercher" />
-          </div>
-        </div>
-      </aside>
-
       <main class="mid-column">
         <div class="mid-header">
           <div class="profile-actions">
