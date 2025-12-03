@@ -59,7 +59,7 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab']);
       <label>
         <span>Date de naissance <b>*</b></span>
         <div class="date-field" id="dobField">
-          <input type="text" class="date-input" id="birthdate_display" placeholder="JJ/MM/AAAA" />
+          <input type="text" class="date-input" id="birthdate_display" name="birthdate_display" placeholder="JJ/MM/AAAA" />
           <svg class="calendar-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke-width="1.5"></rect>
             <line x1="16" y1="2" x2="16" y2="6" stroke-width="1.5"></line>
