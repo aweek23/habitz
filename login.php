@@ -39,8 +39,12 @@ if ($identifier === '' || $password === '') {
 }
 
 try {
-    $stmt = $pdo->prepare('SELECT id, username, email, phone_number, password, rank FROM users WHERE username = :identifier OR email = :identifier OR phone_number = :identifier LIMIT 1');
-    $stmt->execute([':identifier' => $identifier]);
+    $stmt = $pdo->prepare('SELECT id, username, email, phone_number, password, rank FROM users WHERE username = :identifier_username OR email = :identifier_email OR phone_number = :identifier_phone LIMIT 1');
+    $stmt->execute([
+        ':identifier_username' => $identifier,
+        ':identifier_email' => $identifier,
+        ':identifier_phone' => $identifier,
+    ]);
     $user = $stmt->fetch();
 
     if (!$user || !password_verify($password, $user['password'])) {
