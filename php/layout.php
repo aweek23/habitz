@@ -22,13 +22,33 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 $homeUrl = defined('APP_HOME') ? APP_HOME : '/index.php';
-$isAdminUser = ($_SESSION['rank'] ?? '') === 'admin';
+$isAuthenticated = !empty($_SESSION['user_id']);
+
+$pdoForRole = null;
+try {
+    $pdoForRole = require __DIR__ . '/../config.php';
+} catch (Throwable $e) {
+    // Si la connexion échoue, on désactive les options admin par sécurité.
+    $_SESSION['rank'] = 'user';
+}
+
+if ($pdoForRole instanceof PDO && $isAuthenticated) {
+    try {
+        $rankStmt = $pdoForRole->prepare('SELECT rank FROM users WHERE id = :id LIMIT 1');
+        $rankStmt->execute([':id' => $_SESSION['user_id']]);
+        $dbRank = $rankStmt->fetchColumn();
+        $_SESSION['rank'] = $dbRank !== false ? $dbRank : 'user';
+    } catch (Throwable $e) {
+        $_SESSION['rank'] = 'user';
+    }
+}
+
+$isAdminUser = ($_SESSION['rank'] ?? 'user') === 'admin';
 $currentScript = basename($_SERVER['PHP_SELF'] ?? '');
 $isAdminPage = $currentScript === 'admin_dashboard.php';
 $adminLinkLabel = $isAdminPage ? 'User dashboard' : 'Admin dashboard';
 $adminLinkHref = $isAdminPage ? $homeUrl : '/admin_dashboard.php';
 $displayUsername = $_SESSION['username'] ?? 'Invité';
-$isAuthenticated = !empty($_SESSION['user_id']);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -182,6 +202,11 @@ $isAuthenticated = !empty($_SESSION['user_id']);
         </button>
       </div>
     </nav>
+    <?php if ($isAdminUser): ?>
+      <a class="mobile-admin-fab pill" href="<?= htmlspecialchars($adminLinkHref, ENT_QUOTES, 'UTF-8') ?>">
+        <?= htmlspecialchars($adminLinkLabel, ENT_QUOTES, 'UTF-8') ?>
+      </a>
+    <?php endif; ?>
   </div>
 </body>
 </html>

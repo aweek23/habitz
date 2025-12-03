@@ -198,6 +198,30 @@ a {
   margin: 4px 0 14px;
 }
 
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-strong);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.pill:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.pill:active {
+  transform: translateY(1px);
+}
+
 .section-title {
   display: flex;
   align-items: center;
@@ -543,9 +567,17 @@ a {
   fill: none;
 }
 
+.mobile-admin-fab {
+  position: fixed;
+  right: 16px;
+  bottom: calc(var(--mobile-nav-height) + 18px);
+  z-index: 30;
+  display: none;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4);
+}
+
 .bottom-profile {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
   gap: 12px;
   padding: 4px 0 0;
@@ -563,6 +595,12 @@ a {
 .bottom-profile .profile-name {
   font-weight: 700;
   color: var(--text-strong);
+  flex: 1;
+  min-width: 0;
+}
+
+.bottom-profile .logout-form {
+  margin: 0 0 0 auto;
 }
 
 .bottom-profile .logout-form {
@@ -628,6 +666,10 @@ a {
     justify-content: center;
   }
 
+  .mobile-admin-fab {
+    display: inline-flex;
+  }
+
   .page {
     padding: calc(12px + env(safe-area-inset-top)) 8px calc(12px + var(--mobile-nav-height) + env(safe-area-inset-bottom));
   }
@@ -1179,8 +1221,7 @@ a {
 }
 
 .bottom-profile {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
   gap: 12px;
   padding: 4px 0 0;
@@ -1198,6 +1239,8 @@ a {
 .bottom-profile .profile-name {
   font-weight: 700;
   color: var(--text-strong);
+  flex: 1;
+  min-width: 0;
 }
 
 .profile-actions {
@@ -1809,8 +1852,7 @@ a {
 }
 
 .bottom-profile {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
   gap: 12px;
   padding: 4px 0 0;
@@ -1828,6 +1870,8 @@ a {
 .bottom-profile .profile-name {
   font-weight: 700;
   color: var(--text-strong);
+  flex: 1;
+  min-width: 0;
 }
 
 .profile-actions {

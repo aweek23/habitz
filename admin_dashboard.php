@@ -18,6 +18,21 @@ if (empty($_SESSION['user_id'])) {
     exit;
 }
 
+$isAdmin = false;
+
+if ($pdo instanceof PDO) {
+    try {
+        $rankStmt = $pdo->prepare('SELECT rank FROM users WHERE id = :id LIMIT 1');
+        $rankStmt->execute([':id' => $_SESSION['user_id']]);
+        $freshRank = $rankStmt->fetchColumn();
+        $_SESSION['rank'] = $freshRank !== false ? $freshRank : 'user';
+    } catch (Throwable $e) {
+        $_SESSION['rank'] = 'user';
+    }
+} else {
+    $_SESSION['rank'] = 'user';
+}
+
 $isAdmin = ($_SESSION['rank'] ?? 'user') === 'admin';
 
 if (!$isAdmin) {
