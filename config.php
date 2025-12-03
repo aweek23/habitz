@@ -8,8 +8,8 @@
 
 $databaseHost = getenv('DB_HOST') ?: 'localhost';
 $databaseName = getenv('DB_NAME') ?: 'habitz';
-$databaseUser = getenv('DB_USER') ?: 'habitz';
-$databasePass = getenv('DB_PASS') ?: 'Ytreza#321';
+$databaseUser = getenv('DB_USER') ?: 'root';
+$databasePass = getenv('DB_PASS') ?: '';
 $databaseCharset = getenv('DB_CHARSET') ?: 'utf8mb4';
 
 $dsn = sprintf('mysql:host=%s;dbname=%s;charset=%s', $databaseHost, $databaseName, $databaseCharset);
