@@ -436,6 +436,66 @@ a {
   gap: 12px;
 }
 
+.db-monitor-module {
+  gap: 8px;
+}
+
+.db-monitor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.db-monitor-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.db-monitor-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.db-monitor-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.db-monitor-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #475569;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.02);
+}
+
+.db-monitor-indicator.ok {
+  background: #34d399;
+  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.12);
+}
+
+.db-monitor-indicator.error {
+  background: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
+}
+
+.db-monitor-indicator.loading {
+  background: linear-gradient(135deg, #6fd1ff, #4c84ff);
+  box-shadow: 0 0 0 4px rgba(86, 182, 255, 0.14);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.9; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.9; }
+}
+
 .suggestion-module {
   flex: 1;
   min-height: 0;

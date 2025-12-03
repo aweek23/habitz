@@ -109,6 +109,9 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
       </main>
 
       <aside class="right-column">
+        <?php if (!empty($rightExtras)): ?>
+          <?= $rightExtras ?>
+        <?php endif; ?>
         <div class="right-module search-bar-module">
           <div class="search-bar" role="search">
             <svg viewBox="0 0 24 24" aria-hidden="true">

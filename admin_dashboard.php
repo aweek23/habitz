@@ -14,6 +14,12 @@ try {
 }
 
 if (empty($_SESSION['user_id'])) {
+    if (isset($_GET['ping'])) {
+        http_response_code(401);
+        header('Content-Type: application/json');
+        echo json_encode(['online' => false, 'message' => 'Non authentifié']);
+        exit;
+    }
     header('Location: auth.php');
     exit;
 }
@@ -29,6 +35,18 @@ if ($pdo instanceof PDO) {
     }
 } else {
     $_SESSION['rank'] = 'user';
+}
+
+if (isset($_GET['ping'])) {
+    header('Content-Type: application/json');
+    $isOnline = $pdo instanceof PDO;
+    $message = $isOnline ? 'Connexion à la base de données réussie.' : $dbStatusMessage;
+    echo json_encode([
+        'online' => $isOnline,
+        'message' => $message,
+        'checked_at' => date('Y-m-d H:i:s'),
+    ]);
+    exit;
 }
 
 $isAdmin = ($_SESSION['rank'] ?? 'user') === 'admin';
@@ -48,6 +66,16 @@ $menuItems = [
     ['label' => 'Signalements', 'href' => '#'],
     ['label' => 'Paramètres', 'href' => '#'],
 ];
+$rightExtras = <<<HTML
+  <div class="right-module db-monitor-module" id="db-monitor">
+    <div class="db-monitor-head">
+      <div class="db-monitor-subtitle">Système</div>
+      <div class="db-monitor-indicator" aria-hidden="true"></div>
+    </div>
+    <div class="db-monitor-title" id="db-monitor-title">Base de données</div>
+    <p class="db-monitor-meta" id="db-monitor-meta">Vérification en cours…</p>
+  </div>
+HTML;
 
 ob_start();
 ?>
@@ -76,6 +104,38 @@ ob_start();
     </ul>
   </div>
 </div>
+<script>
+  (function() {
+    const indicator = document.getElementById('db-monitor')?.querySelector('.db-monitor-indicator');
+    const titleEl = document.getElementById('db-monitor-title');
+    const metaEl = document.getElementById('db-monitor-meta');
+
+    async function refreshStatus() {
+      if (!indicator || !titleEl || !metaEl) return;
+      indicator.classList.remove('ok', 'error');
+      indicator.classList.add('loading');
+      metaEl.textContent = 'Vérification en cours…';
+
+      try {
+        const response = await fetch('/admin_dashboard.php?ping=1', { credentials: 'same-origin' });
+        const payload = await response.json();
+        const isOnline = Boolean(payload.online);
+        indicator.classList.remove('loading');
+        indicator.classList.add(isOnline ? 'ok' : 'error');
+        titleEl.textContent = isOnline ? 'Base de données en ligne' : 'Base de données hors ligne';
+        metaEl.textContent = payload.message + (payload.checked_at ? ` • ${payload.checked_at}` : '');
+      } catch (error) {
+        indicator.classList.remove('loading');
+        indicator.classList.add('error');
+        titleEl.textContent = 'Base de données hors ligne';
+        metaEl.textContent = 'Impossible de vérifier le statut. ' + (error?.message || '');
+      }
+    }
+
+    refreshStatus();
+    setInterval(refreshStatus, 5 * 60 * 1000);
+  })();
+</script>
 <?php
 $content = ob_get_clean();
 
