@@ -464,11 +464,31 @@ ob_start();
 
       const stackHeight = stack.getBoundingClientRect().height;
       if (stackHeight > 0) {
+        const viewportCap = Math.max(120, window.innerHeight - 36);
+        const targetHeight = Math.min(stackHeight, viewportCap);
         root.style.setProperty('--uptime-stack-height', `${stackHeight}px`);
-        document.querySelectorAll('.metric-card').forEach(card => {
-          card.style.maxHeight = `${stackHeight}px`;
-        });
+        root.style.setProperty('--metric-card-height', `${targetHeight}px`);
       }
+
+      function handleMove(event) {
+        const rect = container.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        let closest = pathPoints[0];
+        let smallest = Math.abs(pathPoints[0].x - x);
+
+        for (let i = 1; i < pathPoints.length; i++) {
+          const diff = Math.abs(pathPoints[i].x - x);
+          if (diff < smallest) {
+            smallest = diff;
+            closest = pathPoints[i];
+          }
+        }
+
+        showTooltip(closest);
+      }
+
+      container.onmousemove = handleMove;
+      container.onmouseleave = hideTooltip;
     }
 
     const uptimeStack = document.querySelector('.uptime-stack');
