@@ -24,13 +24,16 @@ if ($searchTerm !== '') {
     try {
         $like = '%' . $searchTerm . '%';
         $conditions = [
-            'username LIKE :term',
-            'email LIKE :term',
-            'phone_number LIKE :term',
-            'ip LIKE :term',
+            'username LIKE :termUser',
+            'email LIKE :termEmail',
+            'phone_number LIKE :termPhone',
+            'ip LIKE :termIp',
         ];
         $params = [
-            ':term' => $like,
+            ':termUser' => $like,
+            ':termEmail' => $like,
+            ':termPhone' => $like,
+            ':termIp' => $like,
         ];
 
         if (ctype_digit($searchTerm)) {
