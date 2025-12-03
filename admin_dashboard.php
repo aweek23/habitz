@@ -460,35 +460,22 @@ ob_start();
 
     function syncMetricHeights() {
       const stack = document.querySelector('.uptime-stack');
-      if (!stack) return;
+      const fallback = 320;
+
+      if (!stack) {
+        root.style.setProperty('--metric-card-height', `${fallback}px`);
+        return;
+      }
 
       const stackHeight = stack.getBoundingClientRect().height;
       if (stackHeight > 0) {
-        const viewportCap = Math.max(120, window.innerHeight - 36);
-        const targetHeight = Math.min(stackHeight, viewportCap);
+        const viewportCap = Math.max(220, window.innerHeight - 36);
+        const targetHeight = Math.max(240, Math.min(stackHeight, viewportCap));
         root.style.setProperty('--uptime-stack-height', `${stackHeight}px`);
         root.style.setProperty('--metric-card-height', `${targetHeight}px`);
+      } else {
+        root.style.setProperty('--metric-card-height', `${fallback}px`);
       }
-
-      function handleMove(event) {
-        const rect = container.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        let closest = pathPoints[0];
-        let smallest = Math.abs(pathPoints[0].x - x);
-
-        for (let i = 1; i < pathPoints.length; i++) {
-          const diff = Math.abs(pathPoints[i].x - x);
-          if (diff < smallest) {
-            smallest = diff;
-            closest = pathPoints[i];
-          }
-        }
-
-        showTooltip(closest);
-      }
-
-      container.onmousemove = handleMove;
-      container.onmouseleave = hideTooltip;
     }
 
     const uptimeStack = document.querySelector('.uptime-stack');
