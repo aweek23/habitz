@@ -96,39 +96,59 @@ ob_start();
   </div>
 
   <div class="widget-card db-monitor-module" id="db-monitor">
-    <div class="db-monitor-head">
-      <div class="db-monitor-subtitle">Système</div>
-      <div class="db-monitor-indicator" aria-hidden="true"></div>
+    <div class="db-monitor-pill">
+      <div class="db-monitor-left">
+        <span class="db-monitor-icon" aria-hidden="true"></span>
+        <div class="db-monitor-texts">
+          <div class="db-monitor-subtitle">Système</div>
+          <div class="db-monitor-title" id="db-monitor-title">Base de données</div>
+        </div>
+      </div>
+      <div class="db-monitor-right">
+        <span class="db-monitor-status" id="db-monitor-status">…</span>
+        <div class="db-monitor-bars" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
     </div>
-    <div class="db-monitor-title" id="db-monitor-title">Base de données</div>
     <p class="db-monitor-meta" id="db-monitor-meta">Vérification en cours…</p>
   </div>
 </div>
 <script>
   (function() {
-    const indicator = document.getElementById('db-monitor')?.querySelector('.db-monitor-indicator');
+    const monitor = document.getElementById('db-monitor');
     const titleEl = document.getElementById('db-monitor-title');
     const metaEl = document.getElementById('db-monitor-meta');
+    const statusEl = document.getElementById('db-monitor-status');
+
+    function setState(state, { title, meta }) {
+      if (!monitor) return;
+      monitor.classList.remove('state-ok', 'state-error', 'state-loading');
+      monitor.classList.add(`state-${state}`);
+      if (titleEl && title) titleEl.textContent = title;
+      if (metaEl && meta) metaEl.textContent = meta;
+      if (statusEl) {
+        statusEl.textContent = state === 'ok' ? 'on' : state === 'error' ? 'off' : '…';
+      }
+    }
 
     async function refreshStatus() {
-      if (!indicator || !titleEl || !metaEl) return;
-      indicator.classList.remove('ok', 'error');
-      indicator.classList.add('loading');
-      metaEl.textContent = 'Vérification en cours…';
+      if (!monitor || !titleEl || !metaEl) return;
+      setState('loading', { title: 'Base de données', meta: 'Vérification en cours…' });
 
       try {
         const response = await fetch('/admin_dashboard.php?ping=1', { credentials: 'same-origin' });
         const payload = await response.json();
         const isOnline = Boolean(payload.online);
-        indicator.classList.remove('loading');
-        indicator.classList.add(isOnline ? 'ok' : 'error');
-        titleEl.textContent = isOnline ? 'Base de données en ligne' : 'Base de données hors ligne';
-        metaEl.textContent = payload.message + (payload.checked_at ? ` • ${payload.checked_at}` : '');
+        setState(isOnline ? 'ok' : 'error', {
+          title: isOnline ? 'Base de données' : 'Base de données hors ligne',
+          meta: payload.message + (payload.checked_at ? ` • ${payload.checked_at}` : ''),
+        });
       } catch (error) {
-        indicator.classList.remove('loading');
-        indicator.classList.add('error');
-        titleEl.textContent = 'Base de données hors ligne';
-        metaEl.textContent = 'Impossible de vérifier le statut. ' + (error?.message || '');
+        setState('error', {
+          title: 'Base de données hors ligne',
+          meta: 'Impossible de vérifier le statut. ' + (error?.message || ''),
+        });
       }
     }
 
