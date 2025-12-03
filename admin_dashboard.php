@@ -469,6 +469,26 @@ ob_start();
         root.style.setProperty('--uptime-stack-height', `${stackHeight}px`);
         root.style.setProperty('--metric-card-height', `${targetHeight}px`);
       }
+
+      function handleMove(event) {
+        const rect = container.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        let closest = pathPoints[0];
+        let smallest = Math.abs(pathPoints[0].x - x);
+
+        for (let i = 1; i < pathPoints.length; i++) {
+          const diff = Math.abs(pathPoints[i].x - x);
+          if (diff < smallest) {
+            smallest = diff;
+            closest = pathPoints[i];
+          }
+        }
+
+        showTooltip(closest);
+      }
+
+      container.onmousemove = handleMove;
+      container.onmouseleave = hideTooltip;
     }
 
     const uptimeStack = document.querySelector('.uptime-stack');
