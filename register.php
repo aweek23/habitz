@@ -84,17 +84,29 @@ try {
         redirectWithError('Un compte existe déjà avec ces informations.');
     }
 
-    $insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, birthdate, gender, password, rank, creation_date, ip) VALUES (:username, :email, :phone_number, :birthdate, :gender, :password, :rank, :creation_date, :ip)');
+$insertStmt = $pdo->prepare('INSERT INTO users (username, email, phone_number, birthdate, gender, password, rank, creation_date, ip) VALUES (:username, :email, :phone_number, :birthdate, :gender, :password, :rank, :creation_date, :ip)');
 
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $creationDate = (new DateTimeImmutable('now'))->format('Y-m-d H:i:s');
+
+    $genderNormalized = null;
+    if ($gender !== '') {
+        $genderLower = mb_strtolower($gender);
+        if (in_array($genderLower, ['homme', 'male'], true)) {
+            $genderNormalized = 'male';
+        } elseif (in_array($genderLower, ['femme', 'female'], true)) {
+            $genderNormalized = 'female';
+        } elseif (in_array($genderLower, ['autre', 'other'], true)) {
+            $genderNormalized = 'other';
+        }
+    }
 
     $insertStmt->execute([
         ':username' => $username,
         ':email' => $email,
         ':phone_number' => $phoneNumber,
         ':birthdate' => $birthdate->format('Y-m-d'),
-        ':gender' => $gender !== '' ? $gender : null,
+        ':gender' => $genderNormalized,
         ':password' => $hashedPassword,
         ':rank' => 'user',
         ':creation_date' => $creationDate,
