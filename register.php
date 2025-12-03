@@ -92,6 +92,13 @@ try {
     header('Location: ' . APP_HOME);
     exit;
 } catch (Throwable $e) {
+    if ($e instanceof PDOException && $e->getCode() === '42S02') {
+        $setupMessage = 'Base de données non initialisée : la table "users" est absente. '
+            . 'Importez le fichier sql/users_table.sql dans votre base de données.';
+        error_log($setupMessage);
+        redirectWithError($setupMessage);
+    }
+
     $debugMessage = sprintf('Register failure: %s in %s:%d', $e->getMessage(), $e->getFile(), $e->getLine());
     error_log($debugMessage);
     redirectWithError('Erreur lors de la création du compte. Veuillez réessayer.', $debugMessage);
