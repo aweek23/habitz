@@ -247,6 +247,59 @@ a {
 .menu-item:hover .menu-icon {
   border-color: rgba(255, 255, 255, 0.14);
   color: var(--text-strong);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.menu-item .menu-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.menu-item svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.menu-label {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-width 0.2s ease;
+}
+
+.menu-item.active {
+  color: var(--text-strong);
+  background: linear-gradient(135deg, rgba(86, 182, 255, 0.7), rgba(86, 182, 255, 0.32));
+  border-color: rgba(86, 182, 255, 0.8);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(86, 182, 255, 0.32);
+}
+
+.menu-item.active .menu-icon {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: var(--text-strong);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.28);
+}
+
+.menu-item:hover .menu-icon {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text-strong);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
 }
 
@@ -300,6 +353,23 @@ a {
   font-size: 14px;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.pill.icon-only {
+  padding: 0 12px;
+  width: 42px;
+  min-width: 42px;
+  justify-content: center;
+}
+
+.pill svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .pill:hover {
@@ -922,10 +992,7 @@ a {
   margin: 0;
 }
 
-.profile-actions-inline .icon-btn {
-  width: 42px;
-  height: 42px;
-}
+
 
 .profile-actions {
   display: flex;
@@ -939,11 +1006,6 @@ a {
   height: 42px;
   padding: 0 14px;
   align-items: center;
-}
-
-.profile-actions .icon-btn {
-  width: 42px;
-  height: 42px;
 }
 
 .placeholder {
