@@ -7,10 +7,6 @@ frontend/dist
 
 # Build outputs
 public/
-public_html/assets/*
-!public_html/assets/.gitkeep
-public_html/css/*
-!public_html/css/.gitkeep
 public_html/index.html
 
 # System / environment
