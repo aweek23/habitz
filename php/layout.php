@@ -11,9 +11,6 @@ $defaultMenuItems = [
     ['label' => 'Corps', 'href' => '#'],
     ['label' => 'Finances', 'href' => '#'],
     ['label' => 'Horloge', 'href' => '#'],
-    ['label' => 'Évènements', 'href' => '#'],
-    ['label' => 'Actualités, news, etc', 'href' => '#'],
-    ['label' => 'Drive', 'href' => '#'],
 ];
 $menuItems = $menuItems ?? $defaultMenuItems;
 
@@ -141,19 +138,6 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
 
         <div class="main">
           <?= $content ?>
-        </div>
-
-        <div class="secondary-module" aria-label="Modules secondaires">
-          <div class="secondary-grid">
-            <section class="secondary-card">
-              <h3>Module secondaire</h3>
-              <p>Ajoutez ici des informations complémentaires ou des widgets spécifiques.</p>
-            </section>
-            <section class="secondary-card">
-              <h3>Module secondaire</h3>
-              <p>Utilisez cette colonne pour des statistiques ou des raccourcis additionnels.</p>
-            </section>
-          </div>
         </div>
       </main>
 
