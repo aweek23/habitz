@@ -90,32 +90,6 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
     <div class="app">
       <main class="mid-column">
         <div class="mid-header">
-          <div class="topbar" role="navigation" aria-label="Navigation principale">
-            <div class="topbar-left">
-              <div class="brand-pill" aria-hidden="true">
-                <span class="brand-initials">LT</span>
-              </div>
-              <nav class="topbar-menu">
-                <a href="#" class="topbar-link active">Dashboard</a>
-                <a href="#" class="topbar-link">Orders</a>
-                <a href="#" class="topbar-link">Products</a>
-                <a href="#" class="topbar-link">Customers</a>
-                <div class="topbar-dropdown">
-                  <button class="topbar-link" type="button" aria-haspopup="true" aria-expanded="false">
-                    Settings
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="m6 9 6 6 6-6" />
-                    </svg>
-                  </button>
-                  <div class="dropdown-panel" role="menu">
-                    <a href="#" role="menuitem">General</a>
-                    <a href="#" role="menuitem">Store</a>
-                    <a href="#" role="menuitem">Privacy</a>
-                    <a href="#" role="menuitem">API</a>
-                  </div>
-                </div>
-              </nav>
-            </div>
             <div class="topbar-right">
               <button class="pill icon-only" aria-label="Rechercher">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
