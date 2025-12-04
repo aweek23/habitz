@@ -1,6 +1,6 @@
 module.exports = {
   content: [
-    './index.php',
+    './public_html/index.php',
     './frontend/index.html',
     './frontend/src/**/*.{js,jsx,ts,tsx,vue,php}',
     './node_modules/flowbite/**/*.js',
