@@ -89,18 +89,6 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
   <div class="page">
     <div class="app">
       <main class="mid-column">
-        <div class="mid-header">
-            <div class="topbar-right">
-              <button class="pill icon-only" aria-label="Rechercher">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="11" cy="11" r="6" />
-                  <path d="m15.5 15.5 3.5 3.5" />
-                </svg>
-              </button>
-              <a class="pill upgrade" href="#">Upgrade</a>
-              <div class="topbar-avatar" aria-hidden="true"></div>
-            </div>
-          </div>
           <div class="topbar" role="navigation" aria-label="Navigation principale">
             <div class="topbar-left">
               <div class="brand-pill" aria-hidden="true">
