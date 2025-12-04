@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 if (!defined('APP_HOME')) {
-    define('APP_HOME', '/public/index.php');
+    define('APP_HOME', '/public_html/index.php');
 }
 
 $databaseHost = 'localhost';

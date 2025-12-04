@@ -21,6 +21,6 @@
   },
   "dependencies": {
     "flowbite": "^2.5.1",
-    "preline": "^2.3.0"
+    "preline": "^2.7.0"
   }
 }

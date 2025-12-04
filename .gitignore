@@ -6,11 +6,11 @@ frontend/.vite
 frontend/dist
 
 # Build outputs
-public/assets/*
-!public/assets/.gitkeep
-public/css/*
-!public/css/.gitkeep
-public/index.html
+public_html/assets/*
+!public_html/assets/.gitkeep
+public_html/css/*
+!public_html/css/.gitkeep
+public_html/index.html
 
 # System / environment
 .DS_Store
