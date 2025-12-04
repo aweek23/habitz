@@ -6,6 +6,7 @@ frontend/.vite
 frontend/dist
 
 # Build outputs
+public/
 public_html/assets/*
 !public_html/assets/.gitkeep
 public_html/css/*
