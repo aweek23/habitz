@@ -11,9 +11,6 @@ $defaultMenuItems = [
     ['label' => 'Corps', 'href' => '#'],
     ['label' => 'Finances', 'href' => '#'],
     ['label' => 'Horloge', 'href' => '#'],
-    ['label' => 'Évènements', 'href' => '#'],
-    ['label' => 'Actualités, news, etc', 'href' => '#'],
-    ['label' => 'Drive', 'href' => '#'],
 ];
 $menuItems = $menuItems ?? $defaultMenuItems;
 
@@ -25,6 +22,29 @@ $homeUrl = defined('APP_HOME') ? APP_HOME : '/index.php';
 $isAuthenticated = !empty($_SESSION['user_id']);
 
 require_once __DIR__ . '/active_tracking.php';
+
+$navIconLibrary = [
+    'home' => '<path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-5H9v5H5a1 1 0 0 1-1-1z" />',
+    'tasks' => '<path d="M6 8h12" /><path d="M6 12h12" /><path d="M6 16h12" /><path d="m9 16 1.5-1.5L12 16l1.5-1.5L15 16" />',
+    'layers' => '<rect x="5" y="5" width="14" height="14" rx="3" /><path d="M9 9h6v6H9z" />',
+    'activity' => '<path d="M4 12h3l2 6 4-12 2 6h3" />',
+    'nutrition' => '<path d="M9 5c-2.5 2.5-2.5 6.5 0 9l3 3c2.5-2.5 2.5-6.5 0-9l-3-3Z" /><path d="M9 5v14" />',
+    'calendar' => '<rect x="4" y="6" width="16" height="14" rx="2" /><path d="M16 2v4" /><path d="M8 2v4" /><path d="M4 10h16" />',
+    'body' => '<circle cx="12" cy="7" r="3" /><path d="M5 21c1-3.5 3.5-6 7-6s6 2.5 7 6" />',
+    'finance' => '<path d="M5 8h14" /><path d="M7 12h10" /><path d="M10 16h4" /><rect x="4" y="5" width="16" height="14" rx="2" />',
+    'clock' => '<circle cx="12" cy="12" r="7" /><path d="M12 9v4l3 2" />',
+    'event' => '<path d="M6 10h12" /><path d="M8 14h8" /><rect x="4" y="5" width="16" height="14" rx="3" />',
+    'news' => '<path d="M7 5h10v14H7z" /><path d="M7 9h10" /><path d="M10 13h4" /><path d="M4 7v10a2 2 0 0 0 2 2h10" />',
+    'drive' => '<path d="M9 4h6l5 9-3 6H7L4 13Z" /><path d="m4 13 5-9" /><path d="m20 13-5-9" />',
+];
+$navIconOrder = array_keys($navIconLibrary);
+$hasActiveMenuItem = false;
+foreach ($menuItems as $item) {
+    if (!empty($item['active'])) {
+        $hasActiveMenuItem = true;
+        break;
+    }
+}
 
 $pdoForRole = null;
 try {
@@ -68,40 +88,63 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
 <body>
   <div class="page">
     <div class="app">
-      <aside class="sidebar">
-        <nav class="menu">
-          <div class="sidebar-header">
-            <div class="menu-title">Life Tracker</div>
-          </div>
-
-          <?php foreach ($menuItems as $menuItem): ?>
-            <?php
-              $label = htmlspecialchars($menuItem['label'] ?? '', ENT_QUOTES, 'UTF-8');
-              $href = htmlspecialchars($menuItem['href'] ?? '#', ENT_QUOTES, 'UTF-8');
-            ?>
-            <a class="menu-item" href="<?= $href ?>"><?= $label ?></a>
-          <?php endforeach; ?>
-        </nav>
-      </aside>
-
       <main class="mid-column">
         <div class="mid-header">
+          <div class="topbar" role="navigation" aria-label="Navigation principale">
+            <div class="topbar-left">
+              <div class="brand-pill" aria-hidden="true">
+                <span class="brand-initials">LT</span>
+              </div>
+              <nav class="topbar-menu">
+                <a href="#" class="topbar-link active">Dashboard</a>
+                <a href="#" class="topbar-link">Orders</a>
+                <a href="#" class="topbar-link">Products</a>
+                <a href="#" class="topbar-link">Customers</a>
+                <div class="topbar-dropdown">
+                  <button class="topbar-link" type="button" aria-haspopup="true" aria-expanded="false">
+                    Settings
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="m6 9 6 6 6-6" />
+                    </svg>
+                  </button>
+                  <div class="dropdown-panel" role="menu">
+                    <a href="#" role="menuitem">General</a>
+                    <a href="#" role="menuitem">Store</a>
+                    <a href="#" role="menuitem">Privacy</a>
+                    <a href="#" role="menuitem">API</a>
+                  </div>
+                </div>
+              </nav>
+            </div>
+            <div class="topbar-right">
+              <button class="pill icon-only" aria-label="Rechercher">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="6" />
+                  <path d="m15.5 15.5 3.5 3.5" />
+                </svg>
+              </button>
+              <a class="pill upgrade" href="#">Upgrade</a>
+              <div class="topbar-avatar" aria-hidden="true"></div>
+            </div>
+          </div>
+
           <div class="profile-actions">
             <?php if ($isAdminUser): ?>
               <a class="pill" href="<?= htmlspecialchars($adminLinkHref, ENT_QUOTES, 'UTF-8') ?>">
                 <?= htmlspecialchars($adminLinkLabel, ENT_QUOTES, 'UTF-8') ?>
               </a>
             <?php endif; ?>
-            <button class="icon-btn ghost" aria-label="Lien">
+            <button class="pill icon-only" aria-label="Messages">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M10 14a3 3 0 0 1 0-4l3.5-3.5a3 3 0 0 1 4.2 4.2l-.7.7" />
-                <path d="M14 10a3 3 0 0 1 0 4l-3.5 3.5a3 3 0 0 1-4.2-4.2l.7-.7" />
+                <path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H8l-4 3V6a1 1 0 0 1 1-1Z" />
+                <path d="M7 9h10" />
+                <path d="M7 13h6" />
               </svg>
             </button>
-            <button class="icon-btn ghost" aria-label="Réglages">
+            <button class="pill icon-only" aria-label="Notifications">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1 1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .69.4 1.3 1 1.58.19.09.4.14.61.14H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+                <path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8Z" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
               </svg>
             </button>
           </div>
@@ -109,19 +152,6 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
 
         <div class="main">
           <?= $content ?>
-        </div>
-
-        <div class="secondary-module" aria-label="Modules secondaires">
-          <div class="secondary-grid">
-            <section class="secondary-card">
-              <h3>Module secondaire</h3>
-              <p>Ajoutez ici des informations complémentaires ou des widgets spécifiques.</p>
-            </section>
-            <section class="secondary-card">
-              <h3>Module secondaire</h3>
-              <p>Utilisez cette colonne pour des statistiques ou des raccourcis additionnels.</p>
-            </section>
-          </div>
         </div>
       </main>
 
@@ -165,15 +195,23 @@ $displayUsername = $_SESSION['username'] ?? 'Invité';
             <div class="avatar"></div>
             <div class="profile-name"><?= htmlspecialchars($displayUsername, ENT_QUOTES, 'UTF-8') ?></div>
             <?php if ($isAuthenticated): ?>
-              <form class="logout-form" action="/logout.php" method="post">
-                <button type="submit" class="icon-btn ghost" aria-label="Se déconnecter">
+              <div class="profile-actions-inline">
+                <a class="pill icon-only" href="/user.php" aria-label="Paramètres">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M16 17l5-5-5-5" />
-                    <path d="M21 12H9" />
-                    <path d="M12 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2" />
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1 1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .69.4 1.3 1 1.58.19.09.4.14.61.14H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z" />
                   </svg>
-                </button>
-              </form>
+                </a>
+                <form class="logout-form" action="/logout.php" method="post">
+                  <button type="submit" class="pill icon-only" aria-label="Se déconnecter">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M16 17l5-5-5-5" />
+                      <path d="M21 12H9" />
+                      <path d="M12 19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2" />
+                    </svg>
+                  </button>
+                </form>
+              </div>
             <?php endif; ?>
           </div>
         </div>
