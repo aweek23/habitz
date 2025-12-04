@@ -1,0 +1,28 @@
+{
+  "name": "habitz-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Frontend tooling for the Habitz webapp using Tailwind CSS and UI plugins.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "postinstall": "vite build",
+    "verify": "node scripts/verify-bundle.js",
+    "lint": "echo 'Add your linter here'"
+  },
+  "devDependencies": {
+    "preline": "^2.7.0",
+    "@tailwindcss/forms": "^0.5.9",
+    "autoprefixer": "^10.4.20",
+    "daisyui": "^4.12.10",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.11",
+    "vite": "^6.0.3"
+  },
+  "dependencies": {
+    "flowbite": "^2.5.1",
+    "preline": "^2.7.0"
+  }
+}
