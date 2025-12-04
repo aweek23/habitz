@@ -1,6 +1,17 @@
-node_modules
-npm-debug.log*
-package-lock.json
-public/
+# Frontend tooling
+frontend/node_modules
+frontend/package-lock.json
+frontend/npm-debug.log*
+frontend/.vite
+frontend/dist
+
+# Build outputs
+public/assets/*
+!public/assets/.gitkeep
+public/css/*
+!public/css/.gitkeep
+public/index.html
+
+# System / environment
 .DS_Store
 .env
