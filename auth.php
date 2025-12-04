@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/config.php';
+require __DIR__ . '/config.php';
 
 if (!empty($_SESSION['user_id'])) {
     header('Location: ' . APP_HOME);
@@ -10,6 +10,44 @@ $auth_error = $_SESSION['auth_error'] ?? '';
 $auth_error_tab = $_SESSION['auth_error_tab'] ?? 'signup';
 $auth_debug = $_SESSION['auth_debug'] ?? '';
 unset($_SESSION['auth_error'], $_SESSION['auth_error_tab'], $_SESSION['auth_debug']);
+
+$selectedTab = $auth_error_tab === 'login' ? 'login' : 'signup';
+
+$dialingCodes = [
+    ['value' => '+33', 'label' => '+33 (FR)'],
+    ['value' => '+32', 'label' => '+32 (BE)'],
+    ['value' => '+41', 'label' => '+41 (CH)'],
+    ['value' => '+352', 'label' => '+352 (LU)'],
+    ['value' => '+49', 'label' => '+49 (DE)'],
+    ['value' => '+44', 'label' => '+44 (UK)'],
+    ['value' => '+34', 'label' => '+34 (ES)'],
+    ['value' => '+39', 'label' => '+39 (IT)'],
+    ['value' => '+212', 'label' => '+212 (MA)'],
+    ['value' => '+216', 'label' => '+216 (TN)'],
+    ['value' => '+213', 'label' => '+213 (DZ)'],
+    ['value' => '+1', 'label' => '+1 (US/CA)'],
+];
+
+$genderOptions = [
+    ['value' => '', 'label' => '— Sélectionner —'],
+    ['value' => 'Homme', 'label' => 'Homme'],
+    ['value' => 'Femme', 'label' => 'Femme'],
+    ['value' => 'Autre', 'label' => 'Autre'],
+];
+
+$tabs = [
+    'signup' => 'Créer un compte',
+    'login' => 'Se connecter',
+];
+
+function renderOptions(array $options): string
+{
+    return implode('', array_map(function (array $option) {
+        $value = htmlspecialchars($option['value'], ENT_QUOTES, 'UTF-8');
+        $label = htmlspecialchars($option['label'], ENT_QUOTES, 'UTF-8');
+        return "<option value=\"{$value}\">{$label}</option>";
+    }, $options));
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -23,8 +61,16 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab'], $_SESSION['auth_debu
 <section class="auth-screen">
   <div class="auth-card">
     <div class="auth-tabs">
-      <button id="tab-signup" class="auth-tab <?php echo ($auth_error_tab==='signup'?'active':''); ?>" type="button">Créer un compte</button>
-      <button id="tab-login" class="auth-tab <?php echo ($auth_error_tab==='login'?'active':''); ?>" type="button">Se connecter</button>
+      <?php foreach ($tabs as $tabKey => $tabLabel): ?>
+        <button
+          class="auth-tab <?php echo ($selectedTab === $tabKey ? 'active' : ''); ?>"
+          type="button"
+          data-tab="<?php echo htmlspecialchars($tabKey, ENT_QUOTES, 'UTF-8'); ?>"
+          aria-pressed="<?php echo ($selectedTab === $tabKey ? 'true' : 'false'); ?>"
+        >
+          <?php echo htmlspecialchars($tabLabel, ENT_QUOTES, 'UTF-8'); ?>
+        </button>
+      <?php endforeach; ?>
     </div>
 
     <!-- ========= CRÉER UN COMPTE ========= -->
@@ -45,12 +91,7 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab'], $_SESSION['auth_debu
         <span>Numéro de téléphone</span>
         <div class="phone-field">
           <select name="dial_code" id="dial_code" class="phone-code" aria-label="Indicatif">
-            <option value="+33">+33 (FR)</option><option value="+32">+32 (BE)</option>
-            <option value="+41">+41 (CH)</option><option value="+352">+352 (LU)</option>
-            <option value="+49">+49 (DE)</option><option value="+44">+44 (UK)</option>
-            <option value="+34">+34 (ES)</option><option value="+39">+39 (IT)</option>
-            <option value="+212">+212 (MA)</option><option value="+216">+216 (TN)</option>
-            <option value="+213">+213 (DZ)</option><option value="+1">+1 (US/CA)</option>
+            <?php echo renderOptions($dialingCodes); ?>
           </select>
           <input type="tel" name="phone_local" id="phone" placeholder="06 12 34 56 78" />
         </div>
@@ -76,10 +117,7 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab'], $_SESSION['auth_debu
       <label>
         <span>Genre</span>
         <select name="gender" id="gender">
-          <option value="">— Sélectionner —</option>
-          <option value="Homme">Homme</option>
-          <option value="Femme">Femme</option>
-          <option value="Autre">Autre</option>
+          <?php echo renderOptions($genderOptions); ?>
         </select>
       </label>
 
@@ -170,27 +208,29 @@ unset($_SESSION['auth_error'], $_SESSION['auth_error_tab'], $_SESSION['auth_debu
 </section>
 <script>
   (function () {
-    const signupForm = document.getElementById('signupForm');
-    const loginForm = document.getElementById('loginForm');
-    const tabSignup = document.getElementById('tab-signup');
-    const tabLogin = document.getElementById('tab-login');
+    const tabButtons = document.querySelectorAll('[data-tab]');
+    const forms = {
+      signup: document.getElementById('signupForm'),
+      login: document.getElementById('loginForm'),
+    };
 
-    function showSignup() {
-      signupForm.classList.remove('hidden');
-      loginForm.classList.add('hidden');
-      tabSignup.classList.add('active');
-      tabLogin.classList.remove('active');
+    function switchTab(tabKey) {
+      Object.entries(forms).forEach(([key, form]) => {
+        form.classList.toggle('hidden', key !== tabKey);
+      });
+
+      tabButtons.forEach((button) => {
+        const isActive = button.dataset.tab === tabKey;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', isActive);
+      });
     }
 
-    function showLogin() {
-      signupForm.classList.add('hidden');
-      loginForm.classList.remove('hidden');
-      tabSignup.classList.remove('active');
-      tabLogin.classList.add('active');
-    }
+    tabButtons.forEach((button) => {
+      button.addEventListener('click', () => switchTab(button.dataset.tab));
+    });
 
-    tabSignup.addEventListener('click', showSignup);
-    tabLogin.addEventListener('click', showLogin);
+    switchTab('<?php echo htmlspecialchars($selectedTab, ENT_QUOTES, 'UTF-8'); ?>');
   })();
 </script>
 </body>
