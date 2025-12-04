@@ -6,7 +6,7 @@
   --text: #dce5f3;
   --text-strong: #ffffff;
   --accent: #56b6ff;
-  --sidebar-width: 240px;
+  --sidebar-width: 112px;
   --search-col-width: 320px;
   --mobile-nav-height: 0px;
   --metric-card-height: 320px;
@@ -88,11 +88,11 @@ a {
 }
 
 .sidebar {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: linear-gradient(180deg, rgba(86, 182, 255, 0.16), rgba(15, 20, 28, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 18px;
+  padding: 18px 10px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   height: calc(100vh - 36px);
   position: sticky;
   top: 12px;
@@ -102,11 +102,11 @@ a {
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 12px;
   height: 100%;
-  overflow: auto;
-  padding: 0 6px;
-  scrollbar-width: none;
+  overflow: hidden;
+  padding: 10px 6px;
+  align-items: center;
 }
 
 .menu::-webkit-scrollbar {
@@ -115,44 +115,110 @@ a {
 .sidebar-header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 10px;
-  padding: 4px 6px 10px;
+  padding: 6px 10px 10px;
 }
 
 .menu-title {
   font-size: 16px;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   color: var(--text-strong);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 6px;
-  border-radius: 10px;
+  gap: 12px;
+  padding: 10px 8px;
+  border-radius: 18px;
   color: var(--muted);
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
   position: relative;
+  border: 1px solid transparent;
+  background: transparent;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
 }
 
 .menu-item:hover {
   background: rgba(255, 255, 255, 0.04);
   color: var(--text-strong);
+  border-color: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+
+.menu-item .menu-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.menu-item svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.menu-label {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-width 0.2s ease;
+}
+
+.menu-item.active {
+  color: var(--text-strong);
+  background: linear-gradient(135deg, rgba(86, 182, 255, 0.7), rgba(86, 182, 255, 0.32));
+  border-color: rgba(86, 182, 255, 0.8);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.32), 0 0 0 1px rgba(86, 182, 255, 0.32);
+}
+
+.menu-item.active .menu-icon {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: var(--text-strong);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.28);
+}
+
+.menu-item:hover .menu-icon {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text-strong);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+}
+
+.menu-item.active .menu-label {
+  opacity: 1;
+  max-width: 140px;
 }
 
 .icon-btn.ghost {
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  background: transparent;
   width: 42px;
   height: 42px;
+  color: var(--text-strong);
+  box-shadow: none;
 }
 
 .icon-btn.ghost svg {
   stroke: currentColor;
-  stroke-width: 1.4;
+  stroke-width: 1.6;
   fill: none;
 }
 
@@ -794,7 +860,23 @@ a {
 }
 
 .bottom-profile .logout-form {
-  margin: 0 0 0 auto;
+  margin: 0;
+}
+
+.profile-actions-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.profile-actions-inline .logout-form {
+  margin: 0;
+}
+
+.profile-actions-inline .icon-btn {
+  width: 42px;
+  height: 42px;
 }
 
 .profile-actions {
@@ -966,11 +1048,11 @@ a {
 }
 
 .sidebar {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: radial-gradient(140% 120% at 20% 10%, rgba(86, 182, 255, 0.24), rgba(15, 20, 28, 0.92) 40%), var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px 12px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   height: calc(100vh - 36px);
   position: sticky;
   top: 12px;
@@ -980,11 +1062,25 @@ a {
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
   height: 100%;
   overflow: auto;
-  padding: 0 6px;
+  padding: 8px;
   scrollbar-width: none;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 35%);
+  pointer-events: none;
 }
 
 .menu::-webkit-scrollbar {
@@ -995,42 +1091,95 @@ a {
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  padding: 4px 6px 10px;
+  padding: 6px 10px 14px;
 }
 
 .menu-title {
   font-size: 16px;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   color: var(--text-strong);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 6px;
-  border-radius: 10px;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 16px;
   color: var(--muted);
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
   color: var(--text-strong);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.menu-item .menu-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.menu-item svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.menu-label {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.menu-item.active {
+  color: var(--text-strong);
+  background: linear-gradient(135deg, rgba(86, 182, 255, 0.22), rgba(86, 182, 255, 0.08));
+  border-color: rgba(86, 182, 255, 0.65);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(86, 182, 255, 0.2);
+}
+
+.menu-item.active .menu-icon {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: var(--text-strong);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.28);
+}
+
+.menu-item:hover .menu-icon {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text-strong);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
 }
 
 .icon-btn.ghost {
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(86, 182, 255, 0.45);
+  background: linear-gradient(135deg, rgba(86, 182, 255, 0.18), rgba(86, 182, 255, 0.08));
   width: 42px;
   height: 42px;
+  color: var(--text-strong);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .icon-btn.ghost svg {
   stroke: currentColor;
-  stroke-width: 1.4;
+  stroke-width: 1.6;
   fill: none;
 }
 
@@ -1485,11 +1634,11 @@ a {
 }
 
 .sidebar {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  background: radial-gradient(140% 120% at 20% 10%, rgba(86, 182, 255, 0.24), rgba(15, 20, 28, 0.92) 40%), var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 16px 12px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   height: calc(100vh - 36px);
   position: sticky;
   top: 12px;
@@ -1499,11 +1648,25 @@ a {
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
   height: 100%;
   overflow: auto;
-  padding: 0 6px;
+  padding: 8px;
   scrollbar-width: none;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 35%);
+  pointer-events: none;
 }
 
 .menu::-webkit-scrollbar {
@@ -1514,42 +1677,95 @@ a {
   align-items: center;
   justify-content: flex-start;
   gap: 10px;
-  padding: 4px 6px 10px;
+  padding: 6px 10px 14px;
 }
 
 .menu-title {
   font-size: 16px;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   color: var(--text-strong);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 6px;
-  border-radius: 10px;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 16px;
   color: var(--muted);
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
   position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
   color: var(--text-strong);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.menu-item .menu-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.menu-item svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.menu-label {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.menu-item.active {
+  color: var(--text-strong);
+  background: linear-gradient(135deg, rgba(86, 182, 255, 0.22), rgba(86, 182, 255, 0.08));
+  border-color: rgba(86, 182, 255, 0.65);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(86, 182, 255, 0.2);
+}
+
+.menu-item.active .menu-icon {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.26);
+  color: var(--text-strong);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.28);
+}
+
+.menu-item:hover .menu-icon {
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text-strong);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
 }
 
 .icon-btn.ghost {
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(86, 182, 255, 0.45);
+  background: linear-gradient(135deg, rgba(86, 182, 255, 0.18), rgba(86, 182, 255, 0.08));
   width: 42px;
   height: 42px;
+  color: var(--text-strong);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .icon-btn.ghost svg {
   stroke: currentColor;
-  stroke-width: 1.4;
+  stroke-width: 1.6;
   fill: none;
 }
 
