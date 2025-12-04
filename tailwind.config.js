@@ -17,7 +17,7 @@ module.exports = {
   plugins: [
     require('daisyui'),
     require('flowbite/plugin'),
-    require('@preline/plugin'),
+    require('preline/plugin'),
     require('./frontend/plugins/hyperui'),
     require('@tailwindcss/forms')
   ],
