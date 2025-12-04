@@ -10,9 +10,6 @@ require_once __DIR__ . '/../backend/config.php';
     <link rel="stylesheet" href="/assets/main.css" />
   </head>
   <body class="bg-base-200 text-base-content">
-    <div class="bg-red-500 text-white p-4">
-  TEST TAILWIND
-</div>
     <div id="app">Chargement de l'interface Habitz...</div>
     <script type="module" src="/assets/main.js"></script>
     <noscript>Activez JavaScript pour charger l'interface.</noscript>
