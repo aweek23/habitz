@@ -1,0 +1,17 @@
+# Frontend tooling
+frontend/node_modules
+frontend/package-lock.json
+frontend/npm-debug.log*
+frontend/.vite
+frontend/dist
+
+# Build outputs
+public_html/assets/*
+!public_html/assets/.gitkeep
+public_html/css/*
+!public_html/css/.gitkeep
+public_html/index.html
+
+# System / environment
+.DS_Store
+.env
