@@ -13,6 +13,7 @@ Depuis le dossier `frontend/` :
 - `npm run build` : génère les assets de production dans `public_html/assets` sans supprimer les fichiers PHP.
 - `npm run preview` : sert le build généré.
 - Le `postinstall` déclenche `npm run build` automatiquement pour éviter d'oublier de régénérer le CSS/JS après installation des dépendances.
+- `npm run verify` : vérifie que `public_html/assets/main.css` et `main.js` existent, sont suffisamment volumineux et que le CSS est bien compilé (pas de directives `@tailwind`).
 
 ## Installation
 1. Installer Node.js 18+.
@@ -20,6 +21,13 @@ Depuis le dossier `frontend/` :
 3. Lancer le projet avec `npm run dev`.
 
 Les fichiers générés dans `public_html/assets/` sont maintenant versionnés : assurez-vous de committer le CSS/JS produits ou de les régénérer en CI pour que le PHP serve toujours les derniers styles.
+
+## Tutoriel : après chaque modification
+1. **Installer/mettre à jour les dépendances** : `npm install` (déclenche aussi le build automatique via `postinstall`).
+2. **Rebuild explicite si besoin** : `npm run build` pour intégrer vos nouveaux composants et classes Tailwind.
+3. **Vérifier les assets** : `npm run verify` pour s'assurer que `main.css` et `main.js` sont présents, compilés et suffisamment volumineux.
+4. **Commit** : inclure vos changements de source **et** les assets régénérés dans `public_html/assets/`.
+5. **Déploiement/CI** : prévoir `npm ci && npm run build && npm run verify` dans la pipeline pour détecter tôt les soucis de compilation ou d'assets manquants.
 
 ## Problème traité : styles manquants sur les nouveaux composants
 - Symptôme : lorsqu'un composant est ajouté (HTML visible dans la page), les classes Tailwind associées ne sont pas présentes dans le bundle CSS servi depuis `public_html/assets/main.css`.

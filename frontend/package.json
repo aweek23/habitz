@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "postinstall": "vite build",
+    "verify": "node scripts/verify-bundle.js",
     "lint": "echo 'Add your linter here'"
   },
   "devDependencies": {
