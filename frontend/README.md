@@ -7,6 +7,13 @@ Pile Tailwind CSS avec daisyUI, un plugin HyperUI maison, Preline et Flowbite. L
 - `backend/` : logique PHP et configuration sensible (non exposée depuis `public_html/`).
 - `public_html/` : point d'entrée PHP (`index.php`) et assets compilés (`assets/`, `css/`).
 
+## Où appliquer vos modifications
+- **Point d'entrée** : `frontend/src/main.js` importe les styles et choisit quel composant monter dans le conteneur `#app` injecté par `public_html/index.php`.
+- **Contenu de la page** : `frontend/src/pages/HomePage.js` définit la mise en page principale (sections, cartes, textes, boutons).
+- **Composants réutilisables** : `frontend/src/components/` (par exemple `Header.js`, `FeatureCard.js`) pour changer l'en-tête ou les blocs réutilisés.
+- **Styles globaux** : `frontend/src/styles/index.css` pour les directives Tailwind ou styles additionnels.
+- **Ne pas modifier directement** `public_html/index.php` ou les assets générés : ils sont produits par le build Vite (`npm run build`).
+
 ## Scripts
 Depuis le dossier `frontend/` :
 - `npm run dev` : lance Vite sur `http://localhost:5173` avec rechargement à chaud.
